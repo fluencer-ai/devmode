@@ -1,0 +1,87 @@
+---
+name: code-review
+description: >-
+  Review a change before it's "done" — run the review panel, act on every
+  finding, and re-verify — and know how to request a review and how to receive
+  one. Use at any change/PR boundary or phase completion, especially for
+  critical modules (auth/money/security), and when the user says "review this",
+  "is this ready to merge?", "code review", "check my change". The author is
+  blind to their own gaps; independent review is what catches them before they
+  ship.
+---
+
+# Code review
+
+You cannot see your own blind spots — that's what makes them blind spots. In a
+devmode smoke test, the implementer shipped a feature that *looked* complete, and
+an independent review lane immediately found two real gaps (an untested boundary
+module and an unpinned security invariant). That is the rule, not the exception.
+This skill is the discipline that turns "looks done" into "reviewed and proven".
+
+**How this relates to the rest:** the *who* are the review agents
+(`complexity-reviewer` leads; `code-quality-analyzer`, `security-scanner`,
+`test-coverage-analyzer` are the lanes). One execution mode,
+[`subagent-driven-development`](../subagent-driven-development/SKILL.md), builds
+review in per-task. This skill is the review *standard* and the
+request → receive → act → re-verify *loop* you apply at any change boundary,
+whether or not you're using that mode.
+
+## Two stages, in order
+
+Review in two passes — wrong order lets over/under-building slip through:
+
+1. **Spec compliance first.** Does the change do what the spec/PRD asked —
+   nothing missing, nothing extra? Issues here mean it's not done yet.
+2. **Quality second** (only once spec is ✅). The panel in parallel:
+   - **design & entropy** (`complexity-reviewer`): deep vs. shallow modules,
+     leaked internals, growing interfaces, dead code.
+   - **code quality** (`code-quality-analyzer`): readability, duplication, naming.
+   - **security** (`security-scanner`): vulnerabilities, secret leakage, authz.
+   - **test adequacy** (`test-coverage-analyzer`): untested behaviors/edges/ACs.
+
+**Critical modules** (auth, money, security, irreversible effects) are reviewed
+**in full** — never accepted on a gray-box basis.
+
+## Requesting a review (make the reviewer effective)
+
+A reviewer who has to guess scope reviews badly. Give them:
+- **The change** (the diff/files) and **the contract** it should meet (spec/PRD,
+  interface, acceptance criteria).
+- **What's critical** and what to focus on (e.g. "this touches auth — scrutinize
+  the signature comparison").
+- **What's out of scope**, so they don't flag deliberate omissions.
+
+## Receiving a review (the part that's hard)
+
+This is where the value is realized or lost:
+
+- **Treat every finding as a gift**, not an attack. The reviewer found something
+  you couldn't see — that's the whole point.
+- **Fix the root cause**, not the symptom. If it's a bug, switch to
+  [`systematic-debugging`](../systematic-debugging/SKILL.md).
+- **Adopt the finding; verify the *fix*, not just the diagnosis.** A reviewer's
+  finding can be right while the remedy they suggest is wrong — it can break a
+  behavior the finding never mentioned (in a smoke test, a security lane correctly
+  found a quota-reset bypass but proposed a fix that would have disabled the
+  legitimate window reset). Take the problem; design the fix yourself against the
+  spec; re-run the suite to prove it closes the finding *without* regressing.
+- **Re-verify after fixing** — apply
+  [`verification-before-completion`](../verification-before-completion/SKILL.md)
+  to the fix; a fix you didn't run isn't a fix. The reviewer re-checks; don't
+  skip the re-review.
+- **Don't rationalize a finding away.** "It's probably fine", "edge case won't
+  happen", "I'll do it later" is exactly the gap that ships. If you disagree,
+  say why with evidence — don't dismiss silently.
+- **Don't mark done with open findings.** Spec-reviewer found issues = not done.
+
+## Red flags
+
+- Marking a change complete without any review on a critical module.
+- Starting the quality pass before spec compliance is ✅.
+- Arguing with or ignoring a finding instead of fixing or refuting it with evidence.
+- Trusting an agent's "approved" without seeing the findings.
+- Fixing a finding and claiming done without re-running verification.
+
+> Consolidated from `obra/superpowers` (`requesting-code-review` +
+> `receiving-code-review`), MIT. The parallel review-panel lanes are adapted from
+> `rbarcante/claude-conductor` (Apache-2.0). Reframed in the devmode voice.

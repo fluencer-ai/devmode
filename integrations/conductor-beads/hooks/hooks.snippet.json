@@ -1,0 +1,16 @@
+{
+  "_comment": "devmode guardrails — merge this into .claude/settings.json (install.sh --with-guardrails does it for you). A deterministic PreToolUse gate; see hooks/guardrails.py.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/guardrails.py\""
+          }
+        ]
+      }
+    ]
+  }
+}
