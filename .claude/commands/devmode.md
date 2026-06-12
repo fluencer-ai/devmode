@@ -5,13 +5,54 @@ argument-hint: start <name> <idea> | adopt <folder> | goal <objective> | <idea> 
 
 # /devmode — guided mode
 
-Drive the whole devmode process via the **devmode-orchestrator** agent
-(`.claude/agents/devmode-orchestrator.md`): do all the mechanical work, pause
-only at the human decision gates (as easy structured A/B/C choices).
+**On a full `/devmode` invocation — Mode A (`start`), Mode C (`adopt`), Mode D
+(`goal`/`plan`), or Mode B (a bare idea / blank resume) — your FIRST action MUST
+be to DELEGATE to the `devmode-orchestrator` agent via the Task tool**
+(`subagent_type: "devmode-orchestrator"`), briefing it with the current state and
+the decision at hand. Do **not** embody the phase machine inline — *spawn the
+orchestrator and relay its gate*. The orchestrator does the mechanical work and
+pauses only at the human decision gates (easy structured A/B/C choices). The **ONE
+exception is `/devmode c`** (Mode C-lite, below): it runs inline with the per-turn
+gates and must NOT spin up the orchestrator.
+
+This is **enforced, not advisory** (text alone gets ignored under pressure): the
+`devmode_phase_gate.py` **Stop hook BLOCKS** ending a full `/devmode` turn that did
+not spawn the orchestrator — override only with `DEVMODE-OK: <reason>` when
+delegation genuinely doesn't apply (e.g. a one-line resume). The same hook
+**auto-refreshes `devmode-dashboard.html`** from `.devmode/scorecard.json`, so the
+dashboard can never go stale (it used to, because nothing forced the refresh).
+
+> ⚠️ **Run `/devmode` from the project directory** (the one with `.devmode/`,
+> `conductor/`, `.claude/`). If the session is rooted elsewhere (e.g. the devmode
+> base repo), that project's `verify_gate.py`/`guardrails.py` hooks don't load
+> (they key off `$CLAUDE_PROJECT_DIR`) and the ops-safety gates go inert.
 
 Raw input: **$ARGUMENTS**
 
 ## Decide the mode from $ARGUMENTS
+
+### Mode C-lite — `c [comentário]`  (first token is `c`)  ← CHECK THIS FIRST
+The **per-turn discipline trigger**. Use for ops/debug/any ad-hoc work where the
+heavy phase machine doesn't fit but the devmode *gates* must still apply. Do **NOT**
+spin up the orchestrator, tracks, or phases. Parse everything after `c` as the task.
+
+Apply this **operating contract** to the task this turn (it's why the gate exists —
+CLAUDE.md alone gets ignored under pressure; here the gates are re-injected live and
+the `Stop` hook `verify_gate.py` *enforces* the last one):
+
+1. **Root cause before any change** (`systematic-debugging`). If something is broken,
+   *investigate and state the root cause first*. No fix, rebuild, or config change
+   before you can name the cause. Don't guess-and-rebuild.
+2. **Risky op → backup first, then plan the check.** Before
+   `rebuild`/`docker build`/`deploy`/`.env` changes: back up images + `.env`; never
+   `--full`/`--super-power` (wrong-direction sync). Say how you'll verify *before* you act.
+3. **No "done" without fresh end-to-end evidence** (`verification-before-completion`).
+   Run a real check (a job reaching `completed/`, tests passing, a container log /
+   HTTP 200) and *show it*. The `Stop` hook blocks the turn otherwise. If a check
+   truly doesn't apply, write `VERIFY-OK: <reason>`.
+4. **Honest self-read** — if you slipped on 1–3, say so plainly (`self-scorecard`).
+
+Then do `[comentário]` under that contract. Keep the user *led, not quizzed*.
 
 ### Mode A — `start <name> <idea>`  (first token is `start`)
 Scaffold a brand-new project under `workspaces/` and begin work in it. Parse the
@@ -23,7 +64,7 @@ after** as `<idea>`.
    from the devmode repo. Refuse if `workspaces/<name>` already exists (suggest a
    new name or `/devmode` to resume).
 2. **Scaffold (copy everything in):** run the installer to copy the devmode base
-   (CLAUDE.md, 37 skills, 8 agents, references), mount the Conductor layer, drop
+   (CLAUDE.md, 38 skills, 8 agents, references), mount the Conductor layer, drop
    the orchestrator + `/devmode` command, init Beads, and **wire the deterministic
    guardrails hook**:
    ```bash

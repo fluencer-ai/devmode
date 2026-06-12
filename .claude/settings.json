@@ -1,0 +1,15 @@
+{
+  "_comment": "devmode self-enforcement. The base repo carries the devmode ceremony gate so that when a session is ROOTED here (working on a project from the devmode repo), the gate still bites — it was previously inert because this repo had no settings.json. The phase gate (a) auto-refreshes any project's devmode-dashboard.html from its .devmode/scorecard.json, and (b) blocks ending a full /devmode turn that did NOT delegate to the devmode-orchestrator agent (override: write 'DEVMODE-OK: <reason>'). Project-level ops-safety hooks (guardrails.py PreToolUse + verify_gate.py Stop) are installed per-project and load when the session is rooted IN that project — prefer running /devmode from the project dir so those also bite.",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/devmode_phase_gate.py\""
+          }
+        ]
+      }
+    ]
+  }
+}

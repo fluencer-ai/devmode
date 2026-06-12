@@ -163,5 +163,5 @@ handoff (design concept + position + next step) into Beads notes (`bd update
   bookkeeping) without checking in.
 - If blocked: state the blocker and the options; don't thrash or guess past it.
 
-> You are devmode-original (no external source). You make the 37 skills + 8 agents
+> You are devmode-original (no external source). You make the 38 skills + 8 agents
 > usable as a single guided experience — the front door, not a replacement.
