@@ -30,6 +30,7 @@ reused (no files copied), as noted.
 | `skills/accessibility`, `skills/ux-design` | authored for devmode; a11y from `references/accessibility-checklist.md` (agent-skills) | addyosmani/agent-skills (a11y ref) + devmode-original (ux-design) | MIT |
 | `scripts/audit_skills.py` — description-overlap detector + trigger-word lint | `scripts/detect_dupes.sh` (Jaccard) + `scripts/lint.sh` (trigger/length) | [khendzel/skills-janitor](https://github.com/khendzel/skills-janitor) | MIT |
 | `skills/discovery` — codebase reverse-engineering for `/devmode adopt` | Scout/Soul/Detective/Architect prompt pipeline + 🟢/🟡/🔴 confidence scale | [sandeco/reversa](https://github.com/sandeco/reversa) | MIT |
+| `skills/doc-contracts` — hierarchical AGENTS.md doc-contract tree (pre-edit traversal + post-edit doc pass) | the `AGENTS.md` framework file | [agent0ai/dox](https://github.com/agent0ai/dox) | MIT |
 | `skills/self-scorecard`, `scripts/scorecard.py`, `scripts/dashboard.py` | — devmode-original — | (none) | — |
 | `skills/goal-brief`, `scripts/goal_brief.py` | — devmode-original — (emits Claude Code `/goal` & `/plan` commands; the commands are referenced, not vendored) | (none) | — |
 | `integrations/conductor-beads` (STATE.md memory pattern) | `templates/state.md` | gsd-build/get-shit-done | MIT (archived) |
@@ -55,6 +56,11 @@ reused (no files copied), as noted.
   its license.
 - **get-shit-done** is MIT but **archived** (the maintained successor is "GSD
   Redux"). We mined prose patterns only; we did not depend on its code/engine.
+- **NguyenSiTrung/Conductor-Beads** (Apache-2.0) is the upstream toolkit the
+  integration *mounts*: `install.sh --with-conductor` clones it at install time
+  into the target project. **No Conductor-Beads code is vendored in this repo**;
+  the integration's own templates/adapters were written for devmode (with the
+  ADR/panel patterns adapted from `rbarcante/claude-conductor`, attributed above).
 - The original viral skill that inspired devmode's `grill-me` traces to
   obra/superpowers' `brainstorming`; both descend from the same lineage.
 

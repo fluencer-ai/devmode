@@ -1,0 +1,13 @@
+# OS cruft
+.DS_Store
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Generated artifacts (each project generates its own)
+devmode-dashboard.html
+.devmode/scorecard.json
+.devmode/gates.json
+
+# workspaces/ is scratch — its own .gitignore whitelists only README + itself
