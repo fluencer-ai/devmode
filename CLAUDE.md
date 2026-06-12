@@ -108,6 +108,7 @@ development. Reach for them whenever the work touches their area.
   · [`git-workflow`](skills/git-workflow/SKILL.md) · [`migration`](skills/migration/SKILL.md)
   · [`shipping`](skills/shipping/SKILL.md)
 - **Practices:** [`documentation`](skills/documentation/SKILL.md)
+  · [`doc-contracts`](skills/doc-contracts/SKILL.md)
   · [`context-engineering`](skills/context-engineering/SKILL.md)
   · [`source-of-truth`](skills/source-of-truth/SKILL.md)
 
@@ -184,6 +185,27 @@ that base — the base stays the source of truth:
   Claude `/goal`/`/plan` command referencing the spec; `/devmode [idea]`
   guides/resumes in the current project. It shows a `self-scorecard` at every gate
   and refreshes `devmode-dashboard.html` (the zero-setup, no-server visualization).
+  For ad-hoc ops/debug, **`/devmode c [comment]`** applies the gates *per-turn*
+  (root-cause-first, evidence-before-done) without spinning up the phase machine —
+  the cheap trigger for "don't abandon the discipline when things break".
+- **Enforcement, not advice (the gates bite).** `--with-guardrails` wires three
+  deterministic hooks into `.claude/settings.json`: a **PreToolUse guardrail**
+  (`guardrails.py`, blocks dangerous ops); a **Stop `verify_gate.py`** that
+  *blocks ending a turn* after a rebuild / `docker build` / deploy / restart / `.env`
+  change with no fresh end-to-end check after it — making
+  [`verification-before-completion`](skills/verification-before-completion/SKILL.md)
+  enforced rather than advisory; and a **Stop `devmode_phase_gate.py`** that
+  enforces the *ceremony* (the part most easily skipped under pressure): it
+  **auto-refreshes `devmode-dashboard.html`** from `.devmode/scorecard.json` (so the
+  dashboard can't go stale) and **blocks ending a full `/devmode` turn that did not
+  delegate to the `devmode-orchestrator` agent** (embodying the phase machine inline
+  is the failure mode this catches). Conscious overrides: `VERIFY-OK: <reason>` /
+  `DEVMODE-OK: <reason>` when a check genuinely doesn't apply. (CLAUDE.md text alone
+  loses to pressure — that's *why* these are hooks, not prose.) **Run `/devmode`
+  from the project dir**: hooks key off `$CLAUDE_PROJECT_DIR`, so a session rooted in
+  the base repo leaves the *project's* guardrail/verify gates inert — the base repo
+  now ships its own `.claude/settings.json` wiring the phase-gate so the ceremony
+  still bites from here.
 
 ## Workspaces — experiment without touching the base
 

@@ -38,7 +38,7 @@ Dentro de `devmode/` você tem quatro tipos de peça:
 
 | Peça | O que é | Onde fica |
 |------|---------|-----------|
-| **37 skills** | 20 de *processo* + 14 de *domínio* + 3 *meta* (`self-scorecard`, `discovery`, `goal-brief`) | `skills/<nome>/SKILL.md` |
+| **38 skills** | 20 de *processo* + 15 de *domínio* + 3 *meta* (`self-scorecard`, `discovery`, `goal-brief`) | `skills/<nome>/SKILL.md` |
 | **8 agentes** | Subagentes que encarnam papéis do processo (inclui o painel de review) | `.agents/*.md` |
 | **2 referências** | Fundamentos teóricos e guia de diagnóstico | `references/*.md` |
 | **templates + script** | Modelos (PRD, glossário) + auditor da pack (`scripts/audit_skills.py`) | `skills/*/assets/`, `scripts/` |
@@ -93,7 +93,7 @@ O processo tem duplas projetadas para se reforçar:
 - **`code-review` ↔ `verification-before-completion`** — o painel acha os
   buracos; cada correção é *re-verificada* antes de fechar (loop achar→corrigir→provar).
 
-### As 14 skills de domínio (craft cross-cutting)
+### As 15 skills de domínio (craft cross-cutting)
 
 Não são fases — são *expertise* que os agentes puxam **durante** as fases:
 
@@ -105,12 +105,15 @@ Não são fases — são *expertise* que os agentes puxam **durante** as fases:
   (medir antes), `browser-testing` (verificar no browser; conteúdo = dado não-confiável).
 - **Ops & entrega:** `ci-cd-automation` (gate automático), `git-workflow`,
   `migration` (strangler/expand-contract), `shipping` (rollout + rollback).
-- **Práticas:** `documentation` (ADRs, o *porquê*), `context-engineering`,
-  `source-of-truth` (checar versão/docs, não a memória).
+- **Práticas:** `documentation` (ADRs, o *porquê*), `doc-contracts` (árvore de
+  AGENTS.md — contratos locais por área, lidos antes de editar e atualizados no
+  mesmo commit), `context-engineering`, `source-of-truth` (checar versão/docs,
+  não a memória).
 
 Importadas de `addyosmani/agent-skills` (MIT), generalizadas para a base
 tool-agnostic; `ux-design`/`accessibility` foram **escritas** para preencher a
-lacuna de design. A meta de cobertura cega foi reconciliada com a base.
+lacuna de design; `doc-contracts` adaptada de `agent0ai/dox` (MIT). A meta de
+cobertura cega foi reconciliada com a base.
 
 ---
 
@@ -350,7 +353,7 @@ do merge.
 Em **toda fase**, o orquestrador mostra um **score** (skill `self-scorecard`): resumo do que foi feito + nota 0–10 em 5 critérios (Correctness, Design, Testing, Safety, Clarity) com deltas (`.devmode/scorecard.py`), e atualiza um **dashboard visual** (`.devmode/dashboard.py` → `devmode-dashboard.html`, sem servidor nem registro). O dashboard traz uma **faixa de KPIs**, uma **esteira do workflow** (as fases Align→Refactor, alcançadas/atual), um **timeline por fase**, um **sparkline** da tendência de score, e um **painel de Gates** alimentado por `.devmode/gates.json` (emitido por um `ci/check.sh`). No fim, `--final` dá **recomendações por critério**. O dashboard é **zero-setup,
 sem servidor nem registro** — basta abrir o `devmode-dashboard.html`.
 
-Os 37 skills e 8 agentes são a **base agnóstica de ferramenta** — funcionam
+Os 38 skills e 8 agentes são a **base agnóstica de ferramenta** — funcionam
 sozinhos. Mas quando o trabalho dura muitas sessões, falta ao devmode uma espinha
 de **orquestração** (tracks, status, dependências) e de **memória persistente**
 (que sobrevive à compactação da conversa). É aí que entra a integração:
