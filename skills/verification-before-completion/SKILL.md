@@ -3,7 +3,7 @@ name: verification-before-completion
 description: >-
   Require fresh verification evidence before claiming any work is done, fixed,
   passing, or correct — and before committing, opening a PR, or moving to the
-  next task. Use this whenever you're about to say "done", "fixed", "it works",
+  next task. Use when you're about to say "done", "fixed", "it works",
   "tests pass", "ready to merge", or express satisfaction ("great", "perfect").
   Also use before trusting a subagent's "success" report. Claiming completion
   without running the check is a correctness and trust failure, not efficiency.
@@ -55,6 +55,7 @@ Skipping any step is asserting, not verifying.
 | Subagent finished | The VCS diff / output inspected | the agent's "success" report |
 | Requirements met | Line-by-line check against the spec/PRD | "tests pass, so it's done" |
 | Gate is green | The gate actually *ran over the file you changed* | exit 0 (a glob/path may have skipped it) |
+| Config/deploy applied | The **running** system reflects it (live env, endpoint, behavior) | the source/host file is correct on disk |
 
 ## Red flags — stop before you speak
 
@@ -67,7 +68,30 @@ Skipping any step is asserting, not verifying.
   doesn't recurse (bash without `globstar`), an over-broad exclude, a path typo.
   A passing gate proves nothing about code it never executed; confirm the gate
   *covered your change*, not just that it exited 0.
+- **Verified the source/config, not the running process that uses it** — editing a
+  file, regenerating a config, or rebuilding an image proves nothing until the *live*
+  system loads it. A restart may not reload env; a build may not be deployed; a fix
+  in `src/` may not be in the running `dist/`. Check the live artifact, not the file.
 - Different wording to dodge the rule — spirit over letter
+
+## Verify the running state, not the source
+
+For anything deployed, containerized, or long-running, **"the file is correct on
+disk" ≠ "the running system uses it."** The most expensive misses come from
+verifying the thing you *edited* instead of the thing that's *executing*:
+
+- Changed `src/` but the container runs a stale compiled `dist/` → rebuild **and**
+  confirm the new code is in the running image.
+- Fixed a value in `.env`/config but the process kept the old env → a plain
+  `restart` often does **not** reload env files; recreate the process and read its
+  *live* env back (e.g. `docker exec <c> env | grep VAR`), don't re-read the host file.
+- Deployed a change but didn't exercise it → run the real path end-to-end (a job
+  that completes, a request that returns 200) and read the result.
+
+Rule of thumb: **observe the live system reflecting your change** — its actual env,
+output, or behavior — before you call it done. The config on disk is a hypothesis;
+the running process is the evidence. (In devmode projects this is enforced by the
+`verify_gate.py` Stop hook after rebuild/deploy/restart/`.env` changes.)
 
 ## Rationalizations
 
