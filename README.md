@@ -98,7 +98,7 @@ The installer establishes the devmode **base** and optionally mounts the
 Conductor **layer** and **guardrails**:
 
 ```bash
-git clone <this-repo> devmode && cd devmode
+git clone https://github.com/fluencer-ai/devmode.git && cd devmode
 integrations/conductor-beads/install.sh /path/to/your/project --with-guardrails --beads-stealth
 ```
 
