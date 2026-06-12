@@ -176,25 +176,33 @@ if [ "$GUARDRAILS" -eq 1 ]; then
   mkdir -p "$PROJECT_DIR/.claude/hooks"
   copy_template "$SCRIPT_DIR/hooks/guardrails.py"      "$PROJECT_DIR/.claude/hooks/guardrails.py"
   copy_template "$SCRIPT_DIR/hooks/test_guardrails.py" "$PROJECT_DIR/.claude/hooks/test_guardrails.py"
-  # Idempotently merge the PreToolUse hook into .claude/settings.json
-  python3 - "$PROJECT_DIR/.claude/settings.json" <<'PY' && ok "wired PreToolUse guardrail into .claude/settings.json" || warn "could not merge settings.json — merge hooks/hooks.snippet.json by hand"
+  copy_template "$SCRIPT_DIR/hooks/verify_gate.py"     "$PROJECT_DIR/.claude/hooks/verify_gate.py"
+  copy_template "$SCRIPT_DIR/hooks/devmode_phase_gate.py" "$PROJECT_DIR/.claude/hooks/devmode_phase_gate.py"
+  # Idempotently merge the PreToolUse guardrail + the Stop verify-gate + the Stop phase-gate into settings.json
+  python3 - "$PROJECT_DIR/.claude/settings.json" <<'PY' && ok "wired PreToolUse guardrail + Stop verify-gate + Stop phase-gate into .claude/settings.json" || warn "could not merge settings.json — wire hooks by hand"
 import json, os, sys
 path = sys.argv[1]
-cmd = 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/guardrails.py"'
-entry = {"matcher": "Bash|Write|Edit|MultiEdit|NotebookEdit",
-         "hooks": [{"type": "command", "command": cmd}]}
+pre_cmd = 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/guardrails.py"'
+stop_cmd = 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/verify_gate.py"'
+phase_cmd = 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/devmode_phase_gate.py"'
 data = {}
 if os.path.isfile(path):
     try: data = json.load(open(path))
     except Exception: data = {}
 hooks = data.setdefault("hooks", {})
 pre = hooks.setdefault("PreToolUse", [])
-already = any(h.get("command") == cmd for g in pre for h in g.get("hooks", []))
-if not already:
-    pre.append(entry)
-    json.dump(data, open(path, "w"), indent=2)
+if not any(h.get("command") == pre_cmd for g in pre for h in g.get("hooks", [])):
+    pre.append({"matcher": "Bash|Write|Edit|MultiEdit|NotebookEdit",
+                "hooks": [{"type": "command", "command": pre_cmd}]})
+stop = hooks.setdefault("Stop", [])
+for cmd in (stop_cmd, phase_cmd):
+    if not any(h.get("command") == cmd for g in stop for h in g.get("hooks", [])):
+        stop.append({"hooks": [{"type": "command", "command": cmd}]})
+json.dump(data, open(path, "w"), indent=2)
 PY
   warn "guardrails block: sudo, force-push, --no-verify, rm -rf /, writes to .env/.git/secrets; ask: reset --hard, scoped rm -rf, reading secrets."
+  warn "verify-gate (Stop): blocks ending a turn after rebuild/docker build/deploy/.env without a fresh end-to-end check (override: write 'VERIFY-OK: <reason>')."
+  warn "phase-gate (Stop): auto-refreshes devmode-dashboard.html from .devmode/scorecard.json, and blocks ending a full /devmode turn that did NOT delegate to the devmode-orchestrator agent (override: write 'DEVMODE-OK: <reason>')."
 else
   info "skipping guardrails (use --with-guardrails to enable deterministic enforcement)"
 fi

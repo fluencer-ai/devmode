@@ -32,7 +32,7 @@ do not replace it.
  ║ feedback-loops · tdd · testing-principles · confidence-check ·            ║
  ║ impact-analysis · systematic-debugging · verification-before-completion · ║
  ║ subagent-driven-development · delegate-to-cli ·                           ║
- ║ improve-codebase-architecture · authoring-skills · …  (37 skills total)   ║
+ ║ improve-codebase-architecture · authoring-skills · …  (38 skills total)   ║
  ║                                                                           ║
  ║ + 8 agents: design-architect · requirements-planner · tdd-implementer ·   ║
  ║ architecture-refactorer · complexity-reviewer + review panel              ║

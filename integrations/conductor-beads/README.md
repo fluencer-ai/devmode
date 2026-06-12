@@ -27,8 +27,10 @@ aqui, na casca.
 |---------|----------|
 | `INTEGRATION.md` | O **mapa**: cada skill do devmode → fase do Conductor → ação do Beads. Leia primeiro. |
 | `agents/devmode-orchestrator.md` | O **orquestrador**: conduz todo o processo fase a fase, pausando só nos gates de decisão. |
-| `commands/devmode.md` | O slash-command **`/devmode`** — a porta de entrada do modo guiado. |
+| `commands/devmode.md` | O slash-command **`/devmode`** — a porta de entrada do modo guiado. Inclui **`/devmode c [comentário]`** (Mode C-lite): gatilho de disciplina por-turno p/ ops/debug (causa-raiz-antes-de-mexer, evidência-antes-de-pronto) sem subir a máquina de fases. |
 | `hooks/guardrails.py` (+ teste) | **Guardrails (gates-as-code)**: hook PreToolUse determinístico que bloqueia operações perigosas. Opcional (`--with-guardrails`). |
+| `hooks/verify_gate.py` | **Verify-gate (gates-as-code)**: hook **Stop** que **bloqueia encerrar o turno** após rebuild/docker build/deploy/restart/escrita-`.env` sem uma verificação end-to-end depois (override: escrever `VERIFY-OK: <motivo>`). Enforce determinístico do `verification-before-completion`. Opcional (`--with-guardrails`). |
+| `hooks/devmode_phase_gate.py` | **Phase-gate (gates-as-code)**: hook **Stop** que (1) **auto-atualiza `devmode-dashboard.html`** a partir do `.devmode/scorecard.json` (o dashboard nunca mais fica velho — antes dependia de eu lembrar de rodar `dashboard.py`); e (2) **bloqueia encerrar um turno de `/devmode` cheio** que **não delegou** ao agente `devmode-orchestrator` (override: `DEVMODE-OK: <motivo>`). Robusto ao cwd-errado: acha o `.devmode` do projeto pelo transcript. Enforce determinístico da **cerimônia** (delegação + dashboard) que o texto sozinho perde sob pressão. Opcional (`--with-guardrails`). |
 | `install.sh` | Bootstrap: estabelece a **base devmode** e monta a **camada Conductor** num projeto real. |
 | `templates/CLAUDE.md` | O **CLAUDE.md de projeto**: declara devmode como base e Conductor como camada. É o que torna o devmode a fundação. |
 | `templates/workflow.md` | Adaptador do ciclo de tarefa (defere aos skills do devmode): TDD + FCIS + gray boxes + princípios de teste (substitui a meta de ">80% cobertura"). |
@@ -46,7 +48,7 @@ agentes + referências + linguagem ubíqua) e depois **monta a camada Conductor*
 
 ### Opção A — base + camada + comandos + memória (completa)
 ```bash
-cd /Users/gabrielsorrentino/Projects/devmode/integrations/conductor-beads
+cd <devmode-repo>/integrations/conductor-beads
 ./install.sh /caminho/do/projeto --with-conductor --beads-stealth
 ```
 
@@ -67,7 +69,7 @@ Flags:
 | *(padrão)* | Copia a base devmode (CLAUDE.md, skills, agentes, referências) para `<projeto>/.claude/` + raiz. |
 | `--no-skills` | **Não** copia skills/agentes/referências (usa um devmode instalado globalmente). O CLAUDE.md base ainda é escrito. |
 | `--with-conductor` | Clona o Conductor-Beads e copia seus slash-commands + skills `conductor`/`beads`. Pule se já estiverem globais. |
-| `--with-guardrails` | Instala o hook determinístico de guardrails (gates-as-code) e o liga no `.claude/settings.json`. |
+| `--with-guardrails` | Instala os hooks determinísticos (gates-as-code) e os liga no `.claude/settings.json`: **PreToolUse** guardrails (bloqueia ops perigosas) + **Stop** verify-gate (exige verificação end-to-end após rebuild/deploy/restart/`.env`). |
 | `--beads` / `--beads-stealth` | Roda `bd init` (normal / local-only). |
 | `--force` | Sobrescreve arquivos escritos por este instalador. |
 
@@ -110,3 +112,11 @@ recomendação). Você é *levado pelo processo*, mas continua decidindo a estra
 7. `improve-codebase-architecture` no `refresh`/`archive` para conter entropia.
 
 Detalhes completos: [`INTEGRATION.md`](INTEGRATION.md).
+
+---
+
+> **Créditos:** a camada monta o toolkit upstream
+> [NguyenSiTrung/Conductor-Beads](https://github.com/NguyenSiTrung/Conductor-Beads)
+> (Apache-2.0), clonado em tempo de instalação com `--with-conductor` — nunca
+> vendorizado aqui. Padrões de ADR/painel de review adaptados de
+> `rbarcante/claude-conductor` (Apache-2.0). Mapa completo: [`ATTRIBUTION.md`](../../ATTRIBUTION.md).
