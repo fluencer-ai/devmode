@@ -350,12 +350,13 @@ do merge.
 - **`/devmode adopt <pasta>`** — implanta o devmode num **projeto existente** e roda **discovery** (skill `discovery`, estilo reversa): varre o código, detecta stack, monta o **mapa de módulos** + glossário em `UBIQUITOUS_LANGUAGE.md` e um `DISCOVERY.md` (conceito de design provisório + arquitetura), com tags 🟢/🟡/🔴 — e a fase ALIGN ataca os 🔴 com você. Se a pasta já tem `CLAUDE.md`, ele é **preservado byte-a-byte** — o instalador só acrescenta um ponteiro idempotente `@CLAUDE.devmode.md` (composição via import nativo; suas instruções continuam o host e têm precedência). Nada de reescrever; merge num arquivo só é opcional, se você pedir.
 - **`/devmode goal <objetivo>`** (opt-in) — gera um comando **`/goal` pronto** (≤3800 chars) que referencia o `spec.md` em detalhe (passo-a-passo + testes + critérios de aceite), com o limite **garantido por script** (`.devmode/goal_brief.py`). Use `plan <objetivo>` para um `/plan` (planejar o goal — a recursão `/plan ↔ /goal`). O devmode **não executa o `/goal` sozinho** (um agente não dispara slash-command); ele **te entrega o comando** para você rodar a cada iteração. Não fica embutido no fluxo normal — só quando você pede.
 - **`/devmode <ideia>`** — guia/retoma no projeto atual.
-- **`/do <tarefa>`** — para **uma tarefa só** (não um projeto): roteia a frase
-  para a(s) skill(s)+agente certos e roda um pipeline curto com gates de evidência
-  (Entender → Planejar → Executar → Verificar → Entregar). É o irmão de tarefa
-  única do `/devmode` (projeto inteiro) e do `/devmode c` (gates por turno),
-  reusando as skills/agentes/gates existentes — sem máquina nova. (Conceito
-  adaptado do `/do` do `notque/vexjoy-agent`, MIT.)
+- **`/devmode do <tarefa>`** — para **uma tarefa só** (não um projeto): roteia a
+  frase para a(s) skill(s)+agente certos e roda um pipeline curto com gates de
+  evidência (Entender → Planejar → Executar → Verificar → Entregar). É o irmão de
+  tarefa única do `/devmode` (projeto inteiro) e do `/devmode c` (gates por turno);
+  **todo comando começa com `/devmode`**, reusando as skills/agentes/gates
+  existentes — sem máquina nova. (Conceito adaptado do `/do` do
+  `notque/vexjoy-agent`, MIT.)
 
 > **Retomada morna (SessionStart).** Com `--with-guardrails`, um hook
 > `session_resume.py` injeta no início de cada sessão um resumo curto (última

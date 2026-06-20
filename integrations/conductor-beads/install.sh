@@ -146,11 +146,10 @@ copy_template "$TEMPLATES_DIR/track/decisions.md" "$PROJECT_DIR/conductor/.templ
 # The integration map, so the in-project agent knows how base + layer fit
 copy_template "$SCRIPT_DIR/INTEGRATION.md"   "$PROJECT_DIR/conductor/INTEGRATION.md"
 
-# The guided front door: /devmode command + the orchestrator agent + the /do task router
+# The guided front door: /devmode command (incl. its `do` task-router mode) + the orchestrator agent
 mkdir -p "$PROJECT_DIR/.claude/agents" "$PROJECT_DIR/.claude/commands"
 copy_template "$SCRIPT_DIR/agents/devmode-orchestrator.md" "$PROJECT_DIR/.claude/agents/devmode-orchestrator.md"
 copy_template "$SCRIPT_DIR/commands/devmode.md"            "$PROJECT_DIR/.claude/commands/devmode.md"
-copy_template "$SCRIPT_DIR/commands/do.md"                 "$PROJECT_DIR/.claude/commands/do.md"
 
 # 2b. Conductor-Beads commands/skills (optional — skip if global)
 if [ "$WITH_CONDUCTOR" -eq 1 ]; then

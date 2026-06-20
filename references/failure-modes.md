@@ -23,6 +23,8 @@ column is where to go.
 | 14 | **The AI starts coding from an underspecified task** and discovers gaps halfway through. | No pre-flight readiness check — confidence without a settled goal/interface/verification. | [`confidence-check`](../skills/confidence-check/SKILL.md) — close the gaps before building; reach for grill-me/write-prd if any remain. |
 | 15 | **A weak design only reveals its holes once it's code** (expensive to change). | The design was never pressure-tested from multiple angles before building. | [`design-critique`](../skills/design-critique/SKILL.md) — review the design/PRD through several expert lenses; surface trade-offs on paper. |
 | 16 | **"Looks done" ships with gaps the author couldn't see** (e.g. an untested module, an unpinned invariant). | No independent review before done — the author is blind to their own blind spots. | [`code-review`](../skills/code-review/SKILL.md) — run the review panel, act on every finding, re-verify before merge. |
+| 17 | **You committed real production work to an assumption that didn't pan out** — a design/library/shape that only failed once built. | Building before validating the load-bearing unknown. | [`prototyping`](../skills/prototyping/SKILL.md) — spike throwaway code that answers the one question, capture the answer, delete it. |
+| 18 | **The AI broke a local convention it "couldn't have known"** — this folder tests/deploys/structures differently from the rest. | Per-area rules live only in someone's head; nothing local told the agent before it edited. | [`doc-contracts`](../skills/doc-contracts/SKILL.md) — a tree of AGENTS.md contracts walked root→area before editing, updated in the same commit. |
 
 ## How the remedies build on each other
 

@@ -189,8 +189,9 @@ that base — the base stays the source of truth:
   For ad-hoc ops/debug, **`/devmode c [comment]`** applies the gates *per-turn*
   (root-cause-first, evidence-before-done) without spinning up the phase machine —
   the cheap trigger for "don't abandon the discipline when things break". For a
-  single bounded task, **`/do <task>`** routes it to the right skill(s)+agent and
-  runs a short evidence-gated pipeline (the single-task sibling of `/devmode`).
+  single bounded task, **`/devmode do <task>`** routes it to the right
+  skill(s)+agent and runs a short evidence-gated pipeline — the single-task sibling
+  (every entry point starts with `/devmode`).
 - **Enforcement, not advice (the gates bite).** `--with-guardrails` wires the
   deterministic hooks into `.claude/settings.json`: a **PreToolUse guardrail**
   (`guardrails.py`, blocks dangerous ops); a **Stop `verify_gate.py`** that

@@ -126,6 +126,7 @@ drives the whole phase machine for you, pausing only at human decision gates:
 /devmode start <name> <idea>   # scaffold a fresh workspaces/<name> project and guide it
 /devmode adopt <folder>        # deploy devmode into an EXISTING codebase + run discovery
 /devmode goal <objective>      # (opt-in) emit a ready-to-run Claude /goal or /plan command
+/devmode do <task>             # route & run ONE bounded task, gated (the single-task sibling)
 /devmode <idea>                # guide/resume in the current project
 /devmode c [comment]           # ad-hoc ops/debug turn with the gates applied (no phase machine)
 ```
@@ -133,19 +134,20 @@ drives the whole phase machine for you, pausing only at human decision gates:
 At every gate it shows a self-scorecard and refreshes `devmode-dashboard.html`.
 **Run it from the project directory** — the hooks key off the project root.
 
-### D. One task, routed and gated — `/do`
+### D. One task, routed and gated — `/devmode do`
 
-For a single, well-bounded task (not a whole project), `/do <plain-English>`
+For a single, well-bounded task (not a whole project), `/devmode do <plain-English>`
 **routes** it to the right skill(s)+agent and runs a short evidence-gated pipeline
 (Understand → Plan → Execute → Verify → Deliver) — verified, not asserted:
 
 ```text
-/do debug this failing quota test     # → systematic-debugging (+ tdd for the regression)
-/do add a rate limit to /upload       # → security-hardening (control checklist) + tdd
+/devmode do debug this failing quota test   # → systematic-debugging (+ tdd for the regression)
+/devmode do add a rate limit to /upload     # → security-hardening (control checklist) + tdd
 ```
 
-`/do` is the single-task sibling of `/devmode` (full project) and `/devmode c`
-(bare per-turn gates) — it reuses the existing skills/agents/gates, no new machinery.
+`/devmode do` is the single-task sibling of `/devmode` (full project) and
+`/devmode c` (bare per-turn gates) — every entry point starts with `/devmode`, and
+it reuses the existing skills/agents/gates, no new machinery.
 
 ## The workflow (a loop, not a march)
 

@@ -1,6 +1,6 @@
 ---
-description: Guided devmode mode. `start <name> <idea>` scaffolds a new workspaces/<name> project; `adopt <folder>` deploys+discovers an existing one; `goal|plan <objective>` emits a ready-to-run Claude /goal or /plan command; `<idea>`/blank guides or resumes the current project.
-argument-hint: start <name> <idea> | adopt <folder> | goal <objective> | <idea> | (blank to resume)
+description: Guided devmode mode. `start <name> <idea>` scaffolds a new workspaces/<name> project; `adopt <folder>` deploys+discovers an existing one; `goal|plan <objective>` emits a ready-to-run Claude /goal or /plan command; `do <task>` routes & runs ONE task gated; `c [comment]` applies the gates to an ad-hoc turn; `<idea>`/blank guides or resumes the current project.
+argument-hint: start <name> <idea> | adopt <folder> | goal <objective> | do <task> | c [comment] | <idea> | (blank to resume)
 ---
 
 # /devmode — guided mode
@@ -11,9 +11,9 @@ be to DELEGATE to the `devmode-orchestrator` agent via the Task tool**
 (`subagent_type: "devmode-orchestrator"`), briefing it with the current state and
 the decision at hand. Do **not** embody the phase machine inline — *spawn the
 orchestrator and relay its gate*. The orchestrator does the mechanical work and
-pauses only at the human decision gates (easy structured A/B/C choices). The **ONE
-exception is `/devmode c`** (Mode C-lite, below): it runs inline with the per-turn
-gates and must NOT spin up the orchestrator.
+pauses only at the human decision gates (easy structured A/B/C choices). The **two
+exceptions are `/devmode c` and `/devmode do`** (Modes C-lite and Do, below): they
+run inline with the gates and must NOT spin up the orchestrator.
 
 This is **enforced, not advisory** (text alone gets ignored under pressure): the
 `devmode_phase_gate.py` **Stop hook BLOCKS** ending a full `/devmode` turn that did
@@ -53,6 +53,35 @@ the `Stop` hook `verify_gate.py` *enforces* the last one):
 4. **Honest self-read** — if you slipped on 1–3, say so plainly (`self-scorecard`).
 
 Then do `[comentário]` under that contract. Keep the user *led, not quizzed*.
+
+### Mode Do — `do <task>`  (first token is `do`)  ← also runs INLINE
+Do ONE bounded task, **routed and gated** — the single-task sibling of the full
+flow. Like `c`, it runs **inline** (do NOT spin up the orchestrator, tracks, or
+phases); unlike `c`, it adds *routing* + a short pipeline. Parse everything after
+`do` as the task. Run these steps, briefly, out loud:
+
+1. **Route.** Classify the task and name the skill lane(s) (+ an agent if it
+   helps). State it in one line — `Routing: <skill(s)> [+ <agent>]`. Examples:
+   - bug/failure → `systematic-debugging` (+ `tdd` for the regression)
+   - new behavior → `tdd` + `testing-principles` (interface first: `design-interface-delegate-implementation`)
+   - security/money/auth → `security-hardening` (control checklist) — **reviewed in full, never gray-boxed**
+   - refactor/rename → `impact-analysis` first; migration/deprecation → `migration`
+   - unknown to learn → `prototyping` (spike → capture → delete)
+   - unclear ask → **stop and `grill-me`** before touching code
+2. **Understand.** If ambiguous, ask the one/two questions that matter or read the
+   nearest doc contract (`doc-contracts` / module map). Confirm goal, interface,
+   constraints, and *how you'll verify* (`confidence-check`).
+3. **Plan.** The smallest change + the check that proves it; failing test first for
+   anything non-trivial.
+4. **Execute.** Small steps; critical modules in full; constraints-not-steps if you delegate.
+5. **Verify — evidence, not assertion** (`verification-before-completion`): run the
+   real check and **show the output**. The `Stop` hook `verify_gate.py` blocks a
+   "done" with no fresh check after a rebuild/deploy/`.env` change (`VERIFY-OK: <reason>` to override).
+6. **Deliver.** What changed, the evidence, one line of next/watch. If it turned
+   out project-sized, say so and hand off to the full `/devmode` flow.
+
+Keep the user *led, not quizzed*. (Router concept adapted from
+`notque/vexjoy-agent`'s `/do`, MIT — reusing devmode's existing skills/agents/gates.)
 
 ### Mode A — `start <name> <idea>`  (first token is `start`)
 Scaffold a brand-new project under `workspaces/` and begin work in it. Parse the
