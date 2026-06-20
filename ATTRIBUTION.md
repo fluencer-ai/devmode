@@ -31,6 +31,10 @@ reused (no files copied), as noted.
 | `scripts/audit_skills.py` — description-overlap detector + trigger-word lint | `scripts/detect_dupes.sh` (Jaccard) + `scripts/lint.sh` (trigger/length) | [khendzel/skills-janitor](https://github.com/khendzel/skills-janitor) | MIT |
 | `skills/discovery` — codebase reverse-engineering for `/devmode adopt` | Scout/Soul/Detective/Architect prompt pipeline + 🟢/🟡/🔴 confidence scale | [sandeco/reversa](https://github.com/sandeco/reversa) | MIT |
 | `skills/doc-contracts` — hierarchical AGENTS.md doc-contract tree (pre-edit traversal + post-edit doc pass) | the `AGENTS.md` framework file | [agent0ai/dox](https://github.com/agent0ai/dox) | MIT |
+| `skills/prototyping` — throwaway spike → capture → delete; `skills/context-engineering` (handoff: reference-don't-duplicate, suggested-skills, redact, temp-dir) | `prototype` + `handoff` skills | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT © Matt Pocock |
+| `integrations/.../commands/do.md` — the `/do` plain-English task router (Route→…→Deliver, evidence-gated) | the `/do` command | [notque/vexjoy-agent](https://github.com/notque/vexjoy-agent) | MIT |
+| `integrations/.../hooks/session_resume.py` — SessionStart warm-resume hook | the SessionStart lifecycle-hook pattern | [notque/claude-code-starter-kit](https://github.com/notque/claude-code-starter-kit) | MIT |
+| `skills/code-review` ("comprehension debt", maker/checker), `skills/subagent-driven-development` (worktree isolation) | the *loop-engineering* essays | [Osmani](https://addyosmani.com/blog/loop-engineering/) · [Autocomplete](https://medium.com/autocomplete-real-world-ai/wtf-is-a-agentic-coding-loop-and-how-to-build-one-58eedb7cbcae) · [Greyling](https://cobusgreyling.medium.com/loop-engineering-62926dd6991c) | essays (concepts) |
 | `skills/self-scorecard`, `scripts/scorecard.py`, `scripts/dashboard.py` | — devmode-original — | (none) | — |
 | `skills/goal-brief`, `scripts/goal_brief.py` | — devmode-original — (emits Claude Code `/goal` & `/plan` commands; the commands are referenced, not vendored) | (none) | — |
 | `integrations/conductor-beads` (STATE.md memory pattern) | `templates/state.md` | gsd-build/get-shit-done | MIT (archived) |
@@ -63,6 +67,15 @@ reused (no files copied), as noted.
   ADR/panel patterns adapted from `rbarcante/claude-conductor`, attributed above).
 - The original viral skill that inspired devmode's `grill-me` traces to
   obra/superpowers' `brainstorming`; both descend from the same lineage.
+- **mattpocock/skills** (MIT © Matt Pocock) is devmode's **sibling**: both were
+  distilled from Matt Pocock's *"Claude Code for real engineers"* talk and share
+  the same thesis and four failure modes. We adapted two skills (`prototype`,
+  `handoff`) and credit the shared lineage; devmode generalized the thesis into a
+  tool-agnostic process rather than a TypeScript/web skill set.
+- The **loop-engineering essays** (Osmani; Autocomplete/Real-World-AI; Greyling)
+  are prose, not code — we reused *concepts* (maker/checker split, comprehension
+  debt, worktree isolation, "design loops, don't prompt turn-by-turn"); they
+  validated devmode's existing architecture more than they changed it.
 
 If you are an author here and want a correction to this attribution, please open
 an issue.

@@ -4,12 +4,12 @@
 > *"Code is not cheap. Bad code is the most expensive it has ever been."*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-![Skills](https://img.shields.io/badge/skills-38-blue.svg)
+![Skills](https://img.shields.io/badge/skills-39-blue.svg)
 ![Agents](https://img.shields.io/badge/agents-8-blue.svg)
 ![Dependencies](https://img.shields.io/badge/runtime_deps-none-lightgrey.svg)
 
 devmode is a complete, **tool-agnostic software development process** packaged as
-38 skills, 8 subagents, deterministic guardrail hooks, a self-scoring system, and
+39 skills, 8 subagents, deterministic guardrail hooks, a self-scoring system, and
 a zero-setup visual dashboard — built for working *with* AI coding agents (Claude
 Code and similar) without letting the codebase rot.
 
@@ -23,7 +23,7 @@ Code and similar) without letting the codebase rot.
 - [What's in the box](#whats-in-the-box)
 - [Quick start](#quick-start)
 - [The workflow (a loop, not a march)](#the-workflow-a-loop-not-a-march)
-- [The 38 skills](#the-38-skills)
+- [The 39 skills](#the-39-skills)
 - [The 8 agents](#the-8-agents)
 - [Self-evaluation: scorecard & dashboard](#self-evaluation-scorecard--dashboard)
 - [Enforcement: gates that bite](#enforcement-gates-that-bite)
@@ -70,10 +70,10 @@ direction.**
 
 | Piece | What it is | Where |
 |---|---|---|
-| **38 skills** | 20 *process* + 15 *domain* + 3 *meta* skills — each a focused, trigger-described practice | [`skills/`](skills/) |
+| **39 skills** | 20 *process* + 16 *domain* + 3 *meta* skills — each a focused, trigger-described practice | [`skills/`](skills/) |
 | **8 agents** | Subagent role definitions, including a parallel 4-lane review panel | [`.agents/`](.agents/) |
 | **Scripts** | Pack auditor, self-scorecard, HTML dashboard, `/goal` budget checker | [`scripts/`](scripts/) |
-| **Guardrail hooks** | Deterministic PreToolUse + Stop gates (Python, stdlib only) | [`integrations/conductor-beads/hooks/`](integrations/conductor-beads/hooks/) |
+| **Guardrail hooks** | Deterministic PreToolUse + Stop gates + a SessionStart warm-resume (Python, stdlib only) | [`integrations/conductor-beads/hooks/`](integrations/conductor-beads/hooks/) |
 | **Integration layer** | Conductor (tracks/spec/plan lifecycle) + Beads (persistent memory) mounted *on top of* the base | [`integrations/conductor-beads/`](integrations/conductor-beads/) |
 | **References** | The principles behind the process + a failure-mode diagnostic table | [`references/`](references/) |
 | **Manifest** | The process spine, beliefs, and usage rules (agent-facing) | [`CLAUDE.md`](CLAUDE.md) |
@@ -133,6 +133,20 @@ drives the whole phase machine for you, pausing only at human decision gates:
 At every gate it shows a self-scorecard and refreshes `devmode-dashboard.html`.
 **Run it from the project directory** — the hooks key off the project root.
 
+### D. One task, routed and gated — `/do`
+
+For a single, well-bounded task (not a whole project), `/do <plain-English>`
+**routes** it to the right skill(s)+agent and runs a short evidence-gated pipeline
+(Understand → Plan → Execute → Verify → Deliver) — verified, not asserted:
+
+```text
+/do debug this failing quota test     # → systematic-debugging (+ tdd for the regression)
+/do add a rate limit to /upload       # → security-hardening (control checklist) + tdd
+```
+
+`/do` is the single-task sibling of `/devmode` (full project) and `/devmode c`
+(bare per-turn gates) — it reuses the existing skills/agents/gates, no new machinery.
+
 ## The workflow (a loop, not a march)
 
 Move top to bottom; each phase has skills that do the work. Small changes can
@@ -154,7 +168,7 @@ only the affected delta, and record the re-entry as its own scored phase
 (`Re-specify`). The dashboard badges these loop-backs (`↩ re-entry`) so they're
 visible in the trend, not hidden.
 
-## The 38 skills
+## The 39 skills
 
 Each skill is a `SKILL.md` with a trigger-rich description (when to fire) and a
 compact, operational body. The pack is audited by
@@ -191,7 +205,7 @@ trigger lint.
 </details>
 
 <details>
-<summary><b>Domain skills (15)</b> — cross-cutting craft pulled in during the phases</summary>
+<summary><b>Domain skills (16)</b> — cross-cutting craft pulled in during the phases</summary>
 
 | Skill | One line |
 |---|---|
@@ -208,7 +222,8 @@ trigger lint.
 | [`shipping`](skills/shipping/SKILL.md) | PR-ready ≠ release-ready: checklist, staged rollout, rollback thresholds |
 | [`documentation`](skills/documentation/SKILL.md) | ADRs for the *why*; supersede, don't mutate |
 | [`doc-contracts`](skills/doc-contracts/SKILL.md) | Hierarchical AGENTS.md tree: local contracts walked before editing, updated in the same commit |
-| [`context-engineering`](skills/context-engineering/SKILL.md) | Curate the working set; minimal briefs; clean handoffs |
+| [`prototyping`](skills/prototyping/SKILL.md) | Throwaway code that answers ONE question — a spike, then captured and deleted (never kept as production) |
+| [`context-engineering`](skills/context-engineering/SKILL.md) | Curate the working set; minimal briefs; clean handoffs that survive compaction |
 | [`source-of-truth`](skills/source-of-truth/SKILL.md) | Check the installed version and real docs, not training-data memory |
 
 </details>
@@ -268,6 +283,7 @@ hooks** (Python stdlib, fail-open, with tests), wired by `--with-guardrails`:
 | [`guardrails.py`](integrations/conductor-beads/hooks/guardrails.py) | PreToolUse | **Blocks** `sudo`, force-push, `--no-verify`, `rm -rf` at root, writes to `.env`/`.git`/secrets; **asks** on `reset --hard`, scoped `rm -rf`, secret reads |
 | [`verify_gate.py`](integrations/conductor-beads/hooks/verify_gate.py) | Stop | Blocks ending a turn after a rebuild/deploy/restart/`.env` change **with no fresh end-to-end check after it** — `verification-before-completion`, enforced |
 | [`devmode_phase_gate.py`](integrations/conductor-beads/hooks/devmode_phase_gate.py) | Stop | Enforces the ceremony: auto-refreshes the dashboard from the scorecard and blocks a full `/devmode` turn that bypassed the orchestrator |
+| [`session_resume.py`](integrations/conductor-beads/hooks/session_resume.py) | SessionStart | Injects a **warm-resume** hint (last phase, score, active track, next action) from `.devmode/scorecard.json` — read-only, fail-open (a fresh session starts where the loop left off) |
 
 Conscious overrides exist (`VERIFY-OK: <reason>` / `DEVMODE-OK: <reason>`) — the
 gates force the *decision* to skip to be explicit, never silent.
@@ -299,7 +315,7 @@ devmode/
 ├── manual.md                    # full PT-BR manual
 ├── ATTRIBUTION.md               # per-artifact third-party credits
 ├── LICENSE                      # MIT
-├── skills/                      # 38 skills (each: SKILL.md + optional assets/)
+├── skills/                      # 39 skills (each: SKILL.md + optional assets/)
 ├── .agents/                     # 8 subagent definitions
 ├── .claude/                     # mirrors (commands/agents) so /devmode works here too
 ├── scripts/
@@ -349,14 +365,21 @@ projects. Full per-artifact mapping with licenses:
 | [khendzel/skills-janitor](https://github.com/khendzel/skills-janitor) | description-overlap detection + trigger lint in the auditor | MIT |
 | [sandeco/reversa](https://github.com/sandeco/reversa) | the discovery pipeline (Scout/Soul/Detective/Architect, 🟢🟡🔴) | MIT |
 | [agent0ai/dox](https://github.com/agent0ai/dox) | the doc-contracts AGENTS.md tree (pre-edit traversal, post-edit pass) | MIT |
+| [mattpocock/skills](https://github.com/mattpocock/skills) | **the sibling project** — same thesis & four failure modes; `prototyping` (spike) + the `context-engineering` handoff details | MIT |
+| [notque/vexjoy-agent](https://github.com/notque/vexjoy-agent) | the `/do` plain-English task-router (Route→Plan→Execute→Verify→Deliver, evidence over assertions) | MIT |
+| [notque/claude-code-starter-kit](https://github.com/notque/claude-code-starter-kit) | the SessionStart warm-resume hook (more lifecycle events; LLM-orchestrates / scripts-execute) | MIT |
+| loop-engineering essays — [Osmani](https://addyosmani.com/blog/loop-engineering/), [Autocomplete](https://medium.com/autocomplete-real-world-ai/wtf-is-a-agentic-coding-loop-and-how-to-build-one-58eedb7cbcae), [Greyling](https://cobusgreyling.medium.com/loop-engineering-62926dd6991c) | the maker/checker split, "comprehension debt", worktree isolation reinforcements | (essays) |
 | [k-kolomeitsev/data-structure-protocol](https://github.com/k-kolomeitsev/data-structure-protocol) | impact-analysis (reverse edges, why-per-edge) | Apache-2.0 |
 | [SuperClaude-Org/SuperClaude_Framework](https://github.com/SuperClaude-Org/SuperClaude_Framework) | confidence-check, design-critique panels, agent boundary sections | MIT |
 | [NguyenSiTrung/Conductor-Beads](https://github.com/NguyenSiTrung/Conductor-Beads) | the upstream Conductor+Beads toolkit (cloned at install time with `--with-conductor`, never vendored here) | Apache-2.0 |
 | [cowwoc/cat](https://github.com/cowwoc/cat) | subagent-delegation *concepts* only (no files) | source-available |
 
-The process itself was distilled from a thesis articulated in Matt Pocock's
-*"Claude Code for real engineers"* talk — that AI needs you to supply the
-strategy — combined with the reading list above.
+devmode and [mattpocock/skills](https://github.com/mattpocock/skills) are
+**siblings**: both were distilled from the thesis in Matt Pocock's *"Claude Code
+for real engineers"* talk — that AI is a brilliant tactician with no strategy, so
+*you* must supply it. devmode generalized that thesis into a tool-agnostic process
+(39 skills, agents, enforced gates, scorecard/dashboard) combined with the
+reading list above.
 
 ## License
 

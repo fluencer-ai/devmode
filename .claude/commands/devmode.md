@@ -64,7 +64,7 @@ after** as `<idea>`.
    from the devmode repo. Refuse if `workspaces/<name>` already exists (suggest a
    new name or `/devmode` to resume).
 2. **Scaffold (copy everything in):** run the installer to copy the devmode base
-   (CLAUDE.md, 38 skills, 8 agents, references), mount the Conductor layer, drop
+   (CLAUDE.md, 39 skills, 8 agents, references), mount the Conductor layer, drop
    the orchestrator + `/devmode` command, init Beads, and **wire the deterministic
    guardrails hook**:
    ```bash
