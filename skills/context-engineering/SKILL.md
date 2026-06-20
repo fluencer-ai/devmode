@@ -48,7 +48,17 @@ write a **handoff that carries intent, not just status** — the design concept,
 the current position, the single next step, open decisions — into durable memory
 (Beads notes / a `STATE.md` digest). A fresh session should resume *cold* from
 it, not re-derive the plan. (This is the WARM START habit in the Conductor
-integration.)
+integration.) A good handoff also:
+
+- **Points to artifacts, doesn't duplicate them** — link the PRD/plan/ADR/issue/
+  diff by path, don't paste their contents (that's the whole token win).
+- **Names the next skills** — a short "suggested skills" line tells the resuming
+  agent what to reach for first (e.g. "resume at IMPLEMENT via `tdd`").
+- **Redacts secrets/PII** — never carry API keys, tokens, or personal data into a
+  handoff doc; scrub them out.
+- **Lives where the next session looks** — durable memory the loop reads on start
+  (Beads / `STATE.md`), or the OS temp dir for a one-off agent-to-agent pass —
+  not buried in chat scrollback.
 
 ## Process
 
@@ -66,4 +76,6 @@ integration.)
 - Stopping a long task with no handoff (the next session starts from zero).
 
 > Adapted from `addyosmani/agent-skills` (`context-engineering`), MIT —
-> trimmed of Claude-Code-setup specifics to keep it tool-agnostic.
+> trimmed of Claude-Code-setup specifics to keep it tool-agnostic. The handoff
+> details (reference-don't-duplicate, suggested-skills, redact secrets, temp-dir
+> location) are adapted from `mattpocock/skills` (`handoff`), MIT.

@@ -73,6 +73,16 @@ Implementers report one of four states — never ignore an escalation:
   (split it)? plan wrong (escalate to the human)? Never force the same model to
   retry unchanged.
 
+## Parallelize with isolation, not luck
+
+The fresh-implementer / separate-reviewer split *is* the maker/checker discipline
+of loop engineering — never let the model that wrote the code be the one that
+grades it. To run implementers **concurrently**, give each its own **git
+worktree** (or branch/clone) so parallel writes can't collide; merge after each
+passes its reviews. Dispatching parallel implementers into the *same* working
+tree on overlapping files is the classic conflict (see red flags) — isolation,
+not hope, is what makes the fan-out safe.
+
 ## Model selection (cost/speed)
 
 Use the least powerful model that can do the role:

@@ -55,6 +55,12 @@ A reviewer who has to guess scope reviews badly. Give them:
 
 This is where the value is realized or lost:
 
+- **Read what the loop produced — don't accrue comprehension debt.** Reviewing
+  AI-generated code is not optional ceremony: every diff you accept without
+  understanding is debt you (or the next session) pay later, with interest. The
+  point of the loop is to *accelerate* your understanding of the system, not to
+  *replace* it. If you can't explain why the change is correct, you haven't
+  reviewed it — you've rubber-stamped it.
 - **Treat every finding as a gift**, not an attack. The reviewer found something
   you couldn't see — that's the whole point.
 - **Fix the root cause**, not the symptom. If it's a bug, switch to
@@ -84,4 +90,6 @@ This is where the value is realized or lost:
 
 > Consolidated from `obra/superpowers` (`requesting-code-review` +
 > `receiving-code-review`), MIT. The parallel review-panel lanes are adapted from
-> `rbarcante/claude-conductor` (Apache-2.0). Reframed in the devmode voice.
+> `rbarcante/claude-conductor` (Apache-2.0). The maker/checker split and
+> "comprehension debt" framing are reinforced by the *loop-engineering* essays
+> (Osmani; Autocomplete; Greyling). Reframed in the devmode voice.
