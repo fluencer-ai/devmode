@@ -1,6 +1,6 @@
 ---
-description: Guided devmode mode. `start <name> <idea>` scaffolds a new workspaces/<name> project; `adopt <folder>` deploys+discovers an existing one; `goal|plan <objective>` emits a ready-to-run Claude /goal or /plan command; `do <task>` routes & runs ONE task gated; `c [comment]` applies the gates to an ad-hoc turn; `<idea>`/blank guides or resumes the current project.
-argument-hint: start <name> <idea> | adopt <folder> | goal <objective> | do <task> | c [comment] | <idea> | (blank to resume)
+description: Guided devmode mode. `start <name> <idea>` scaffolds a new workspaces/<name> project; `adopt <folder>` deploys+discovers an existing one; `goal|plan <objective>` emits a ready-to-run Claude /goal or /plan command; `do <task>` routes & runs ONE task gated; `wiki start|adopt` deploys a Karpathy LLM Wiki; `c [comment]` applies the gates to an ad-hoc turn; `<idea>`/blank guides or resumes the current project.
+argument-hint: start <name> <idea> | adopt <folder> | goal <objective> | do <task> | wiki start|adopt <path> | c [comment] | <idea> | (blank to resume)
 ---
 
 # /devmode — guided mode
@@ -11,9 +11,10 @@ be to DELEGATE to the `devmode-orchestrator` agent via the Task tool**
 (`subagent_type: "devmode-orchestrator"`), briefing it with the current state and
 the decision at hand. Do **not** embody the phase machine inline — *spawn the
 orchestrator and relay its gate*. The orchestrator does the mechanical work and
-pauses only at the human decision gates (easy structured A/B/C choices). The **two
-exceptions are `/devmode c` and `/devmode do`** (Modes C-lite and Do, below): they
-run inline with the gates and must NOT spin up the orchestrator.
+pauses only at the human decision gates (easy structured A/B/C choices). The
+**exceptions are `/devmode c`, `/devmode do`, and `/devmode wiki`** (Modes C-lite,
+Do, and Wiki, below): they run inline with the gates and must NOT spin up the
+orchestrator.
 
 This is **enforced, not advisory** (text alone gets ignored under pressure): the
 `devmode_phase_gate.py` **Stop hook BLOCKS** ending a full `/devmode` turn that did
@@ -82,6 +83,30 @@ phases); unlike `c`, it adds *routing* + a short pipeline. Parse everything afte
 
 Keep the user *led, not quizzed*. (Router concept adapted from
 `notque/vexjoy-agent`'s `/do`, MIT — reusing devmode's existing skills/agents/gates.)
+
+### Mode Wiki — `wiki start <path>` | `wiki adopt <folder>`  (first token is `wiki`)  ← runs INLINE
+Deploy a **Karpathy LLM Wiki** (the opt-in `integrations/llm-wiki/` module): a
+persistent, LLM-maintained **markdown** knowledge base — no app, no database, no
+server. It's a *knowledge* base, not the code phase machine, so it runs **inline**
+(do NOT spin up the orchestrator). The **second** token selects:
+
+- **`wiki start <path>`** — scaffold a FRESH wiki at `<path>`:
+  ```bash
+  integrations/llm-wiki/install.sh "<path>"
+  ```
+- **`wiki adopt <folder>`** — add the wiki to an EXISTING project (non-destructive;
+  audits, moves nothing):
+  ```bash
+  integrations/llm-wiki/install.sh "<folder>" --adopt
+  ```
+
+Then, briefly: confirm the scaffold; point the user at `KARPATHY.md` (the schema
+that makes the agent a disciplined maintainer); and offer to **ingest** a first
+source — they drop a file in `raw/sources/`, you write a `wiki/sources/<slug>.md`
+summary and update every affected page. The 7 page types, the frontmatter spec,
+and the ingest/query/lint operations all live in the deployed `KARPATHY.md` —
+read it and follow it. Keep the user *led, not quizzed*. (Concept: Andrej
+Karpathy's *LLM Wiki* gist — pure markdown, app-free.)
 
 ### Mode A — `start <name> <idea>`  (first token is `start`)
 Scaffold a brand-new project under `workspaces/` and begin work in it. Parse the

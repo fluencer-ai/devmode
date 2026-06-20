@@ -357,6 +357,14 @@ do merge.
   **todo comando começa com `/devmode`**, reusando as skills/agentes/gates
   existentes — sem máquina nova. (Conceito adaptado do `/do` do
   `notque/vexjoy-agent`, MIT.)
+- **`/devmode wiki start <caminho>`** / **`/devmode wiki adopt <pasta>`** — implanta
+  um **Karpathy LLM Wiki** (módulo opt-in `integrations/llm-wiki/`): uma base de
+  conhecimento **em markdown puro** (sem app, sem banco, sem servidor) que o LLM
+  *mantém* — cada fonte é integrada a um grafo de páginas interligadas (ingest →
+  query → lint sobre 7 tipos), então o conhecimento **acumula** em vez de ser
+  re-derivado a cada pergunta. O `KARPATHY.md` implantado é o *schema* que torna o
+  agente um mantenedor disciplinado. Roda **inline** (não é a máquina de fases de
+  código). Conceito: o gist *LLM Wiki* do Andrej Karpathy.
 
 > **Retomada morna (SessionStart).** Com `--with-guardrails`, um hook
 > `session_resume.py` injeta no início de cada sessão um resumo curto (última

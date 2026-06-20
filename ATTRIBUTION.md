@@ -34,6 +34,7 @@ reused (no files copied), as noted.
 | `skills/prototyping` — throwaway spike → capture → delete; `skills/context-engineering` (handoff: reference-don't-duplicate, suggested-skills, redact, temp-dir) | `prototype` + `handoff` skills | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT © Matt Pocock |
 | `/devmode do` — the plain-English task-router mode (Route→…→Deliver, evidence-gated) in `commands/devmode.md` | the `/do` command | [notque/vexjoy-agent](https://github.com/notque/vexjoy-agent) | MIT |
 | `integrations/.../hooks/session_resume.py` — SessionStart warm-resume hook | the SessionStart lifecycle-hook pattern | [notque/claude-code-starter-kit](https://github.com/notque/claude-code-starter-kit) | MIT |
+| `integrations/llm-wiki/` — the `/devmode wiki` module (LLM-maintained markdown knowledge base: 3 layers, 7 page types, ingest/query/lint) | the *LLM Wiki* pattern (concept only — no app/code) | [Andrej Karpathy's gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) | gist (concept) |
 | `skills/code-review` ("comprehension debt", maker/checker), `skills/subagent-driven-development` (worktree isolation) | the *loop-engineering* essays | [Osmani](https://addyosmani.com/blog/loop-engineering/) · [Autocomplete](https://medium.com/autocomplete-real-world-ai/wtf-is-a-agentic-coding-loop-and-how-to-build-one-58eedb7cbcae) · [Greyling](https://cobusgreyling.medium.com/loop-engineering-62926dd6991c) | essays (concepts) |
 | `skills/self-scorecard`, `scripts/scorecard.py`, `scripts/dashboard.py` | — devmode-original — | (none) | — |
 | `skills/goal-brief`, `scripts/goal_brief.py` | — devmode-original — (emits Claude Code `/goal` & `/plan` commands; the commands are referenced, not vendored) | (none) | — |
@@ -76,6 +77,11 @@ reused (no files copied), as noted.
   are prose, not code — we reused *concepts* (maker/checker split, comprehension
   debt, worktree isolation, "design loops, don't prompt turn-by-turn"); they
   validated devmode's existing architecture more than they changed it.
+- **Andrej Karpathy's *LLM Wiki* gist** is the concept behind the
+  `integrations/llm-wiki/` module. We implemented it as **pure, app-free
+  markdown** (3 layers, 7 canonical page types, ingest/query/lint) — deliberately
+  **not** tied to any specific wiki app or database; no third-party code was used,
+  only the published pattern.
 
 If you are an author here and want a correction to this attribution, please open
 an issue.

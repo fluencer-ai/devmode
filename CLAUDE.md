@@ -192,6 +192,15 @@ that base — the base stays the source of truth:
   single bounded task, **`/devmode do <task>`** routes it to the right
   skill(s)+agent and runs a short evidence-gated pipeline — the single-task sibling
   (every entry point starts with `/devmode`).
+- [`integrations/llm-wiki/`](integrations/llm-wiki/README.md) — an **opt-in
+  knowledge module** (independent of the code process): deploys a **Karpathy LLM
+  Wiki** — a persistent, LLM-maintained **markdown** knowledge base (no app, no DB,
+  no server), where the LLM *integrates* each source into an interlinked graph so
+  knowledge compounds instead of being re-derived per query. **`/devmode wiki start
+  <path>`** scaffolds a fresh wiki; **`/devmode wiki adopt <folder>`** adds it to an
+  existing project (non-destructive). The deployed `KARPATHY.md` is the schema that
+  makes the agent a disciplined maintainer (ingest/query/lint over 7 page types).
+  Concept: Andrej Karpathy's *LLM Wiki* gist (credited in `ATTRIBUTION.md`).
 - **Enforcement, not advice (the gates bite).** `--with-guardrails` wires the
   deterministic hooks into `.claude/settings.json`: a **PreToolUse guardrail**
   (`guardrails.py`, blocks dangerous ops); a **Stop `verify_gate.py`** that

@@ -11,7 +11,7 @@ Two enforcements, both keyed off the transcript (deterministic, not vibes):
 
   2) ORCHESTRATOR DELEGATION on a full `/devmode` turn (blocks): if THIS turn's
      user prompt invoked `/devmode` in a phase-driving mode (i.e. NOT
-     `c`/`do`/`goal`/`plan`/`adopt`/`start`) and NO `devmode-orchestrator` agent was
+     `c`/`do`/`wiki`/`goal`/`plan`/`adopt`/`start`) and NO `devmode-orchestrator` agent was
      spawned in the same turn, BLOCK ending the turn with a reminder to delegate.
      Conscious override: write `DEVMODE-OK: <reason>` in the reply.
 
@@ -31,8 +31,8 @@ import sys
 # /devmode invocation marker in a user message (command tag or injected body).
 CMD_MARK = re.compile(r"<command-name>/?devmode</command-name>|/devmode\s+—\s+guided mode")
 # Modes that do NOT require spinning up the orchestrator inline (per the command):
-# `c` and `do` run inline; goal/plan/adopt/start are their own (non-phase-driving) flows.
-NONFULL = re.compile(r"^(c|do|goal|plan|adopt|start)\b", re.IGNORECASE)
+# `c`, `do`, `wiki` run inline; goal/plan/adopt/start are their own (non-phase-driving) flows.
+NONFULL = re.compile(r"^(c|do|wiki|goal|plan|adopt|start)\b", re.IGNORECASE)
 OVERRIDE = re.compile(r"DEVMODE-OK:", re.IGNORECASE)
 
 

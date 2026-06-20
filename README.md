@@ -127,6 +127,8 @@ drives the whole phase machine for you, pausing only at human decision gates:
 /devmode adopt <folder>        # deploy devmode into an EXISTING codebase + run discovery
 /devmode goal <objective>      # (opt-in) emit a ready-to-run Claude /goal or /plan command
 /devmode do <task>             # route & run ONE bounded task, gated (the single-task sibling)
+/devmode wiki start <path>     # scaffold a Karpathy LLM Wiki (opt-in knowledge module)
+/devmode wiki adopt <folder>   # add the LLM Wiki to an existing project (non-destructive)
 /devmode <idea>                # guide/resume in the current project
 /devmode c [comment]           # ad-hoc ops/debug turn with the gates applied (no phase machine)
 ```
@@ -329,7 +331,8 @@ devmode/
 │   ├── foundations.md           # the principles + reading list
 │   └── failure-modes.md         # symptom → skill diagnostic table
 ├── integrations/
-│   └── conductor-beads/         # the layer: installer, hooks, templates, /devmode
+│   ├── conductor-beads/         # the layer: installer, hooks, templates, /devmode
+│   └── llm-wiki/                # opt-in knowledge module: /devmode wiki (Karpathy LLM Wiki)
 └── workspaces/                  # gitignored experiment scratch (never the base)
 ```
 
@@ -375,6 +378,7 @@ projects. Full per-artifact mapping with licenses:
 | [SuperClaude-Org/SuperClaude_Framework](https://github.com/SuperClaude-Org/SuperClaude_Framework) | confidence-check, design-critique panels, agent boundary sections | MIT |
 | [NguyenSiTrung/Conductor-Beads](https://github.com/NguyenSiTrung/Conductor-Beads) | the upstream Conductor+Beads toolkit (cloned at install time with `--with-conductor`, never vendored here) | Apache-2.0 |
 | [cowwoc/cat](https://github.com/cowwoc/cat) | subagent-delegation *concepts* only (no files) | source-available |
+| [Karpathy's *LLM Wiki* gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) | the `integrations/llm-wiki/` module — LLM-maintained markdown knowledge base (pure markdown, app-free) | (gist) |
 
 devmode and [mattpocock/skills](https://github.com/mattpocock/skills) are
 **siblings**: both were distilled from the thesis in Matt Pocock's *"Claude Code
