@@ -146,10 +146,11 @@ copy_template "$TEMPLATES_DIR/track/decisions.md" "$PROJECT_DIR/conductor/.templ
 # The integration map, so the in-project agent knows how base + layer fit
 copy_template "$SCRIPT_DIR/INTEGRATION.md"   "$PROJECT_DIR/conductor/INTEGRATION.md"
 
-# The guided front door: /devmode command + the orchestrator agent
+# The guided front door: /devmode command + the orchestrator agent + the /do task router
 mkdir -p "$PROJECT_DIR/.claude/agents" "$PROJECT_DIR/.claude/commands"
 copy_template "$SCRIPT_DIR/agents/devmode-orchestrator.md" "$PROJECT_DIR/.claude/agents/devmode-orchestrator.md"
 copy_template "$SCRIPT_DIR/commands/devmode.md"            "$PROJECT_DIR/.claude/commands/devmode.md"
+copy_template "$SCRIPT_DIR/commands/do.md"                 "$PROJECT_DIR/.claude/commands/do.md"
 
 # 2b. Conductor-Beads commands/skills (optional — skip if global)
 if [ "$WITH_CONDUCTOR" -eq 1 ]; then
@@ -178,13 +179,15 @@ if [ "$GUARDRAILS" -eq 1 ]; then
   copy_template "$SCRIPT_DIR/hooks/test_guardrails.py" "$PROJECT_DIR/.claude/hooks/test_guardrails.py"
   copy_template "$SCRIPT_DIR/hooks/verify_gate.py"     "$PROJECT_DIR/.claude/hooks/verify_gate.py"
   copy_template "$SCRIPT_DIR/hooks/devmode_phase_gate.py" "$PROJECT_DIR/.claude/hooks/devmode_phase_gate.py"
-  # Idempotently merge the PreToolUse guardrail + the Stop verify-gate + the Stop phase-gate into settings.json
-  python3 - "$PROJECT_DIR/.claude/settings.json" <<'PY' && ok "wired PreToolUse guardrail + Stop verify-gate + Stop phase-gate into .claude/settings.json" || warn "could not merge settings.json — wire hooks by hand"
+  copy_template "$SCRIPT_DIR/hooks/session_resume.py"  "$PROJECT_DIR/.claude/hooks/session_resume.py"
+  # Idempotently merge the PreToolUse guardrail + Stop verify/phase gates + the SessionStart warm-resume into settings.json
+  python3 - "$PROJECT_DIR/.claude/settings.json" <<'PY' && ok "wired PreToolUse guardrail + Stop verify/phase gates + SessionStart resume into .claude/settings.json" || warn "could not merge settings.json — wire hooks by hand"
 import json, os, sys
 path = sys.argv[1]
 pre_cmd = 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/guardrails.py"'
 stop_cmd = 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/verify_gate.py"'
 phase_cmd = 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/devmode_phase_gate.py"'
+session_cmd = 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/session_resume.py"'
 data = {}
 if os.path.isfile(path):
     try: data = json.load(open(path))
@@ -198,11 +201,15 @@ stop = hooks.setdefault("Stop", [])
 for cmd in (stop_cmd, phase_cmd):
     if not any(h.get("command") == cmd for g in stop for h in g.get("hooks", [])):
         stop.append({"hooks": [{"type": "command", "command": cmd}]})
+start = hooks.setdefault("SessionStart", [])
+if not any(h.get("command") == session_cmd for g in start for h in g.get("hooks", [])):
+    start.append({"hooks": [{"type": "command", "command": session_cmd}]})
 json.dump(data, open(path, "w"), indent=2)
 PY
   warn "guardrails block: sudo, force-push, --no-verify, rm -rf /, writes to .env/.git/secrets; ask: reset --hard, scoped rm -rf, reading secrets."
   warn "verify-gate (Stop): blocks ending a turn after rebuild/docker build/deploy/.env without a fresh end-to-end check (override: write 'VERIFY-OK: <reason>')."
   warn "phase-gate (Stop): auto-refreshes devmode-dashboard.html from .devmode/scorecard.json, and blocks ending a full /devmode turn that did NOT delegate to the devmode-orchestrator agent (override: write 'DEVMODE-OK: <reason>')."
+  warn "session-resume (SessionStart): injects a warm-resume hint (last phase, score, active track, next action) from .devmode/scorecard.json — read-only, fail-open."
 else
   info "skipping guardrails (use --with-guardrails to enable deterministic enforcement)"
 fi
