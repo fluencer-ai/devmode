@@ -110,8 +110,11 @@ development. Reach for them whenever the work touches their area.
 - **Practices:** [`documentation`](skills/documentation/SKILL.md)
   · [`doc-contracts`](skills/doc-contracts/SKILL.md)
   · [`prototyping`](skills/prototyping/SKILL.md)
+  · [`minimal-code`](skills/minimal-code/SKILL.md)
   · [`context-engineering`](skills/context-engineering/SKILL.md)
   · [`source-of-truth`](skills/source-of-truth/SKILL.md)
+  · [`visual-explainers`](skills/visual-explainers/SKILL.md)
+  · [`visual-explainers`](skills/visual-explainers/SKILL.md)
 
 Most are adapted from `addyosmani/agent-skills` (MIT), generalized off their web
 stack to fit the tool-agnostic base; `ux-design` and `accessibility` are authored
@@ -191,7 +194,10 @@ that base — the base stays the source of truth:
   the cheap trigger for "don't abandon the discipline when things break". For a
   single bounded task, **`/devmode do <task>`** routes it to the right
   skill(s)+agent and runs a short evidence-gated pipeline — the single-task sibling
-  (every entry point starts with `/devmode`).
+  (every entry point starts with `/devmode`). **`/devmode lean <idea>`** runs the
+  full flow with the `minimal-code` (ponytail) discipline foregrounded — write only
+  what's needed, never cut safety; **`/devmode lean goal <objective>`** emits a
+  `/goal` that bakes that discipline in.
 - [`integrations/llm-wiki/`](integrations/llm-wiki/README.md) — an **opt-in
   knowledge module** (independent of the code process): deploys a **Karpathy LLM
   Wiki** — a persistent, LLM-maintained **markdown** knowledge base (no app, no DB,

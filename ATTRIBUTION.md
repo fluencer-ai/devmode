@@ -35,6 +35,8 @@ reused (no files copied), as noted.
 | `/devmode do` — the plain-English task-router mode (Route→…→Deliver, evidence-gated) in `commands/devmode.md` | the `/do` command | [notque/vexjoy-agent](https://github.com/notque/vexjoy-agent) | MIT |
 | `integrations/.../hooks/session_resume.py` — SessionStart warm-resume hook | the SessionStart lifecycle-hook pattern | [notque/claude-code-starter-kit](https://github.com/notque/claude-code-starter-kit) | MIT |
 | `integrations/llm-wiki/` — the `/devmode wiki` module (LLM-maintained markdown knowledge base: 3 layers, 7 page types, ingest/query/lint) | the *LLM Wiki* pattern (concept only — no app/code) | [Andrej Karpathy's gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) | gist (concept) |
+| `skills/minimal-code` + `/devmode lean` — the lazy-senior-dev minimalism ladder, safety floor, intensity levels, deliberate-simplification comment, audit/review lenses | the `ponytail` skill (concept/prose only — none of its Node hooks or multi-agent packaging) | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | MIT © Dietrich Gebert |
+| `skills/visual-explainers` | — devmode-original — (the `visualize`/`show_widget` usage is environment-specific; the legibility/theming/a11y rules are tool-agnostic) | (none) | — |
 | `skills/code-review` ("comprehension debt", maker/checker), `skills/subagent-driven-development` (worktree isolation) | the *loop-engineering* essays | [Osmani](https://addyosmani.com/blog/loop-engineering/) · [Autocomplete](https://medium.com/autocomplete-real-world-ai/wtf-is-a-agentic-coding-loop-and-how-to-build-one-58eedb7cbcae) · [Greyling](https://cobusgreyling.medium.com/loop-engineering-62926dd6991c) | essays (concepts) |
 | `skills/self-scorecard`, `scripts/scorecard.py`, `scripts/dashboard.py` | — devmode-original — | (none) | — |
 | `skills/goal-brief`, `scripts/goal_brief.py` | — devmode-original — (emits Claude Code `/goal` & `/plan` commands; the commands are referenced, not vendored) | (none) | — |
@@ -82,6 +84,12 @@ reused (no files copied), as noted.
   markdown** (3 layers, 7 canonical page types, ingest/query/lint) — deliberately
   **not** tied to any specific wiki app or database; no third-party code was used,
   only the published pattern.
+- **DietrichGebert/ponytail** (MIT) is the source of the `minimal-code` skill and
+  the `/devmode lean` mode — its "lazy senior dev" minimalism ladder, the
+  lazy-not-negligent safety floor, the intensity levels, the deliberate-
+  simplification comment, and the benchmark evidence. We absorbed the **concept**
+  as a single markdown skill; we did **not** port its Node lifecycle hooks, MCP
+  server, or 14-agent platform packaging (devmode is markdown + Python-stdlib).
 
 If you are an author here and want a correction to this attribution, please open
 an issue.

@@ -38,7 +38,7 @@ Dentro de `devmode/` você tem quatro tipos de peça:
 
 | Peça | O que é | Onde fica |
 |------|---------|-----------|
-| **39 skills** | 20 de *processo* + 16 de *domínio* + 3 *meta* (`self-scorecard`, `discovery`, `goal-brief`) | `skills/<nome>/SKILL.md` |
+| **41 skills** | 20 de *processo* + 18 de *domínio* + 3 *meta* (`self-scorecard`, `discovery`, `goal-brief`) | `skills/<nome>/SKILL.md` |
 | **8 agentes** | Subagentes que encarnam papéis do processo (inclui o painel de review) | `.agents/*.md` |
 | **2 referências** | Fundamentos teóricos e guia de diagnóstico | `references/*.md` |
 | **templates + script** | Modelos (PRD, glossário) + auditor da pack (`scripts/audit_skills.py`) | `skills/*/assets/`, `scripts/` |
@@ -93,7 +93,7 @@ O processo tem duplas projetadas para se reforçar:
 - **`code-review` ↔ `verification-before-completion`** — o painel acha os
   buracos; cada correção é *re-verificada* antes de fechar (loop achar→corrigir→provar).
 
-### As 16 skills de domínio (craft cross-cutting)
+### As 18 skills de domínio (craft cross-cutting)
 
 Não são fases — são *expertise* que os agentes puxam **durante** as fases:
 
@@ -108,13 +108,17 @@ Não são fases — são *expertise* que os agentes puxam **durante** as fases:
 - **Práticas:** `documentation` (ADRs, o *porquê*), `doc-contracts` (árvore de
   AGENTS.md — contratos locais por área, lidos antes de editar e atualizados no
   mesmo commit), `prototyping` (spike descartável → captura → deleta),
-  `context-engineering`, `source-of-truth` (checar versão/docs, não a memória).
+  `minimal-code` (a escada do "dev sênior preguiçoso" — escrever só o necessário,
+  sem nunca cortar segurança; a disciplina do `/devmode lean`),
+  `context-engineering`, `source-of-truth` (checar versão/docs, não a memória),
+  `visual-explainers` (visuais SVG/HTML inline no chat — temáticos, acessíveis).
 
 Importadas de `addyosmani/agent-skills` (MIT), generalizadas para a base
 tool-agnostic; `ux-design`/`accessibility` foram **escritas** para preencher a
 lacuna de design; `doc-contracts` adaptada de `agent0ai/dox` (MIT); `prototyping`
-adaptada de `mattpocock/skills` (MIT — o projeto-irmão do devmode). A meta de
-cobertura cega foi reconciliada com a base.
+adaptada de `mattpocock/skills` (MIT — o projeto-irmão do devmode); `minimal-code`
+adaptada de `DietrichGebert/ponytail` (MIT). A meta de cobertura cega foi
+reconciliada com a base.
 
 ---
 
@@ -350,6 +354,12 @@ do merge.
 - **`/devmode adopt <pasta>`** — implanta o devmode num **projeto existente** e roda **discovery** (skill `discovery`, estilo reversa): varre o código, detecta stack, monta o **mapa de módulos** + glossário em `UBIQUITOUS_LANGUAGE.md` e um `DISCOVERY.md` (conceito de design provisório + arquitetura), com tags 🟢/🟡/🔴 — e a fase ALIGN ataca os 🔴 com você. Se a pasta já tem `CLAUDE.md`, ele é **preservado byte-a-byte** — o instalador só acrescenta um ponteiro idempotente `@CLAUDE.devmode.md` (composição via import nativo; suas instruções continuam o host e têm precedência). Nada de reescrever; merge num arquivo só é opcional, se você pedir.
 - **`/devmode goal <objetivo>`** (opt-in) — gera um comando **`/goal` pronto** (≤3800 chars) que referencia o `spec.md` em detalhe (passo-a-passo + testes + critérios de aceite), com o limite **garantido por script** (`.devmode/goal_brief.py`). Use `plan <objetivo>` para um `/plan` (planejar o goal — a recursão `/plan ↔ /goal`). O devmode **não executa o `/goal` sozinho** (um agente não dispara slash-command); ele **te entrega o comando** para você rodar a cada iteração. Não fica embutido no fluxo normal — só quando você pede.
 - **`/devmode <ideia>`** — guia/retoma no projeto atual.
+- **`/devmode lean <ideia>`** / **`/devmode lean goal <objetivo>`** — roda com a
+  disciplina **`minimal-code`** (a escada "dev sênior preguiçoso" do ponytail) em
+  primeiro plano: escrever só o que a tarefa precisa (stdlib/nativo/uma linha),
+  **sem nunca cortar** validação, tratamento de erro, segurança ou acessibilidade.
+  A forma `lean goal` emite um `/goal` com essa diretiva embutida. (Adaptado de
+  `DietrichGebert/ponytail`, MIT.)
 - **`/devmode do <tarefa>`** — para **uma tarefa só** (não um projeto): roteia a
   frase para a(s) skill(s)+agente certos e roda um pipeline curto com gates de
   evidência (Entender → Planejar → Executar → Verificar → Entregar). É o irmão de
@@ -375,7 +385,7 @@ do merge.
 Em **toda fase**, o orquestrador mostra um **score** (skill `self-scorecard`): resumo do que foi feito + nota 0–10 em 5 critérios (Correctness, Design, Testing, Safety, Clarity) com deltas (`.devmode/scorecard.py`), e atualiza um **dashboard visual** (`.devmode/dashboard.py` → `devmode-dashboard.html`, sem servidor nem registro). O dashboard traz uma **faixa de KPIs**, uma **esteira do workflow** (as fases Align→Refactor, alcançadas/atual), um **timeline por fase**, um **sparkline** da tendência de score, e um **painel de Gates** alimentado por `.devmode/gates.json` (emitido por um `ci/check.sh`). No fim, `--final` dá **recomendações por critério**. O dashboard é **zero-setup,
 sem servidor nem registro** — basta abrir o `devmode-dashboard.html`.
 
-Os 39 skills e 8 agentes são a **base agnóstica de ferramenta** — funcionam
+Os 41 skills e 8 agentes são a **base agnóstica de ferramenta** — funcionam
 sozinhos. Mas quando o trabalho dura muitas sessões, falta ao devmode uma espinha
 de **orquestração** (tracks, status, dependências) e de **memória persistente**
 (que sobrevive à compactação da conversa). É aí que entra a integração:

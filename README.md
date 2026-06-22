@@ -4,12 +4,12 @@
 > *"Code is not cheap. Bad code is the most expensive it has ever been."*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-![Skills](https://img.shields.io/badge/skills-39-blue.svg)
+![Skills](https://img.shields.io/badge/skills-41-blue.svg)
 ![Agents](https://img.shields.io/badge/agents-8-blue.svg)
 ![Dependencies](https://img.shields.io/badge/runtime_deps-none-lightgrey.svg)
 
 devmode is a complete, **tool-agnostic software development process** packaged as
-39 skills, 8 subagents, deterministic guardrail hooks, a self-scoring system, and
+41 skills, 8 subagents, deterministic guardrail hooks, a self-scoring system, and
 a zero-setup visual dashboard — built for working *with* AI coding agents (Claude
 Code and similar) without letting the codebase rot.
 
@@ -23,7 +23,7 @@ Code and similar) without letting the codebase rot.
 - [What's in the box](#whats-in-the-box)
 - [Quick start](#quick-start)
 - [The workflow (a loop, not a march)](#the-workflow-a-loop-not-a-march)
-- [The 39 skills](#the-39-skills)
+- [The 41 skills](#the-41-skills)
 - [The 8 agents](#the-8-agents)
 - [Self-evaluation: scorecard & dashboard](#self-evaluation-scorecard--dashboard)
 - [Enforcement: gates that bite](#enforcement-gates-that-bite)
@@ -70,7 +70,7 @@ direction.**
 
 | Piece | What it is | Where |
 |---|---|---|
-| **39 skills** | 20 *process* + 16 *domain* + 3 *meta* skills — each a focused, trigger-described practice | [`skills/`](skills/) |
+| **41 skills** | 20 *process* + 18 *domain* + 3 *meta* skills — each a focused, trigger-described practice | [`skills/`](skills/) |
 | **8 agents** | Subagent role definitions, including a parallel 4-lane review panel | [`.agents/`](.agents/) |
 | **Scripts** | Pack auditor, self-scorecard, HTML dashboard, `/goal` budget checker | [`scripts/`](scripts/) |
 | **Guardrail hooks** | Deterministic PreToolUse + Stop gates + a SessionStart warm-resume (Python, stdlib only) | [`integrations/conductor-beads/hooks/`](integrations/conductor-beads/hooks/) |
@@ -126,6 +126,8 @@ drives the whole phase machine for you, pausing only at human decision gates:
 /devmode start <name> <idea>   # scaffold a fresh workspaces/<name> project and guide it
 /devmode adopt <folder>        # deploy devmode into an EXISTING codebase + run discovery
 /devmode goal <objective>      # (opt-in) emit a ready-to-run Claude /goal or /plan command
+/devmode lean <idea>           # run the full flow with the minimal-code (ponytail) discipline
+/devmode lean goal <objective> # emit a /goal that bakes in the lean discipline
 /devmode do <task>             # route & run ONE bounded task, gated (the single-task sibling)
 /devmode wiki start <path>     # scaffold a Karpathy LLM Wiki (opt-in knowledge module)
 /devmode wiki adopt <folder>   # add the LLM Wiki to an existing project (non-destructive)
@@ -172,7 +174,7 @@ only the affected delta, and record the re-entry as its own scored phase
 (`Re-specify`). The dashboard badges these loop-backs (`↩ re-entry`) so they're
 visible in the trend, not hidden.
 
-## The 39 skills
+## The 41 skills
 
 Each skill is a `SKILL.md` with a trigger-rich description (when to fire) and a
 compact, operational body. The pack is audited by
@@ -209,7 +211,7 @@ trigger lint.
 </details>
 
 <details>
-<summary><b>Domain skills (16)</b> — cross-cutting craft pulled in during the phases</summary>
+<summary><b>Domain skills (18)</b> — cross-cutting craft pulled in during the phases</summary>
 
 | Skill | One line |
 |---|---|
@@ -227,8 +229,10 @@ trigger lint.
 | [`documentation`](skills/documentation/SKILL.md) | ADRs for the *why*; supersede, don't mutate |
 | [`doc-contracts`](skills/doc-contracts/SKILL.md) | Hierarchical AGENTS.md tree: local contracts walked before editing, updated in the same commit |
 | [`prototyping`](skills/prototyping/SKILL.md) | Throwaway code that answers ONE question — a spike, then captured and deleted (never kept as production) |
+| [`minimal-code`](skills/minimal-code/SKILL.md) | The lazy-senior-dev ladder — write only what's needed (stdlib/native/one line) and never cut safety (the `/devmode lean` discipline) |
 | [`context-engineering`](skills/context-engineering/SKILL.md) | Curate the working set; minimal briefs; clean handoffs that survive compaction |
 | [`source-of-truth`](skills/source-of-truth/SKILL.md) | Check the installed version and real docs, not training-data memory |
+| [`visual-explainers`](skills/visual-explainers/SKILL.md) | Inline SVG/HTML visuals (diagram, chart, mockup) that render in chat — themed, accessible, not clipped |
 
 </details>
 
@@ -319,7 +323,7 @@ devmode/
 ├── manual.md                    # full PT-BR manual
 ├── ATTRIBUTION.md               # per-artifact third-party credits
 ├── LICENSE                      # MIT
-├── skills/                      # 39 skills (each: SKILL.md + optional assets/)
+├── skills/                      # 41 skills (each: SKILL.md + optional assets/)
 ├── .agents/                     # 8 subagent definitions
 ├── .claude/                     # mirrors (commands/agents) so /devmode works here too
 ├── scripts/
@@ -379,12 +383,13 @@ projects. Full per-artifact mapping with licenses:
 | [NguyenSiTrung/Conductor-Beads](https://github.com/NguyenSiTrung/Conductor-Beads) | the upstream Conductor+Beads toolkit (cloned at install time with `--with-conductor`, never vendored here) | Apache-2.0 |
 | [cowwoc/cat](https://github.com/cowwoc/cat) | subagent-delegation *concepts* only (no files) | source-available |
 | [Karpathy's *LLM Wiki* gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) | the `integrations/llm-wiki/` module — LLM-maintained markdown knowledge base (pure markdown, app-free) | (gist) |
+| [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | the `minimal-code` skill + `/devmode lean` — the "lazy senior dev" minimalism ladder (concept only; none of its Node hooks / multi-agent packaging) | MIT |
 
 devmode and [mattpocock/skills](https://github.com/mattpocock/skills) are
 **siblings**: both were distilled from the thesis in Matt Pocock's *"Claude Code
 for real engineers"* talk — that AI is a brilliant tactician with no strategy, so
 *you* must supply it. devmode generalized that thesis into a tool-agnostic process
-(39 skills, agents, enforced gates, scorecard/dashboard) combined with the
+(41 skills, agents, enforced gates, scorecard/dashboard) combined with the
 reading list above.
 
 ## License
