@@ -1,6 +1,6 @@
 ---
-description: Guided devmode mode. `start <name> <idea>` scaffolds a new workspaces/<name> project; `adopt <folder>` deploys+discovers an existing one; `goal|plan <objective>` emits a ready-to-run Claude /goal or /plan command; `lean <idea>`|`lean goal <objective>` runs with the minimal-code (ponytail) discipline; `do <task>` routes & runs ONE task gated; `wiki start|adopt` deploys a Karpathy LLM Wiki; `c [comment]` applies the gates to an ad-hoc turn; `<idea>`/blank guides or resumes the current project.
-argument-hint: start <name> <idea> | adopt <folder> | goal <objective> | lean <idea>|goal <objective> | do <task> | wiki start|adopt <path> | c [comment] | <idea> | (blank to resume)
+description: Guided devmode mode. `start <name> <idea>` scaffolds a new workspaces/<name> project; `adopt <folder>` deploys+discovers an existing one; `update <folder>`|`update wiki <folder>` refreshes devmode (or a wiki's schema) in a project to the current base; `goal|plan <objective>` emits a ready-to-run Claude /goal or /plan command; `lean <idea>`|`lean goal <objective>` runs with the minimal-code (ponytail) discipline; `do <task>` routes & runs ONE task gated; `wiki start|adopt` deploys a Karpathy LLM Wiki; `c [comment]` applies the gates to an ad-hoc turn; `<idea>`/blank guides or resumes the current project.
+argument-hint: start <name> <idea> | adopt <folder> | update <folder>|wiki <folder> | goal <objective> | lean <idea>|goal <objective> | do <task> | wiki start|adopt <path> | c [comment] | <idea> | (blank to resume)
 ---
 
 # /devmode — guided mode
@@ -133,6 +133,32 @@ handling, security, or accessibility**. Two forms by the **second** token:
 
 Keep the user *led, not quizzed*. (The minimalism discipline is adapted from
 `DietrichGebert/ponytail`, MIT — see the `minimal-code` skill.)
+
+### Mode Update — `update <folder>` | `update wiki <folder>`  (first token is `update`)  ← runs INLINE
+Refresh the devmode-MANAGED files in an existing project to the **current base**,
+without touching anything the project owns. Runs **inline** (a sync, not the phase
+machine). The **second** token selects what to update:
+
+- **`update <folder>`** — update the **devmode system** in `<folder>`:
+  ```bash
+  integrations/conductor-beads/update.sh "<folder>"
+  ```
+  Overwrites the devmode-owned set (`.claude/skills/`, the role agents + the
+  orchestrator, the `/devmode` command, the hooks incl. `session_resume`, the
+  `.devmode/*.py` scripts, the references, the `conductor/workflow.md` adapter +
+  `INTEGRATION.md` + track templates, and `CLAUDE.devmode.md` *only if it exists*).
+  **Never touches** the project's `CLAUDE.md`, `UBIQUITOUS_LANGUAGE.md`, conductor
+  product/tracks/patterns, `.devmode/scorecard.json`, the dashboard, or any code.
+- **`update wiki <folder>`** — update a deployed **LLM Wiki's schema** in `<folder>`:
+  ```bash
+  integrations/llm-wiki/update.sh "<folder>"
+  ```
+  Refreshes only the schema/how-to docs (`KARPATHY.md`, the deployed `README.md`,
+  `raw/README.md`); **never touches** the knowledge (`wiki/` pages, `raw/sources/`).
+
+After running, tell the user to review with `git -C "<folder>" status` (only
+devmode-managed files should appear) and summarize what was refreshed. Keep the
+user *led, not quizzed*.
 
 ### Mode A — `start <name> <idea>`  (first token is `start`)
 Scaffold a brand-new project under `workspaces/` and begin work in it. Parse the

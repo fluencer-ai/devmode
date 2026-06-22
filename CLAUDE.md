@@ -185,9 +185,11 @@ that base — the base stays the source of truth:
   carries the *process*; you still make the *decisions*, made easy). Three modes:
   `/devmode start <name> <idea>` scaffolds a new `workspaces/<name>` project;
   `/devmode adopt <folder>` deploys devmode into an *existing* codebase and runs
-  `discovery` on it; `/devmode goal <objective>` (opt-in) emits a ready-to-run
-  Claude `/goal`/`/plan` command referencing the spec; `/devmode [idea]`
-  guides/resumes in the current project. It shows a `self-scorecard` at every gate
+  `discovery` on it; `/devmode update <folder>` (and `/devmode update wiki <folder>`)
+  refreshes the devmode-managed files (or a wiki's schema) in a project to the
+  current base, leaving all project-owned content untouched; `/devmode goal
+  <objective>` (opt-in) emits a ready-to-run Claude `/goal`/`/plan` command
+  referencing the spec; `/devmode [idea]` guides/resumes in the current project. It shows a `self-scorecard` at every gate
   and refreshes `devmode-dashboard.html` (the zero-setup, no-server visualization).
   For ad-hoc ops/debug, **`/devmode c [comment]`** applies the gates *per-turn*
   (root-cause-first, evidence-before-done) without spinning up the phase machine —

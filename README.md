@@ -125,6 +125,8 @@ drives the whole phase machine for you, pausing only at human decision gates:
 ```text
 /devmode start <name> <idea>   # scaffold a fresh workspaces/<name> project and guide it
 /devmode adopt <folder>        # deploy devmode into an EXISTING codebase + run discovery
+/devmode update <folder>       # refresh devmode in a project to the latest base (project files untouched)
+/devmode update wiki <folder>  # refresh a deployed LLM Wiki's schema (knowledge untouched)
 /devmode goal <objective>      # (opt-in) emit a ready-to-run Claude /goal or /plan command
 /devmode lean <idea>           # run the full flow with the minimal-code (ponytail) discipline
 /devmode lean goal <objective> # emit a /goal that bakes in the lean discipline
