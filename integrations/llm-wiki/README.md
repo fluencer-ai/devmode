@@ -16,6 +16,7 @@ graph of markdown, so knowledge **compounds** instead of being re-derived per qu
 
 ```
 <project>/
+├── README.md              ← human how-to: use + improve the wiki with Claude Code
 ├── KARPATHY.md            ← the SCHEMA: how the wiki is structured + maintained
 ├── CLAUDE.md              ← imports @KARPATHY.md (so the agent reads the schema)
 ├── raw/                   ← layer 1: immutable external sources (human drops, LLM reads)

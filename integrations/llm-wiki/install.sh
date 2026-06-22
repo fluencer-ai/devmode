@@ -54,9 +54,9 @@ TARGET="$(cd "$TARGET" && pwd)"
 copy() {  # copy <src> <dst>
   local src="$1" dst="$2"
   if [ -e "$dst" ] && [ "$FORCE" -ne 1 ]; then
-    info "kept existing $(basename "$dst") (use --force to overwrite)"
+    info "kept existing ${dst#"$TARGET"/} (use --force to overwrite)"
   else
-    mkdir -p "$(dirname "$dst")"; cp "$src" "$dst"; ok "wrote $(basename "$dst")"
+    mkdir -p "$(dirname "$dst")"; cp "$src" "$dst"; ok "wrote ${dst#"$TARGET"/}"
   fi
 }
 
@@ -72,6 +72,7 @@ done
 ok "created wiki/{entities,concepts,synthesis,sources,queries,comparisons} + raw/{sources,assets}"
 
 # 2. schema + special files (non-destructive)
+copy "$TPL/README.md"         "$TARGET/README.md"
 copy "$TPL/KARPATHY.md"        "$TARGET/KARPATHY.md"
 copy "$TPL/wiki/index.md"      "$TARGET/wiki/index.md"
 copy "$TPL/wiki/log.md"        "$TARGET/wiki/log.md"
@@ -105,4 +106,4 @@ if [ "$ADOPT" -eq 1 ]; then
 fi
 
 step "Done"
-ok "Wiki ready. Next: read KARPATHY.md, drop a source in raw/sources/, ask the LLM to ingest it."
+ok "Wiki ready. Start with README.md (how-to) and KARPATHY.md (schema); drop a source in raw/sources/ and ask the LLM to ingest it."

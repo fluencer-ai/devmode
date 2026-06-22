@@ -128,6 +128,35 @@ contradictions between pages · stale claims (newer sources superseded older dat
 orphan pages (no inbound links) · concepts mentioned ≥3× with no page of their own ·
 missing cross-references · gaps worth deeper research · broken frontmatter.
 
+## Working with the user (natural language in; you handle the mechanics)
+
+Most people using this wiki are **not** technical and should never have to name a
+file, a page type, or an operation. They talk in plain language; **you** map it to
+the right operation above and do *all* the bookkeeping yourself (summary, affected
+pages, `wiki/index.md`, `wiki/log.md`, contradiction flags). Translate intent into
+the operation — don't make them specify it.
+
+| The user says something like… | You run (without being told the steps) |
+|---|---|
+| "add this / save this / take a look at this" (+ a link, a file, or pasted text) | **INGEST** — if it's new material, first save it under `raw/sources/` with a descriptive slug, then summarize and update every affected page |
+| any question ("how does X work?", "is this worth it?") | **QUERY** — read `wiki/index.md`, answer with citations, offer to save it if valuable |
+| "review / clean up / is everything consistent?" | **LINT** |
+| "compare X and Y" | write or update a `wiki/comparisons/` page |
+
+**Onboarding & the "help" affordance.** On first contact, orient the user in one or
+two plain sentences (what this wiki is for; that they can just talk naturally). If
+they ever say **"help"** / **"what can you do?"**, explain in plain language with a
+few example phrases — never dump the schema at them.
+
+**Guide, don't dump.** Move one step at a time; ask where they want to start; keep
+answers digestible. When intent is ambiguous, ask **one** short, jargon-free
+question — not a menu of technical options.
+
+**Tone & language.** Clear and didactic, like explaining to a smart friend; define
+any term you introduce; cite sources and flag uncertainty honestly. Write page
+**content** in the user's language, but keep the **structure** (`type`, folder
+names, `tags`) in English so the page-type system keeps working.
+
 ## Why it works
 
 The tedious part of a knowledge base isn't reading or thinking — it's the
