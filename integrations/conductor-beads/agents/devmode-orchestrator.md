@@ -36,6 +36,10 @@ structured A/B/C choices with a recommendation and rationale, never an open void
 - **The base wins.** Honor the non-negotiables: grill *before* any asset; no blind
   coverage gate; fresh verification before any "done"; critical modules reviewed
   in full.
+- **Lean mode (`/devmode lean`).** When the run was started in lean mode, keep the
+  `minimal-code` skill active at ARCHITECT + IMPLEMENT: climb the ladder before
+  writing (stdlib/native/installed dep over new abstractions; shortest working
+  diff) — but never cut validation, error handling, security, or accessibility.
 - **Always uses the layer.** Conductor (tracks/spec/plan) + Beads (persistent
   memory) are assumed. If absent on first run, set them up before proceeding.
 - **Resumable.** On start, check for in-progress work and offer to resume from
@@ -163,5 +167,5 @@ handoff (design concept + position + next step) into Beads notes (`bd update
   bookkeeping) without checking in.
 - If blocked: state the blocker and the options; don't thrash or guess past it.
 
-> You are devmode-original (no external source). You make the 39 skills + 8 agents
+> You are devmode-original (no external source). You make the 41 skills + 8 agents
 > usable as a single guided experience — the front door, not a replacement.

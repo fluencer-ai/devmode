@@ -1,6 +1,6 @@
 ---
-description: Guided devmode mode. `start <name> <idea>` scaffolds a new workspaces/<name> project; `adopt <folder>` deploys+discovers an existing one; `goal|plan <objective>` emits a ready-to-run Claude /goal or /plan command; `do <task>` routes & runs ONE task gated; `wiki start|adopt` deploys a Karpathy LLM Wiki; `c [comment]` applies the gates to an ad-hoc turn; `<idea>`/blank guides or resumes the current project.
-argument-hint: start <name> <idea> | adopt <folder> | goal <objective> | do <task> | wiki start|adopt <path> | c [comment] | <idea> | (blank to resume)
+description: Guided devmode mode. `start <name> <idea>` scaffolds a new workspaces/<name> project; `adopt <folder>` deploys+discovers an existing one; `goal|plan <objective>` emits a ready-to-run Claude /goal or /plan command; `lean <idea>`|`lean goal <objective>` runs with the minimal-code (ponytail) discipline; `do <task>` routes & runs ONE task gated; `wiki start|adopt` deploys a Karpathy LLM Wiki; `c [comment]` applies the gates to an ad-hoc turn; `<idea>`/blank guides or resumes the current project.
+argument-hint: start <name> <idea> | adopt <folder> | goal <objective> | lean <idea>|goal <objective> | do <task> | wiki start|adopt <path> | c [comment] | <idea> | (blank to resume)
 ---
 
 # /devmode — guided mode
@@ -100,13 +100,39 @@ server. It's a *knowledge* base, not the code phase machine, so it runs **inline
   integrations/llm-wiki/install.sh "<folder>" --adopt
   ```
 
-Then, briefly: confirm the scaffold; point the user at `KARPATHY.md` (the schema
-that makes the agent a disciplined maintainer); and offer to **ingest** a first
+Then, briefly: confirm the scaffold; point the user at `README.md` (the human
+how-to) and `KARPATHY.md` (the schema that makes the agent a disciplined
+maintainer); and offer to **ingest** a first
 source — they drop a file in `raw/sources/`, you write a `wiki/sources/<slug>.md`
 summary and update every affected page. The 7 page types, the frontmatter spec,
 and the ingest/query/lint operations all live in the deployed `KARPATHY.md` —
 read it and follow it. Keep the user *led, not quizzed*. (Concept: Andrej
 Karpathy's *LLM Wiki* gist — pure markdown, app-free.)
+
+### Mode Lean — `lean <idea>` | `lean goal|plan <objective>`  (first token is `lean`)
+Run with the **`minimal-code`** discipline (the "lazy senior dev" ladder) in the
+foreground — write only what the task needs and **never cut validation, error
+handling, security, or accessibility**. Two forms by the **second** token:
+
+- **`lean <idea>`** — drive the **full guided flow via the orchestrator** (like a
+  bare idea), but brief it to keep `minimal-code` active *every* step: at ARCHITECT
+  prefer stdlib/native/installed deps over new abstractions; at IMPLEMENT climb the
+  ladder before writing, mark deliberate simplifications with a `minimal:` comment,
+  keep the diff shortest-that-works. Delegate:
+  `Task(subagent_type="devmode-orchestrator", …, "foreground the minimal-code skill at every code step; default intensity 'full' (say 'ultra' to push, 'lite' to only suggest)")`.
+- **`lean goal <objective>`** (also `lean plan`) — exactly Mode D (below), but the
+  emitted brief **bakes in the lean directive** so the executing `/goal`/`/plan`
+  agent builds minimally. After scaffolding the brief from the track `spec.md`
+  (`.devmode/goal_brief.py scaffold … --kind goal|plan`), prepend a short directive
+  to it, e.g.:
+  > *Lean build (ponytail ladder): before each change, take the first that holds —
+  > skip-if-unneeded → stdlib → native → installed dep → one line → minimum.
+  > Shortest working diff; no unrequested abstractions. NEVER cut validation,
+  > error handling, security, or accessibility.*
+  Then guarantee the limit (`printf '%s' "<brief>" | python3 .devmode/goal_brief.py check --budget 3800` → must say `PASS`) and emit the ready-to-run `/goal …` (or `/plan …`). Re-emit on request.
+
+Keep the user *led, not quizzed*. (The minimalism discipline is adapted from
+`DietrichGebert/ponytail`, MIT — see the `minimal-code` skill.)
 
 ### Mode A — `start <name> <idea>`  (first token is `start`)
 Scaffold a brand-new project under `workspaces/` and begin work in it. Parse the
@@ -118,7 +144,7 @@ after** as `<idea>`.
    from the devmode repo. Refuse if `workspaces/<name>` already exists (suggest a
    new name or `/devmode` to resume).
 2. **Scaffold (copy everything in):** run the installer to copy the devmode base
-   (CLAUDE.md, 39 skills, 8 agents, references), mount the Conductor layer, drop
+   (CLAUDE.md, 41 skills, 8 agents, references), mount the Conductor layer, drop
    the orchestrator + `/devmode` command, init Beads, and **wire the deterministic
    guardrails hook**:
    ```bash
