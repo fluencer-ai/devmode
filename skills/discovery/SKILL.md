@@ -109,5 +109,5 @@ map to work from.
 > tool-agnostic devmode skill (reversa's value is the prompts, not its installer).
 > The **readiness read** (test-safety-net + operational readiness → a recommended
 > first move) is adapted from the pre-scaffold `genome` analysis in
-> [`ruvnet/agent-harness-generator`](https://github.com/ruvnet/agent-harness-generator)
-> (MetaHarness), MIT — reframed to devmode's qualitative 🟢🟡🔴 (no 0–100 score).
+> `ruvnet/agent-harness-generator` (MetaHarness), MIT — reframed to devmode's
+> qualitative 🟢🟡🔴 (no 0–100 score).

@@ -130,7 +130,7 @@ less).
 - Cutting validation/error-handling/security/a11y to "keep it minimal" — that's
   negligent, not lazy: stop and put them back.
 
-> Adapted from [`DietrichGebert/ponytail`](https://github.com/DietrichGebert/ponytail)
+> Adapted from `DietrichGebert/ponytail`
 > (the "lazy senior dev" minimalism skill — the ladder, the safety floor, the
 > intensity levels, the deliberate-simplification comment, the audit/review
 > lenses, and the benchmark evidence), MIT © Dietrich Gebert. Reframed in the

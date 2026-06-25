@@ -138,8 +138,7 @@ A vulnerability report (`npm audit` / equivalent) is not a fire drill — triage
 > Adapted from `addyosmani/agent-skills` (`security-and-hardening` +
 > `references/security-checklist.md`), MIT. The *scan-before-you-share* secrets
 > reflex (grep the diff before commit/push/paste; rotate on leak) is reinforced by
-> the credential-exposure gate in
-> [`ruvnet/agent-harness-generator`](https://github.com/ruvnet/agent-harness-generator)'s
-> `validate`, MIT — devmode keeps it as a *practice* (the `guardrails.py` hook
-> already denies writes to secret paths; a fuzzy content-scanner in the hook would
-> trade false positives for little gain).
+> the credential-exposure gate in `ruvnet/agent-harness-generator`'s `validate`,
+> MIT — devmode keeps it as a *practice* (the `guardrails.py` hook already denies
+> writes to secret paths; a fuzzy content-scanner in the hook would trade false
+> positives for little gain).

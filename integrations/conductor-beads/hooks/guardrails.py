@@ -4,7 +4,7 @@
 devmode's skills *persuade* via prompts; this hook *enforces* a small set of
 safety rules deterministically, so a few dangerous operations are blocked even
 when prompt guidance drifts. Adapted (lean, stdlib-only) from the R-rule engine
-in github.com/Chachamaru127/claude-code-harness (MIT).
+in Chachamaru127/claude-code-harness (MIT).
 
 Design (devmode-style): `evaluate()` is a **pure functional core** (tool name +
 input → decision), tested directly; `main()` is the **imperative shell** (read

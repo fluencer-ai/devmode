@@ -6,8 +6,7 @@
 > structured and the workflows to follow. Without a schema the LLM re-derives
 > everything every time; with it, knowledge **compounds**.
 >
-> **Concept:** Andrej Karpathy's *LLM Wiki* pattern —
-> [gist.github.com/karpathy/442a6bf555914893e9891c11519de94f](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f).
+> **Concept:** Andrej Karpathy's *LLM Wiki* pattern (a public gist).
 > Pure markdown — no app, no database, no server. Browse it in any editor
 > (Obsidian follows the `[[wikilinks]]`); maintain it with any LLM coding agent.
 > Deployed by devmode's `/devmode wiki` module.
