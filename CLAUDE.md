@@ -114,7 +114,6 @@ development. Reach for them whenever the work touches their area.
   · [`context-engineering`](skills/context-engineering/SKILL.md)
   · [`source-of-truth`](skills/source-of-truth/SKILL.md)
   · [`visual-explainers`](skills/visual-explainers/SKILL.md)
-  · [`visual-explainers`](skills/visual-explainers/SKILL.md)
 
 Most are adapted from `addyosmani/agent-skills` (MIT), generalized off their web
 stack to fit the tool-agnostic base; `ux-design` and `accessibility` are authored

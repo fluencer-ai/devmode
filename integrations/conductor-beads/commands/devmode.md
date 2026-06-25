@@ -5,16 +5,17 @@ argument-hint: start <name> <idea> | adopt <folder> | update <folder>|wiki <fold
 
 # /devmode — guided mode
 
-**On a full `/devmode` invocation — Mode A (`start`), Mode C (`adopt`), Mode D
-(`goal`/`plan`), or Mode B (a bare idea / blank resume) — your FIRST action MUST
-be to DELEGATE to the `devmode-orchestrator` agent via the Task tool**
+**For the modes that DRIVE THE PHASE MACHINE — `start`, `adopt`, `lean <idea>`, or
+a bare idea / blank resume (Mode Start / Adopt / Lean / Resume, below) — your FIRST
+action MUST be to DELEGATE to the `devmode-orchestrator` agent via the Task tool**
 (`subagent_type: "devmode-orchestrator"`), briefing it with the current state and
 the decision at hand. Do **not** embody the phase machine inline — *spawn the
 orchestrator and relay its gate*. The orchestrator does the mechanical work and
-pauses only at the human decision gates (easy structured A/B/C choices). The
-**exceptions are `/devmode c`, `/devmode do`, and `/devmode wiki`** (Modes C-lite,
-Do, and Wiki, below): they run inline with the gates and must NOT spin up the
-orchestrator.
+pauses only at the human decision gates (easy structured choices). The modes that
+**do NOT** spawn the orchestrator: **`c`, `do`, `wiki`, and `update`** run inline
+with the gates (Modes C-lite, Do, Wiki, Update, below); **`goal`/`plan`** (and
+`lean goal`/`lean plan`) *emit a ready-to-run command* (Mode Goal). None of these
+spin up the orchestrator.
 
 This is **enforced, not advisory** (text alone gets ignored under pressure): the
 `devmode_phase_gate.py` **Stop hook BLOCKS** ending a full `/devmode` turn that did
@@ -120,7 +121,7 @@ handling, security, or accessibility**. Two forms by the **second** token:
   ladder before writing, mark deliberate simplifications with a `minimal:` comment,
   keep the diff shortest-that-works. Delegate:
   `Task(subagent_type="devmode-orchestrator", …, "foreground the minimal-code skill at every code step; default intensity 'full' (say 'ultra' to push, 'lite' to only suggest)")`.
-- **`lean goal <objective>`** (also `lean plan`) — exactly Mode D (below), but the
+- **`lean goal <objective>`** (also `lean plan`) — exactly Mode Goal (below), but the
   emitted brief **bakes in the lean directive** so the executing `/goal`/`/plan`
   agent builds minimally. After scaffolding the brief from the track `spec.md`
   (`.devmode/goal_brief.py scaffold … --kind goal|plan`), prepend a short directive
@@ -160,7 +161,7 @@ After running, tell the user to review with `git -C "<folder>" status` (only
 devmode-managed files should appear) and summarize what was refreshed. Keep the
 user *led, not quizzed*.
 
-### Mode A — `start <name> <idea>`  (first token is `start`)
+### Mode Start — `start <name> <idea>`  (first token is `start`)
 Scaffold a brand-new project under `workspaces/` and begin work in it. Parse the
 **second** token as `<name>` (slugify: lowercase, spaces→`-`) and **everything
 after** as `<idea>`.
@@ -185,7 +186,7 @@ after** as `<idea>`.
 > `workspaces/` is gitignored scratch in the devmode repo — perfect for spinning
 > up an isolated project without touching the base. Bring learnings back by hand.
 
-### Mode C — `adopt <folder>`  (first token is `adopt`)
+### Mode Adopt — `adopt <folder>`  (first token is `adopt`)
 Deploy devmode into an **existing** codebase and discover it (do NOT scaffold a
 blank project). Parse everything after `adopt` as `<folder>` (an absolute or
 relative path to the target repo).
@@ -218,7 +219,7 @@ relative path to the target repo).
 5. From there, normal guided flow (the user states what they want to build/fix in
    the now-understood codebase).
 
-### Mode D — `goal <objective>`  (first token is `goal`)  ·  also `plan <objective>`
+### Mode Goal — `goal <objective>`  (first token is `goal`)  ·  also `plan <objective>`
 Produce a ready-to-run Claude Code **`/goal`** command (≤3800 chars) that
 references a detailed spec — the opt-in bridge to `/goal`/`/plan` (skill:
 `goal-brief`). **devmode can't run `/goal` itself; it emits the command for you
@@ -242,7 +243,7 @@ to run each iteration.** This mode is **only** triggered by an explicit `goal`/
    it references `spec.md`, and re-emit an updated one whenever they ask (each
    iteration reflects the current spec/plan).
 
-### Mode B — `<idea>` or blank  (no `start`/`adopt`/`goal`/`plan`)
+### Mode Resume — `<idea>` or blank  (no `start`/`adopt`/`goal`/`plan`)
 Run/resume in the **current** project (don't scaffold):
 - Blank → check `bd ready` + the track `plan.md`/notes; offer to resume from where
   it stands (design concept + next step).
