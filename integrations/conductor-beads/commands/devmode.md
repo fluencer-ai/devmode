@@ -212,10 +212,12 @@ relative path to the target repo).
    → Synthesize. Produce, with 🟢/🟡/🔴 confidence tags:
    - seed `<folder>/UBIQUITOUS_LANGUAGE.md` (terms + module map),
    - `<folder>/DISCOVERY.md` (purpose, provisional design concept, architecture,
-     risks/gaps).
-4. **Resolve the gaps:** enter the **ALIGN** gate (`grill-me`) aimed at the 🔴
-   gaps discovery surfaced — confirm the provisional design concept with the user
-   *before* proposing any change. Discovery proposes; the human confirms.
+     **readiness read** — test safety-net + operational — and risks/gaps).
+4. **Resolve the gaps & plan the approach:** enter the **ALIGN** gate (`grill-me`)
+   aimed at the 🔴 gaps discovery surfaced — confirm the provisional design concept
+   with the user *before* proposing any change, and let the **readiness read** set
+   the first move (a 🔴 test safety-net → write characterization tests *before*
+   touching the code). Discovery proposes; the human confirms.
 5. From there, normal guided flow (the user states what they want to build/fix in
    the now-understood codebase).
 

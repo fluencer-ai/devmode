@@ -24,8 +24,11 @@ Classify every security-relevant action:
 - **Always do** — validate/parse all external input at the boundary; parameterize
   queries; escape/encode output for its sink (HTML/SQL/shell); authenticate then
   authorize *every* request; least privilege; secrets from config/secret-store
-  (never in code/logs/errors); TLS + verify; constant-time compare for secrets;
-  security headers; safe defaults (deny by default).
+  (never in code/logs/errors); **scan the diff/staged change for credential
+  patterns before you commit, push, or paste it into a chat/issue/PR** (a leaked
+  secret is *burned* — rotate it immediately, don't just delete the message); TLS +
+  verify; constant-time compare for secrets; security headers; safe defaults (deny
+  by default).
 - **Ask first** — anything that widens the trust boundary: new external
   dependency, new network egress, relaxing a CORS/CSP rule, storing a new class
   of sensitive data, an auth/permission change. Surface the trade-off to the human.
@@ -126,9 +129,17 @@ A vulnerability report (`npm audit` / equivalent) is not a fire drill — triage
 
 - String-built SQL/shell/HTML from user input.
 - A secret in code, a log line, or an error message.
+- A live secret committed, pushed, or pasted into a chat/issue/PR — *scan before
+  you share*, and **rotate on any leak** (deleting the message doesn't un-leak it).
 - An object accessed by client-supplied id with no ownership check.
 - "We'll add auth later"; trusting a client-sent role/flag.
 - `npm audit` output ignored *or* blindly force-fixed.
 
 > Adapted from `addyosmani/agent-skills` (`security-and-hardening` +
-> `references/security-checklist.md`), MIT.
+> `references/security-checklist.md`), MIT. The *scan-before-you-share* secrets
+> reflex (grep the diff before commit/push/paste; rotate on leak) is reinforced by
+> the credential-exposure gate in
+> [`ruvnet/agent-harness-generator`](https://github.com/ruvnet/agent-harness-generator)'s
+> `validate`, MIT — devmode keeps it as a *practice* (the `guardrails.py` hook
+> already denies writes to secret paths; a fuzzy content-scanner in the hook would
+> trade false positives for little gain).

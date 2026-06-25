@@ -39,6 +39,7 @@ reused (no files copied), as noted.
 | `skills/visual-explainers` | — devmode-original — (the `visualize`/`show_widget` usage is environment-specific; the legibility/theming/a11y rules are tool-agnostic) | (none) | — |
 | `skills/frontend-ui-engineering` (brief-inference, design dials, concrete AI-tell bans, consistency locks, motivated motion + reduced-motion, mechanical pre-flight, image-first prototyping, audit-first redesign) + `skills/verification-before-completion` (output-completeness: no `// …` truncation; count + pause cleanly) | the `taste-skill` / `redesign-skill` / `output-skill` skills | [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) | MIT |
 | `skills/code-review` (immutable gate-independence — the implementer never self-certifies a critical quality/security gate) + `skills/minimal-code` (search-first / reuse-before-create) | the vNext gate contract + the "Pattern Discovery Protocol" | [bybren-llc/safe-agentic-workflow](https://github.com/bybren-llc/safe-agentic-workflow) | MIT © J. Scott Graham / ByBren LLC |
+| `skills/discovery` (the **readiness read** — test-safety-net + operational readiness → a recommended first move) + `skills/security-hardening` (the *scan-before-you-share* secrets reflex) | the pre-scaffold `genome` analysis + the `validate` credential-exposure gate (concepts only — none of the WASM kernel / witness-signing / multi-host infra) | [ruvnet/agent-harness-generator](https://github.com/ruvnet/agent-harness-generator) (MetaHarness) | MIT |
 | `skills/code-review` ("comprehension debt", maker/checker), `skills/subagent-driven-development` (worktree isolation) | the *loop-engineering* essays | [Osmani](https://addyosmani.com/blog/loop-engineering/) · [Autocomplete](https://medium.com/autocomplete-real-world-ai/wtf-is-a-agentic-coding-loop-and-how-to-build-one-58eedb7cbcae) · [Greyling](https://cobusgreyling.medium.com/loop-engineering-62926dd6991c) | essays (concepts) |
 | `skills/self-scorecard`, `scripts/scorecard.py`, `scripts/dashboard.py` | — devmode-original — | (none) | — |
 | `skills/goal-brief`, `scripts/goal_brief.py` | — devmode-original — (emits Claude Code `/goal` & `/plan` commands; the commands are referenced, not vendored) | (none) | — |
@@ -111,6 +112,19 @@ reused (no files copied), as noted.
   Discovery Protocol** (search the repo for prior art / reuse before creating) as a
   rung in `minimal-code`. We did **not** adopt its 11 SAFe roles, 24 commands, or
   tmux "dark factory" (devmode stays lean).
+- **ruvnet/agent-harness-generator** (MetaHarness, MIT) is a *factory* for branded
+  agent harnesses — overwhelmingly **infrastructure devmode deliberately rejects**
+  (a Rust/WASM kernel, Ed25519 witness-signing, SBOM/SLSA provenance, multi-host
+  adapters, a model router, "Darwin" self-mutation, a marketplace). We absorbed only
+  two **process** ideas that fit devmode's markdown, app-free base: its pre-scaffold
+  `genome` readiness analysis became the qualitative **readiness read** in
+  `discovery` (test-safety-net + operational readiness → a recommended first move,
+  tagged 🟢🟡🔴 — *not* its 0–100 score, which devmode rejects as gameable), and its
+  `validate` credential-exposure gate reinforced the **scan-before-you-share**
+  secrets reflex in `security-hardening` (kept as a *practice* — the `guardrails.py`
+  hook already denies writes to secret paths; a fuzzy content-scanner in the hook
+  would trade false positives for little real gain). We took none of the kernel,
+  signing, provenance, host adapters, router, or self-evolving machinery.
 
 If you are an author here and want a correction to this attribution, please open
 an issue.

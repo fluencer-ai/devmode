@@ -57,16 +57,30 @@ Write a concise discovery doc:
 - **Architecture** — components and how they fit (a simple diagram is fine),
   policy-vs-detail boundaries ([`architecture-boundaries`](../architecture-boundaries/SKILL.md)),
   data model, integrations.
+- **Readiness read** — *can this code be safely changed?* Two qualitative signals,
+  each tagged 🟢/🟡/🔴: the **test safety-net** (is there coverage you can refactor
+  *behind*, or none?) and **operational readiness** (does it build/lint/run; is
+  there CI and a deploy path?). Close with a **recommended first move** — the
+  safest place to start given the risk surface (e.g. 🔴 *no tests around the money
+  path* → write characterization tests *before* any change). Keep it qualitative —
+  **never a 0–100 score** (devmode rejects gameable metrics; the tags carry the
+  honesty a number would launder away).
 - **Risks & gaps** — tech debt, the 🔴 unknowns, and anything surprising.
 
 ## How it feeds devmode
 
 Discovery produces the inputs the rest of the process assumes existed:
 - `UBIQUITOUS_LANGUAGE.md` — seeded with the **terms + module map** (passes 2–3).
-- `DISCOVERY.md` — the architecture + provisional design concept (pass 4).
+- `DISCOVERY.md` — the architecture + provisional design concept + **readiness
+  read** (pass 4).
 - A **🔴-gap list** → the orchestrator's [`grill-me`](../grill-me/SKILL.md) gate
   resolves these *with the human* before any change. Discovery proposes; the
   human confirms — never treat 🟡/🔴 as fact.
+- The **readiness read + recommended first move** → the **ALIGN** gate plans the
+  approach around the real risk surface: a 🔴 test safety-net means *write the net
+  before you change the code* (characterization tests first), not "refactor and
+  hope" — exactly what [`tdd`](../tdd/SKILL.md) and
+  [`testing-principles`](../testing-principles/SKILL.md) need decided up front.
 
 Then the normal flow continues: a change starts from a *real* design concept and
 a current module map, and [`impact-analysis`](../impact-analysis/SKILL.md) has a
@@ -87,7 +101,13 @@ map to work from.
 - Trying to read the entire codebase in one pass (context overflow, shallow map).
 - Producing a glossary/architecture doc with no 🔴 gaps (you under-looked — every
   real legacy system has unknowns).
+- Declaring a codebase ready to change without a **test-safety-net read** — the
+  first refactor then runs with no net, and you find out the hard way.
 
 > Adapted from `sandeco/reversa` (its Scout/Soul/Detective/Architect prompt
 > pipeline + the 🟢/🟡/🔴 confidence scale), MIT. Reimplemented as a single
 > tool-agnostic devmode skill (reversa's value is the prompts, not its installer).
+> The **readiness read** (test-safety-net + operational readiness → a recommended
+> first move) is adapted from the pre-scaffold `genome` analysis in
+> [`ruvnet/agent-harness-generator`](https://github.com/ruvnet/agent-harness-generator)
+> (MetaHarness), MIT — reframed to devmode's qualitative 🟢🟡🔴 (no 0–100 score).

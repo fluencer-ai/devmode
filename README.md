@@ -388,6 +388,7 @@ projects. Full per-artifact mapping with licenses:
 | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | the `minimal-code` skill + `/devmode lean` — the "lazy senior dev" minimalism ladder (concept only; none of its Node hooks / multi-agent packaging) | MIT |
 | [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) | `frontend-ui-engineering` — the "escape the AI aesthetic" craft (brief-inference, design dials, concrete tell-bans, consistency locks, motivated motion, redesign audit, pre-flight) + `verification-before-completion`'s output-completeness rule | MIT |
 | [bybren-llc/safe-agentic-workflow](https://github.com/bybren-llc/safe-agentic-workflow) | `code-review` — the immutable gate-independence rule; `minimal-code` — the search-first / reuse-before-create rung | MIT |
+| [ruvnet/agent-harness-generator](https://github.com/ruvnet/agent-harness-generator) | `discovery` — the **readiness read** (test-safety-net + operational → a recommended first move, from its pre-scaffold `genome`); `security-hardening` — the scan-before-you-share secrets reflex (concepts only; none of its WASM kernel / witness-signing / multi-host infra) | MIT |
 
 devmode and [mattpocock/skills](https://github.com/mattpocock/skills) are
 **siblings**: both were distilled from the thesis in Matt Pocock's *"Claude Code
