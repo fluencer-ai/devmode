@@ -42,6 +42,13 @@ Review in two passes — wrong order lets over/under-building slip through:
 **Critical modules** (auth, money, security, irreversible effects) are reviewed
 **in full** — never accepted on a gray-box basis.
 
+**The gate's independence is immutable.** The reviewer is a *fresh, separate*
+agent — never the implementer grading its own work (the panel lanes are spawned
+independently for exactly this reason). And you do **not** collapse that
+independence under pressure: a security or quality gate on a critical path is not
+self-certified to save a round, however small the change *feels*. Maker and
+checker stay different — that's what makes the green meaningful.
+
 ## Requesting a review (make the reviewer effective)
 
 A reviewer who has to guess scope reviews badly. Give them:
@@ -92,4 +99,6 @@ This is where the value is realized or lost:
 > `receiving-code-review`), MIT. The parallel review-panel lanes are adapted from
 > `rbarcante/claude-conductor` (Apache-2.0). The maker/checker split and
 > "comprehension debt" framing are reinforced by the *loop-engineering* essays
-> (Osmani; Autocomplete; Greyling). Reframed in the devmode voice.
+> (Osmani; Autocomplete; Greyling); the **immutable gate-independence** rule
+> (never collapse the checker into the maker for a critical gate) from
+> `bybren-llc/safe-agentic-workflow` (MIT). Reframed in the devmode voice.

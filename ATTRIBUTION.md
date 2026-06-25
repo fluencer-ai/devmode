@@ -37,6 +37,8 @@ reused (no files copied), as noted.
 | `integrations/llm-wiki/` — the `/devmode wiki` module (LLM-maintained markdown knowledge base: 3 layers, 7 page types, ingest/query/lint) | the *LLM Wiki* pattern (concept only — no app/code) | [Andrej Karpathy's gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) | gist (concept) |
 | `skills/minimal-code` + `/devmode lean` — the lazy-senior-dev minimalism ladder, safety floor, intensity levels, deliberate-simplification comment, audit/review lenses | the `ponytail` skill (concept/prose only — none of its Node hooks or multi-agent packaging) | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | MIT © Dietrich Gebert |
 | `skills/visual-explainers` | — devmode-original — (the `visualize`/`show_widget` usage is environment-specific; the legibility/theming/a11y rules are tool-agnostic) | (none) | — |
+| `skills/frontend-ui-engineering` (deliberate design dials: layout variance / motion / density; anti-repetition; image-first "prototype the look") | the `design-taste-frontend` skill | [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) | MIT |
+| `skills/code-review` (immutable gate-independence — the implementer never self-certifies a critical quality/security gate) | the vNext stop-the-line / no-self-review gate contract | [bybren-llc/safe-agentic-workflow](https://github.com/bybren-llc/safe-agentic-workflow) | MIT © J. Scott Graham / ByBren LLC |
 | `skills/code-review` ("comprehension debt", maker/checker), `skills/subagent-driven-development` (worktree isolation) | the *loop-engineering* essays | [Osmani](https://addyosmani.com/blog/loop-engineering/) · [Autocomplete](https://medium.com/autocomplete-real-world-ai/wtf-is-a-agentic-coding-loop-and-how-to-build-one-58eedb7cbcae) · [Greyling](https://cobusgreyling.medium.com/loop-engineering-62926dd6991c) | essays (concepts) |
 | `skills/self-scorecard`, `scripts/scorecard.py`, `scripts/dashboard.py` | — devmode-original — | (none) | — |
 | `skills/goal-brief`, `scripts/goal_brief.py` | — devmode-original — (emits Claude Code `/goal` & `/plan` commands; the commands are referenced, not vendored) | (none) | — |
@@ -90,6 +92,18 @@ reused (no files copied), as noted.
   simplification comment, and the benchmark evidence. We absorbed the **concept**
   as a single markdown skill; we did **not** port its Node lifecycle hooks, MCP
   server, or 14-agent platform packaging (devmode is markdown + Python-stdlib).
+- **Leonxlnx/taste-skill** (MIT) contributed the *deliberate design dials* (layout
+  variance / motion intensity / visual density), the anti-repetition rule, and the
+  image-first "prototype the look" move — folded into the existing
+  `frontend-ui-engineering` skill (we deepened the module rather than adding a new
+  one; no JS/CLI code reused, concept only).
+- **bybren-llc/safe-agentic-workflow** (MIT) is a SAFe multi-agent team harness.
+  Its core safety ideas (blocking gates, evidence-over-trust, independent review,
+  stop-the-line before work) already exist in devmode; we absorbed the one sharper
+  framing — **immutable gate independence** (a critical quality/security gate is
+  never self-certified by the implementer) — as a line in `code-review`. We did
+  **not** adopt its 11 SAFe roles, 24 commands, or tmux "dark factory" (devmode
+  stays lean).
 
 If you are an author here and want a correction to this attribution, please open
 an issue.
