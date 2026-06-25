@@ -386,8 +386,8 @@ projects. Full per-artifact mapping with licenses:
 | [cowwoc/cat](https://github.com/cowwoc/cat) | subagent-delegation *concepts* only (no files) | source-available |
 | [Karpathy's *LLM Wiki* gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) | the `integrations/llm-wiki/` module — LLM-maintained markdown knowledge base (pure markdown, app-free) | (gist) |
 | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | the `minimal-code` skill + `/devmode lean` — the "lazy senior dev" minimalism ladder (concept only; none of its Node hooks / multi-agent packaging) | MIT |
-| [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) | `frontend-ui-engineering` — the deliberate design dials (layout variance / motion / density), anti-repetition, and image-first "prototype the look" | MIT |
-| [bybren-llc/safe-agentic-workflow](https://github.com/bybren-llc/safe-agentic-workflow) | `code-review` — the immutable gate-independence rule (never collapse the checker into the maker on a critical gate) | MIT |
+| [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) | `frontend-ui-engineering` — the "escape the AI aesthetic" craft (brief-inference, design dials, concrete tell-bans, consistency locks, motivated motion, redesign audit, pre-flight) + `verification-before-completion`'s output-completeness rule | MIT |
+| [bybren-llc/safe-agentic-workflow](https://github.com/bybren-llc/safe-agentic-workflow) | `code-review` — the immutable gate-independence rule; `minimal-code` — the search-first / reuse-before-create rung | MIT |
 
 devmode and [mattpocock/skills](https://github.com/mattpocock/skills) are
 **siblings**: both were distilled from the thesis in Matt Pocock's *"Claude Code

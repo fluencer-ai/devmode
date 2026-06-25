@@ -72,6 +72,14 @@ Skipping any step is asserting, not verifying.
   file, regenerating a config, or rebuilding an image proves nothing until the *live*
   system loads it. A restart may not reload env; a build may not be deployed; a fix
   in `src/` may not be in the running `dist/`. Check the live artifact, not the file.
+- **Output silently truncated** — a deliverable that was supposed to be complete
+  but ships with `// ... rest of code`, `// TODO implement`, "the rest follows the
+  same pattern", "similarly for the others", or first-and-last with the middle
+  skipped. When full output was requested, *partial output is not done*: count the
+  deliverables up front, generate each fully, and if a real token limit looms, stop
+  at a clean boundary with `[PAUSED — X of Y]` rather than compressing or faking it.
+  (This is distinct from [`minimal-code`](../minimal-code/SKILL.md): write the
+  *minimum* code needed, but write *all* of the code you committed to.)
 - Different wording to dodge the rule — spirit over letter
 
 ## Verify the running state, not the source
@@ -121,3 +129,6 @@ worked) and [`tdd`](../tdd/SKILL.md) (the red→green evidence for regressions).
 
 > Adapted from `obra/superpowers` (`verification-before-completion`), MIT.
 > Reframed in the devmode voice; scoped against devmode's feedback-loops skill.
+> The output-completeness rule (no `// ...`/"rest follows" truncation; count
+> deliverables; pause cleanly under a token limit) is adapted from
+> `Leonxlnx/taste-skill` (`output-skill`), MIT.

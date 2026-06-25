@@ -28,13 +28,16 @@ Stop at the first rung that holds — it's a reflex, not a research project:
 
 1. **Does this need to exist at all?** Speculative need → skip it, say so in one
    line (YAGNI).
-2. **Stdlib does it?** Use it.
-3. **Native platform feature covers it?** `<input type="date">` over a picker lib,
+2. **Does this repo already do it?** *Search first* — grep for an existing helper,
+   pattern, or utility before writing a new one. Reuse the codebase's own solution;
+   don't re-solve a solved problem (and don't fork a second way to do one thing).
+3. **Stdlib does it?** Use it.
+4. **Native platform feature covers it?** `<input type="date">` over a picker lib,
    CSS over JS, a DB constraint over app code.
-4. **Already-installed dependency solves it?** Use it — never add a new dependency
+5. **Already-installed dependency solves it?** Use it — never add a new dependency
    for what a few lines do.
-5. **Can it be one line?** One line.
-6. **Only then:** the minimum code that works.
+6. **Can it be one line?** One line.
+7. **Only then:** the minimum code that works.
 
 Two rungs both work → take the higher one and move on. The first lazy solution
 that works is the right one.
@@ -118,6 +121,8 @@ less).
 
 ## Red flags
 
+- Writing a new helper for something the repo already has — *search before you
+  write* (a second way to do one thing is complexity, not progress).
 - Adding a dependency for what a few stdlib lines do.
 - An interface/factory/config with exactly one use.
 - Boilerplate or scaffolding "we'll need later."
@@ -130,4 +135,6 @@ less).
 > intensity levels, the deliberate-simplification comment, the audit/review
 > lenses, and the benchmark evidence), MIT © Dietrich Gebert. Reframed in the
 > devmode voice (markdown-only — none of ponytail's Node hooks / multi-agent
-> packaging); applied via `/devmode lean`.
+> packaging); applied via `/devmode lean`. The *search-first / reuse-before-create*
+> rung is reinforced by the "Pattern Discovery Protocol" in
+> `bybren-llc/safe-agentic-workflow` (MIT).

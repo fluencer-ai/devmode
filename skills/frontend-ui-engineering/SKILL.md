@@ -19,24 +19,28 @@ Svelte/etc.) but the decisions below are framework-agnostic.
 
 ## Escape the "AI aesthetic"
 
-AI-generated UIs have a tell. Recognize and avoid the defaults:
+Before any pixel, **declare the read** in one line — *"Reading this as: \<page
+kind> for \<audience>, with a \<vibe>"* (e.g. "B2B SaaS landing for technical
+buyers, Linear-style minimalist"). Naming it is what stops you defaulting to the
+generic. AI UIs have a *tell*; recognize and kill the defaults:
 
 | AI default | Why it's a problem | Production quality |
 |------------|--------------------|--------------------|
-| Purple/indigo everything, gradient overload | Generic, off-brand, dated | A real, restrained palette; gradients sparingly and on purpose |
+| AI-purple/indigo, neon glows, gradient overload | Generic, off-brand, dated | One restrained accent (<80% sat); gradients on purpose |
 | Drop-shadow on every element | Visual noise, no hierarchy | Elevation only where it signals layering |
-| Everything `rounded-2xl` | No intent, toy-like | Radius scale tied to component role |
-| Centered single-column for everything | Wastes space, no rhythm | Real layout: grid, alignment, density |
-| Emoji as icons | Inconsistent, unprofessional | A proper icon set |
+| Everything `rounded-2xl` | No intent, toy-like | ONE radius system, tied to role |
+| Centered single column; 3 equal feature cards | No rhythm — the formula | Real layout: grid, asymmetry, zig-zag, varied families |
+| Default `Inter`+slate; default serifs (Fraunces, Instrument Serif) | The recognizable LLM type stack | A typeface chosen to fit the brand |
+| Emoji or hand-rolled SVG as icons | Inconsistent, unprofessional | A real icon set |
+| "John Doe" / "Acme" / filler verbs ("Elevate") / fake-precise numbers / `<div>` fake screenshots | Screams generated | Believable names/brands/copy; real or generated images |
 
-The fix isn't "more polish" — it's *intent*: every visual choice should map to a
-design decision (see [`ux-design`](../ux-design/SKILL.md)), not a library default.
+The fix isn't "more polish" — it's *intent*: every choice maps to a design
+decision (see [`ux-design`](../ux-design/SKILL.md)), not a library default.
 
 ### Tune deliberate dials, fight repetition
 
 "Escaping the aesthetic" needs a *positive* mechanism, not just a list of don'ts.
-Infer the design language from the brief, then **tune three dials to it** instead
-of defaulting to the safe middle every time:
+With the read declared, **tune three dials to it** instead of the safe middle:
 
 - **Layout variance** — how far from the conventional grid/hero/card you push.
   Low for a dashboard/tool; high for a landing/brand page. The generic default is
@@ -51,6 +55,31 @@ shipped the formula. Vary rhythm, alignment, and component shape down the page. 
 a non-trivial surface, **prototype the look first** — a mockup or two real variants
 ([`prototyping`](../prototyping/SKILL.md), [`visual-explainers`](../visual-explainers/SKILL.md)) —
 then build the chosen one. Choosing between real options beats defending the first.
+
+### Lock consistency, motivate motion, pre-flight the tells
+
+- **Consistency locks** — ONE accent, ONE radius system, ONE page theme
+  (light/dark/auto), each applied across the *whole* page. A teal badge on a
+  rose-accented site or a round button in a square layout reads as broken.
+- **Motion is motivated** — only add an animation you can justify in one sentence
+  (hierarchy, feedback, a sequence matching a story). Animate `transform`/`opacity`
+  only, honor `prefers-reduced-motion`, never drive it off a scroll-event listener.
+  "Motion claimed = motion shown": dial it up only if you ship it, else go static.
+- **Pre-flight the tells** — before "done", *mechanically* scan the output for the
+  tells above (grep for em-dashes — a top LLM copy tell — for `John Doe`, for
+  `text-purple`). A tell you can grep is a tell you must fix
+  ([`verification-before-completion`](../verification-before-completion/SKILL.md)).
+
+### Redesigning existing UI
+
+A redesign is not a greenfield. First decide the mode — *preserve* (modernize the
+brand) vs *overhaul* (new visuals, same content) — and **audit before touching**:
+extract the brand tokens, the information architecture, and what works vs. what's
+filler. Modernize by the cheapest lever first (typography → spacing → color →
+motion → recompose). **Never silently change** URL/route slugs, nav labels, form
+field names, or accessibility wins — SEO and analytics downstream depend on them.
+It's a [`migration`](../migration/SKILL.md) with an
+[`impact-analysis`](../impact-analysis/SKILL.md), not a repaint.
 
 ## The state-management decision ladder
 
@@ -103,6 +132,9 @@ re-implements caching badly. Treat the server as the source of truth and cache i
 
 > Adapted from `addyosmani/agent-skills` (`frontend-ui-engineering`), MIT.
 > Generalized off its React/Vite specifics to fit devmode's tool-agnostic base.
-> The deliberate design dials (layout variance / motion intensity / visual
-> density), the anti-repetition rule, and the image-first "prototype the look"
-> move are adapted from `Leonxlnx/taste-skill` (`design-taste-frontend`), MIT.
+> The "escape the AI aesthetic" craft — the brief-inference declaration, the
+> deliberate design dials (layout variance / motion / density), the concrete
+> AI-tell bans, the consistency locks, motivated-motion + reduced-motion, the
+> mechanical pre-flight, the image-first "prototype the look", and the
+> audit-first redesign protocol — is adapted from `Leonxlnx/taste-skill`
+> (`taste-skill` / `redesign-skill`), MIT.
