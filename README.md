@@ -94,13 +94,19 @@ breaks, `grill-me` when requirements are vague).
 
 ### B. Install into a real project (recommended)
 
-The installer establishes the devmode **base** and optionally mounts the
-Conductor **layer** and **guardrails**:
+The easiest path is to let `/devmode adopt` do it for you — clone devmode, open
+Claude Code **in the devmode repo**, and point it at your project:
 
 ```bash
 git clone https://github.com/fluencer-ai/devmode.git && cd devmode
-integrations/conductor-beads/install.sh /path/to/your/project --with-guardrails --beads-stealth
+# open Claude Code here, then run:
+/devmode adopt /path/to/your/project
 ```
+
+`adopt` runs the installer for you (`install.sh <folder> --beads-stealth
+--with-guardrails`), keeps your existing `CLAUDE.md` byte-for-byte (appends one
+`@CLAUDE.devmode.md` pointer), then runs **discovery** on the codebase and walks
+you into the first alignment gate. See [§C](#c-guided-mode--devmode-the-front-door).
 
 What you get in the project:
 
@@ -110,7 +116,14 @@ What you get in the project:
 - `conductor/` (product/tech-stack/workflow/tracks + per-track `spec.md`/`plan.md`
   templates), `UBIQUITOUS_LANGUAGE.md`,
 - `.devmode/` (scorecard.py, dashboard.py, goal_brief.py) + `devmode-dashboard.html`,
-- with `--with-guardrails`: the deterministic hooks wired into `.claude/settings.json`.
+- the deterministic hooks wired into `.claude/settings.json`.
+
+**Under the hood / no-Claude fallback.** `adopt` is a thin wrapper over the
+installer; run it directly when scripting (CI) or when not using Claude Code:
+
+```bash
+integrations/conductor-beads/install.sh /path/to/your/project --with-guardrails --beads-stealth
+```
 
 Flags: `--no-skills` (rely on a global install) · `--with-conductor` (vendor the
 upstream Conductor commands) · `--beads` / `--beads-stealth` (persistent task
