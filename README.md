@@ -21,6 +21,7 @@ Code and similar) without letting the codebase rot.
 
 - [Why devmode exists](#why-devmode-exists)
 - [What's in the box](#whats-in-the-box)
+- [The four layers of AI engineering](#the-four-layers-of-ai-engineering)
 - [Quick start](#quick-start)
 - [The workflow (a loop, not a march)](#the-workflow-a-loop-not-a-march)
 - [The 41 skills](#the-41-skills)
@@ -81,6 +82,18 @@ direction.**
 
 Everything is Markdown + Python-stdlib. **No runtime dependencies, no server, no
 registration, no build step.**
+
+## The four layers of AI engineering
+
+Modern AI engineering stacks four layers, each wrapping the one beneath —
+*prompt → context → harness → loop*. devmode ships a concrete artifact for each:
+
+| Layer (wraps the one below) | What it is | In devmode |
+|---|---|---|
+| **Prompt** | the instruction the model acts on | the 41 trigger-described `skills/*/SKILL.md`, audited by `scripts/audit_skills.py` |
+| **Context** | what the model sees, across turns | `ubiquitous-language` + Conductor/Beads memory + `session_resume.py` + `discovery` |
+| **Harness** | the environment around the model | the 8 agents in `.agents/` + deterministic hooks + `feedback-loops` |
+| **Loop** | the multi-run cycle that drives it to done | the `devmode-orchestrator` + `self-scorecard` over `scorecard.py`/`dashboard.py` state |
 
 ## Quick start
 
