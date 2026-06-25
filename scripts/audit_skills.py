@@ -8,6 +8,8 @@ in skills/authoring-skills/SKILL.md):
   - frontmatter `name` matches its folder name
   - SKILL.md body stays under the line budget (progressive disclosure)
   - every .agents/<name>.md has frontmatter with `name` (matching the file) + `description`
+  - every written "N skills"/"N agents" total in tracked markdown matches the
+    real directory counts (so a stale "38 skills" can't ship to the README/About)
   - every relative markdown link in the repo resolves (excluding workspaces/ scratch)
 
 Exit code 0 = clean; 1 = at least one hard failure. Soft issues (line budget)
@@ -106,6 +108,68 @@ def audit_agents() -> list[str]:
             if not fm.get("description"):
                 errors.append(f"{rel}: frontmatter missing `description`")
         print(f"  {GREEN}✓{OFF} {stem}")
+    return errors
+
+
+# The skill/agent totals are hand-written as prose in ~10 tracked files (README
+# badges + "What's in the box" + the section headings, manual.md, INTEGRATION.md,
+# the /devmode command and the orchestrator agent). audit_skills/audit_agents
+# count the real folders but never checked those written numbers, so the docs
+# could drift silently — a stale "38 skills" nearly shipped to the GitHub About.
+#
+# A digit glued to skills/agents is a TOTAL claim. The nouns cover English
+# `skills`/`agents`, the README's `subagents`, and manual.md's PT-BR `agentes`.
+COUNT_RE = re.compile(r"(\d+)\s+(skills|subagents|agentes|agents)\b", re.I)
+# ...except a number qualified by a sub-category — "20 skills de processo",
+# "18 skills de domínio" — is a partial count, not the grand total, so it is
+# left out of the comparison.
+BREAKDOWN_RE = re.compile(r"\s*(de\s+)?(process|processo|domains?|dom[íi]nio|meta)\b", re.I)
+
+
+def count_drift(rel: str, text: str, real_skills: int, real_agents: int) -> list[str]:
+    """Return one error per written skill/agent total that diverges from reality."""
+    errors: list[str] = []
+    for lineno, line in enumerate(text.splitlines(), 1):
+        for m in COUNT_RE.finditer(line):
+            if BREAKDOWN_RE.match(line[m.end():]):
+                continue  # a sub-category count (e.g. "de processo"), not the total
+            found = int(m.group(1))
+            label, expected = (("skills", real_skills) if m.group(2).lower() == "skills"
+                               else ("agents", real_agents))
+            if found != expected:
+                errors.append(
+                    f"{rel}:{lineno}: wrote '{m.group(0)}' but there are "
+                    f"{expected} {label} (found {found})")
+    return errors
+
+
+def audit_counts() -> list[str]:
+    """Fail if any prose skill/agent total drifted from the real directory counts."""
+    real_skills = (sum(1 for d in os.listdir(SKILLS_DIR)
+                       if os.path.isfile(os.path.join(SKILLS_DIR, d, "SKILL.md")))
+                   if os.path.isdir(SKILLS_DIR) else 0)
+    agents_dir = os.path.join(ROOT, ".agents")
+    real_agents = (sum(1 for f in os.listdir(agents_dir)
+                       if f.endswith(".md") and f[:-3].lower() != "readme")
+                   if os.path.isdir(agents_dir) else 0)
+    print(f"{DIM}Checking written totals against {real_skills} skills / {real_agents} agents…{OFF}")
+    errors: list[str] = []
+    scanned = 0
+    for dp, dn, fns in os.walk(ROOT):
+        if "/workspaces" in dp or "/.git" in dp:
+            dn[:] = [d for d in dn if d not in (".git",)]
+            if "/workspaces" in dp:
+                continue
+        for f in fns:
+            if not f.endswith(".md"):
+                continue
+            mf = os.path.join(dp, f)
+            scanned += 1
+            errors += count_drift(os.path.relpath(mf, ROOT),
+                                  open(mf, encoding="utf-8").read(),
+                                  real_skills, real_agents)
+    flag = f"{RED}✗{OFF}" if errors else f"{GREEN}✓{OFF}"
+    print(f"  {flag} {scanned} markdown files scanned, {len(errors)} count drift(s)")
     return errors
 
 
@@ -217,19 +281,21 @@ def main() -> int:
     print()
     agent_errors = audit_agents()
     print()
+    count_errors = audit_counts()
+    print()
     mirror_errors = audit_mirrors()
     print()
     audit_overlap()
     print()
     link_errors = audit_links()
-    errors = skill_errors + agent_errors + mirror_errors + link_errors
+    errors = skill_errors + agent_errors + count_errors + mirror_errors + link_errors
     print()
     if errors:
         print(f"{RED}✗ {len(errors)} issue(s):{OFF}")
         for e in errors:
             print(f"  {RED}-{OFF} {e}")
         return 1
-    print(f"{GREEN}✓ skills + agents are consistent (frontmatter, names, links).{OFF}")
+    print(f"{GREEN}✓ skills + agents are consistent (frontmatter, names, counts, links).{OFF}")
     return 0
 
 
