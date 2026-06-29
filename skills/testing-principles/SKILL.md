@@ -83,6 +83,27 @@ Don't assert on internal call order, private state, or incidental details. Each
 test should have one clear reason to fail; if you can't name what behavior a
 test protects, delete it.
 
+### Make edge coverage auditable — the edge probe
+
+"Did you handle the edges?" is too easy to wave through. Turn it into an
+**auditable probe**: enumerate the edge categories that apply and give each an
+explicit verdict — never leave one silently unconsidered.
+
+| Edge category | Ask |
+|---|---|
+| **Empty / none** | zero items, null, missing, default-constructed |
+| **Boundary** | first/last, off-by-one, min/max, the `>=` vs `>` line |
+| **Overflow / scale** | very large n, long input, precision/rounding limits |
+| **Ordering / concurrency** | out-of-order, races, idempotency on retry |
+| **Failure / adversarial** | I/O error, partial write, hostile input (see below) |
+
+Mark each: **covered** (a test pins it) · **dismissed** (genuinely N/A — say why) ·
+**backstop** (held by a type/constraint/guard, not a test) · **unresolved** (a
+real gap — track it, don't bury it). An `unresolved` edge is a *known* risk, not a
+silent one — the same ratchet as "every acceptance criterion has a passing test",
+applied to edges. The categories are a starting checklist, not a straitjacket: add
+the ones your domain needs; the discipline is the per-edge *verdict*, not the list.
+
 ## Properties of a test worth keeping
 
 - **Behavioral** — asserts *what*, not *how*. Survives refactors.
@@ -196,4 +217,6 @@ before adding more mocks.
 
 > Testing anti-patterns adapted from `obra/superpowers` (MIT); AC↔test
 > traceability from `saidwafiq/deepflow` (MIT); "not observed ≠ absent" from
-> `Chachamaru127/claude-code-harness` (MIT). See ATTRIBUTION.md.
+> `Chachamaru127/claude-code-harness` (MIT); the edge-coverage probe (per-edge
+> covered/dismissed/backstop/unresolved verdict) from `open-gsd/gsd-core` (MIT).
+> See ATTRIBUTION.md.

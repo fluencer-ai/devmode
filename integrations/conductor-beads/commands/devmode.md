@@ -68,7 +68,9 @@ phases); unlike `c`, it adds *routing* + a short pipeline. Parse everything afte
    - new behavior → `tdd` + `testing-principles` (interface first: `design-interface-delegate-implementation`)
    - security/money/auth → `security-hardening` (control checklist) — **reviewed in full, never gray-boxed**
    - refactor/rename → `impact-analysis` first; migration/deprecation → `migration`
-   - unknown to learn → `prototyping` (spike → capture → delete)
+   - unknown to learn → a *code* `prototyping` spike (capture → delete); an
+     *information* gap (unfamiliar tech/domain) → grounded perspective research
+     (`grill-me`'s research technique: diverse perspectives, cite everything)
    - unclear ask → **stop and `grill-me`** before touching code
 2. **Understand.** If ambiguous, ask the one/two questions that matter or read the
    nearest doc contract (`doc-contracts` / module map). Confirm goal, interface,

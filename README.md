@@ -398,7 +398,7 @@ projects. Full per-artifact mapping with licenses:
 | [saidwafiq/deepflow](https://github.com/saidwafiq/deepflow) | AC↔test traceability, the verify gate ladder | MIT |
 | [softaworks/agent-toolkit](https://github.com/softaworks/agent-toolkit) | delegate-to-cli, skill-judge ideas | MIT |
 | [glittercowboy/taches-cc-resources](https://github.com/glittercowboy/taches-cc-resources) | skill-auditing ideas | MIT |
-| [gsd-build/get-shit-done](https://github.com/gsd-build/get-shit-done) | gate taxonomy, STATE.md memory pattern | MIT (archived) |
+| [gsd-build/get-shit-done](https://github.com/gsd-build/get-shit-done) → [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) | gate taxonomy + STATE.md memory (original); the edge-coverage probe (`testing-principles`) + decision-coverage gate (`feedback-loops`) from the maintained gsd-core successor | MIT |
 | [khendzel/skills-janitor](https://github.com/khendzel/skills-janitor) | description-overlap detection + trigger lint in the auditor | MIT |
 | [sandeco/reversa](https://github.com/sandeco/reversa) | the discovery pipeline (Scout/Soul/Detective/Architect, 🟢🟡🔴) | MIT |
 | [agent0ai/dox](https://github.com/agent0ai/dox) | the doc-contracts AGENTS.md tree (pre-edit traversal, post-edit pass) | MIT |
@@ -415,6 +415,8 @@ projects. Full per-artifact mapping with licenses:
 | [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) | `frontend-ui-engineering` — the "escape the AI aesthetic" craft (brief-inference, design dials, concrete tell-bans, consistency locks, motivated motion, redesign audit, pre-flight) + `verification-before-completion`'s output-completeness rule | MIT |
 | [bybren-llc/safe-agentic-workflow](https://github.com/bybren-llc/safe-agentic-workflow) | `code-review` — the immutable gate-independence rule; `minimal-code` — the search-first / reuse-before-create rung | MIT |
 | [ruvnet/agent-harness-generator](https://github.com/ruvnet/agent-harness-generator) | `discovery` — the **readiness read** (test-safety-net + operational → a recommended first move, from its pre-scaffold `genome`); `security-hardening` — the scan-before-you-share secrets reflex (concepts only; none of its WASM kernel / witness-signing / multi-host infra) | MIT |
+| [vinilana/dotcontext](https://github.com/vinilana/dotcontext) | `verification-before-completion` — declare-and-confirm the task's promised deliverables before "done" (concept only; none of its MCP / runtime / tree-sitter / replay app) | MIT |
+| [stanford-oval/storm](https://github.com/stanford-oval/storm) | `grill-me` + `design-critique` — STORM/Co-STORM's perspective-guided, cite-everything research grounding, folded into existing skills (no new command; an equivalent `deep-research` skill already exists) | MIT |
 
 devmode and [mattpocock/skills](https://github.com/mattpocock/skills) are
 **siblings**: both were distilled from the thesis in Matt Pocock's *"Claude Code

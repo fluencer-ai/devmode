@@ -102,6 +102,14 @@ The point of the ladder is **objective judgment**: each level is decided by an
 exit code or a count, never by an LLM judging an LLM. Reserve subjective review
 (the `complexity-reviewer`) for *design* quality, not for "does it pass".
 
+**Decision coverage — the same ratchet for decisions.** Just as every acceptance
+criterion needs a passing test (L4), every **decision** — an ADR, a resolved
+trade-off — needs to actually *land*: referenced by at least one plan item or test
+before a phase counts as planned/done. A decision recorded and then silently
+ignored is a gap nothing else catches; check the decisions against the plan the
+same mechanical way you check ACs against tests (grep the ADRs, confirm each is
+referenced). It's a coverage check, not a taste call.
+
 ## The ratchet — agents can't grade their own homework
 
 A subtle failure mode: an agent under pressure adds a trivial passing test and
@@ -135,5 +143,6 @@ helped — types, compile, tests, and (for UI) the rendered result all tell it t
 truth automatically. Mistakes surface while they're still one line deep instead
 of buried under a feature's worth of code.
 
-> Gate-ladder + AC↔test ratchet adapted from `saidwafiq/deepflow` (MIT); the
-> gate taxonomy from `gsd-build/get-shit-done` (MIT, archived). See ATTRIBUTION.md.
+> Gate-ladder + AC↔test ratchet adapted from `saidwafiq/deepflow` (MIT); the gate
+> taxonomy + the decision-coverage gate from `open-gsd/gsd-core` (the maintained
+> get-shit-done successor, MIT). See ATTRIBUTION.md.

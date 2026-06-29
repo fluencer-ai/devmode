@@ -20,7 +20,7 @@ reused (no files copied), as noted.
 | `.agents/complexity-reviewer` (prover/verifier, Done-When evidence) | `post-gate-agent` | ryanthedev/code-foundations | MIT |
 | `skills/testing-principles` (anti-patterns) | `test-driven-development/testing-anti-patterns` | obra/superpowers | MIT |
 | `skills/testing-principles` (AC↔test traceability), `skills/feedback-loops` (gate ladder, ratchet) | `df-ac-coverage`, `commands/df/verify` | [saidwafiq/deepflow](https://github.com/saidwafiq/deepflow) | MIT |
-| `skills/feedback-loops` (gate taxonomy) | `references/gates` | [gsd-build/get-shit-done](https://github.com/gsd-build/get-shit-done) | MIT (archived) |
+| `skills/feedback-loops` (gate taxonomy + the decision-coverage gate), `skills/testing-principles` (the edge-coverage probe — per-edge covered/dismissed/backstop/unresolved verdict) | `references/gates` + the gate suite | [gsd-build/get-shit-done](https://github.com/gsd-build/get-shit-done) → now [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) | MIT |
 | `skills/authoring-skills` | `writing-skills` + `skill-judge` + `skill-auditor` | obra/superpowers; [softaworks/agent-toolkit](https://github.com/softaworks/agent-toolkit); [glittercowboy/taches-cc-resources](https://github.com/glittercowboy/taches-cc-resources) | MIT |
 | `skills/delegate-to-cli` | `codex` / `gemini` skills | softaworks/agent-toolkit | MIT |
 | `skills/code-review` | `requesting-code-review` + `receiving-code-review` (+ panel lanes from claude-conductor) | obra/superpowers; rbarcante/claude-conductor | MIT; Apache-2.0 |
@@ -40,10 +40,12 @@ reused (no files copied), as noted.
 | `skills/frontend-ui-engineering` (brief-inference, design dials, concrete AI-tell bans, consistency locks, motivated motion + reduced-motion, mechanical pre-flight, image-first prototyping, audit-first redesign) + `skills/verification-before-completion` (output-completeness: no `// …` truncation; count + pause cleanly) | the `taste-skill` / `redesign-skill` / `output-skill` skills | [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) | MIT |
 | `skills/code-review` (immutable gate-independence — the implementer never self-certifies a critical quality/security gate) + `skills/minimal-code` (search-first / reuse-before-create) | the vNext gate contract + the "Pattern Discovery Protocol" | [bybren-llc/safe-agentic-workflow](https://github.com/bybren-llc/safe-agentic-workflow) | MIT © J. Scott Graham / ByBren LLC |
 | `skills/discovery` (the **readiness read** — test-safety-net + operational readiness → a recommended first move) + `skills/security-hardening` (the *scan-before-you-share* secrets reflex) | the pre-scaffold `genome` analysis + the `validate` credential-exposure gate (concepts only — none of the WASM kernel / witness-signing / multi-host infra) | [ruvnet/agent-harness-generator](https://github.com/ruvnet/agent-harness-generator) (MetaHarness) | MIT |
+| `skills/verification-before-completion` (declare-and-confirm the task's concrete deliverables before "done") | the task-contract `requiredArtifacts`/`expectedOutputs` gate (concept only — none of the MCP server / runtime / tree-sitter / replay engine) | [vinilana/dotcontext](https://github.com/vinilana/dotcontext) | MIT |
+| `skills/grill-me` + `skills/design-critique` (perspective-guided, cite-everything external grounding: diverse personas → grounded multi-turn questioning → surface unknown-unknowns — folded into existing skills, **no** new `/devmode research` command) | STORM / Co-STORM's methodology (concept only — none of the dspy/retriever app) | [stanford-oval/storm](https://github.com/stanford-oval/storm) | MIT |
 | `skills/code-review` ("comprehension debt", maker/checker), `skills/subagent-driven-development` (worktree isolation) | the *loop-engineering* essays | [Osmani](https://addyosmani.com/blog/loop-engineering/) · [Autocomplete](https://medium.com/autocomplete-real-world-ai/wtf-is-a-agentic-coding-loop-and-how-to-build-one-58eedb7cbcae) · [Greyling](https://cobusgreyling.medium.com/loop-engineering-62926dd6991c) | essays (concepts) |
 | `skills/self-scorecard`, `scripts/scorecard.py`, `scripts/dashboard.py` | — devmode-original — | (none) | — |
 | `skills/goal-brief`, `scripts/goal_brief.py` | — devmode-original — (emits Claude Code `/goal` & `/plan` commands; the commands are referenced, not vendored) | (none) | — |
-| `integrations/conductor-beads` (STATE.md memory pattern) | `templates/state.md` | gsd-build/get-shit-done | MIT (archived) |
+| `integrations/conductor-beads` (STATE.md memory pattern) | `templates/state.md` | [gsd-build/get-shit-done](https://github.com/gsd-build/get-shit-done) → now [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) | MIT |
 | `.agents/code-quality-analyzer`, `.agents/security-scanner`, `.agents/test-coverage-analyzer` (parallel review panel) | `agents/code-quality-analyzer`, `agents/security-scanner`, `agents/test-coverage-analyzer` | [rbarcante/claude-conductor](https://github.com/rbarcante/claude-conductor) | Apache-2.0 |
 | `integrations/.../templates/track/decisions.md` (ADR), INTEGRATION WARM START handoff | `protocols/decision-capture`, `commands/implement` | rbarcante/claude-conductor | Apache-2.0 |
 | `skills/grill-me` (structured A/B/C/D/E choices) | `templates/askuserquestion-patterns` | rbarcante/claude-conductor | Apache-2.0 |
@@ -64,8 +66,12 @@ reused (no files copied), as noted.
   subagent-delegation discipline), not files; individual/derivative use is
   permitted under its Indie terms. If you ship a commercial team product, review
   its license.
-- **get-shit-done** is MIT but **archived** (the maintained successor is "GSD
-  Redux"). We mined prose patterns only; we did not depend on its code/engine.
+- **get-shit-done** (by TÂCHES) is MIT but **archived** (2026-06-26); the
+  maintained successor is **`open-gsd/gsd-core`** (MIT). We mined prose patterns
+  only — the gate taxonomy + STATE.md memory from the original, and (from gsd-core)
+  the **edge-coverage probe** (`testing-principles`) and the **decision-coverage
+  gate** (`feedback-loops`); we did not depend on its code/engine. ("GSD Redux" was
+  the early provisional name, since renamed to gsd-core.)
 - **NguyenSiTrung/Conductor-Beads** (Apache-2.0) is the upstream toolkit the
   integration *mounts*: `install.sh --with-conductor` clones it at install time
   into the target project. **No Conductor-Beads code is vendored in this repo**;
@@ -125,6 +131,22 @@ reused (no files copied), as noted.
   hook already denies writes to secret paths; a fuzzy content-scanner in the hook
   would trade false positives for little real gain). We took none of the kernel,
   signing, provenance, host adapters, router, or self-evolving machinery.
+- **vinilana/dotcontext** (MIT) is a TypeScript app (MCP server + CLI + runtime).
+  Almost all of it — the declarative policy engine, the replay / failure-signature
+  datasets, the tree-sitter/LSP semantic maps, the 17-tool bidirectional sync — is
+  the *runtime* devmode deliberately refuses (markdown + Python-stdlib only). We
+  absorbed exactly one markdown-shaped idea: its task contract's *declare-then-check
+  the required deliverables* discipline, folded into `verification-before-completion`.
+  No app/code reused.
+- **stanford-oval/storm** (MIT) is Stanford OVAL's STORM / Co-STORM — a Python/dspy
+  app that writes cited, Wikipedia-style reports via *perspective-guided question
+  asking* (diverse personas → grounded multi-turn questioning → outline → cited
+  synthesis; Co-STORM adds a moderator for *unknown unknowns*). devmode can't vendor
+  the app, and an equivalent `deep-research` skill already exists, so we **did not**
+  add a `/devmode research` command. We folded the *methodology* into `grill-me`
+  (ground a knowledge gap with diverse, cited web investigation before guessing) and
+  `design-critique` (a lens grounds with a citation, not a hunch) — mapped onto
+  primitives devmode already has (subagent fan-out, evidence-over-assertion).
 
 If you are an author here and want a correction to this attribution, please open
 an issue.

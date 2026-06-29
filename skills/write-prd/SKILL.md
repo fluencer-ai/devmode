@@ -99,6 +99,11 @@ a design.
   hypothetical futures — that's its own form of entropy.
 - Surface trade-offs rather than silently resolving them; if a decision is the
   user's to make, list it under open questions.
+- **Make every resolved decision land.** A trade-off you settled (or an ADR) isn't
+  done when it's *recorded* — it's done when the behavior or module/interface
+  section actually reflects it. Before approving, confirm each decision is
+  referenced somewhere downstream, not stranded in a log (the decision-coverage
+  check in [`feedback-loops`](../feedback-loops/SKILL.md)).
 - Before approving a high-stakes PRD, pressure-test it with
   [`design-critique`](../design-critique/SKILL.md) — review it through several
   expert lenses and surface the trade-offs while it's still cheap (on paper).

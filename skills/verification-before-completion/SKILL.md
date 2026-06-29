@@ -56,6 +56,7 @@ Skipping any step is asserting, not verifying.
 | Requirements met | Line-by-line check against the spec/PRD | "tests pass, so it's done" |
 | Gate is green | The gate actually *ran over the file you changed* | exit 0 (a glob/path may have skipped it) |
 | Config/deploy applied | The **running** system reflects it (live env, endpoint, behavior) | the source/host file is correct on disk |
+| Deliverables produced | Each artifact the task *promised* exists — the files, the report, the N tests are present | a green check, without confirming what was actually produced |
 
 ## Red flags — stop before you speak
 
@@ -80,6 +81,12 @@ Skipping any step is asserting, not verifying.
   at a clean boundary with `[PAUSED — X of Y]` rather than compressing or faking it.
   (This is distinct from [`minimal-code`](../minimal-code/SKILL.md): write the
   *minimum* code needed, but write *all* of the code you committed to.)
+- **The promised deliverables don't all exist** — the task said "add the tests,
+  update the docs, and the migration"; you ran one green check but only wrote the
+  code. Before "done", **restate the concrete artifacts this task was meant to
+  produce and confirm each is present** — a passing generic check is not proof the
+  *specific* deliverables materialized. (Distinct from truncation above: there one
+  deliverable shipped half-written; here whole promised artifacts are missing.)
 - Different wording to dodge the rule — spirit over letter
 
 ## Verify the running state, not the source
@@ -131,4 +138,7 @@ worked) and [`tdd`](../tdd/SKILL.md) (the red→green evidence for regressions).
 > Reframed in the devmode voice; scoped against devmode's feedback-loops skill.
 > The output-completeness rule (no `// ...`/"rest follows" truncation; count
 > deliverables; pause cleanly under a token limit) is adapted from
-> `Leonxlnx/taste-skill` (`output-skill`), MIT.
+> `Leonxlnx/taste-skill` (`output-skill`), MIT. The declare-and-confirm-deliverables
+> check (restate the task's promised artifacts; verify each exists) is adapted from
+> `vinilana/dotcontext`'s task-contract gate (MIT — concept only, no app). See
+> ATTRIBUTION.md.

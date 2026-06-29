@@ -49,7 +49,11 @@ design — pick the ones that matter and say why the others don't.
 1. **State the design** in one paragraph (the shared design concept) so every
    lens reviews the same thing.
 2. **Apply each lens** in turn: its strongest concern, in one or two sentences.
-   Be a critic, not a cheerleader — the job is to find weaknesses.
+   Be a critic, not a cheerleader — the job is to find weaknesses. When a lens
+   leans on an external fact (a library's real behavior, a protocol's guarantees,
+   a known failure mode), **ground it with a cited web check** rather than opining
+   from priors — a perspective-expert with a source beats one with a hunch (the
+   same grounding technique as [`grill-me`](../grill-me/SKILL.md)).
 3. **Surface the disagreements.** Where two lenses pull in opposite directions
    (simplicity vs. flexibility, speed vs. security, scope vs. cost), name the
    tension explicitly — don't average it away.
@@ -69,4 +73,6 @@ design — pick the ones that matter and say why the others don't.
 
 > Adapted from `SuperClaude-Org/SuperClaude_Framework` (`spec-panel` /
 > `business-panel-experts` multi-expert review pattern), MIT. Reframed around
-> devmode's own foundations (Ousterhout/Beck/Evans/Clean Architecture).
+> devmode's own foundations (Ousterhout/Beck/Evans/Clean Architecture). The
+> grounded-lens technique (cite, don't opine) draws on `stanford-oval/storm`
+> (MIT). See ATTRIBUTION.md.
