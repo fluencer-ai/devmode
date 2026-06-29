@@ -398,7 +398,7 @@ projects. Full per-artifact mapping with licenses:
 | [saidwafiq/deepflow](https://github.com/saidwafiq/deepflow) | AC↔test traceability, the verify gate ladder | MIT |
 | [softaworks/agent-toolkit](https://github.com/softaworks/agent-toolkit) | delegate-to-cli, skill-judge ideas | MIT |
 | [glittercowboy/taches-cc-resources](https://github.com/glittercowboy/taches-cc-resources) | skill-auditing ideas | MIT |
-| [gsd-build/get-shit-done](https://github.com/gsd-build/get-shit-done) → [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) | gate taxonomy + STATE.md memory (original); the edge-coverage probe (`testing-principles`) + decision-coverage gate (`feedback-loops`) from the maintained gsd-core successor | MIT |
+| [gsd-build/get-shit-done](https://github.com/gsd-build/get-shit-done) → [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) | gate taxonomy + STATE.md memory (original); the edge-coverage probe (`testing-principles`), decision-coverage gate (`feedback-loops`), and package-legitimacy/slopsquat awareness (`security-hardening`) from the maintained gsd-core successor | MIT |
 | [khendzel/skills-janitor](https://github.com/khendzel/skills-janitor) | description-overlap detection + trigger lint in the auditor | MIT |
 | [sandeco/reversa](https://github.com/sandeco/reversa) | the discovery pipeline (Scout/Soul/Detective/Architect, 🟢🟡🔴) | MIT |
 | [agent0ai/dox](https://github.com/agent0ai/dox) | the doc-contracts AGENTS.md tree (pre-edit traversal, post-edit pass) | MIT |

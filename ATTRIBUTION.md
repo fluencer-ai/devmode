@@ -20,7 +20,7 @@ reused (no files copied), as noted.
 | `.agents/complexity-reviewer` (prover/verifier, Done-When evidence) | `post-gate-agent` | ryanthedev/code-foundations | MIT |
 | `skills/testing-principles` (anti-patterns) | `test-driven-development/testing-anti-patterns` | obra/superpowers | MIT |
 | `skills/testing-principles` (AC↔test traceability), `skills/feedback-loops` (gate ladder, ratchet) | `df-ac-coverage`, `commands/df/verify` | [saidwafiq/deepflow](https://github.com/saidwafiq/deepflow) | MIT |
-| `skills/feedback-loops` (gate taxonomy + the decision-coverage gate), `skills/testing-principles` (the edge-coverage probe — per-edge covered/dismissed/backstop/unresolved verdict) | `references/gates` + the gate suite | [gsd-build/get-shit-done](https://github.com/gsd-build/get-shit-done) → now [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) | MIT |
+| `skills/feedback-loops` (gate taxonomy + the decision-coverage gate), `skills/testing-principles` (the edge-coverage probe — per-edge covered/dismissed/backstop/unresolved verdict), `skills/security-hardening` (the *vet-before-you-add* package-legitimacy / slopsquat awareness) | `references/gates` + the gate suite (decision-coverage, edge-coverage, package-legitimacy) | [gsd-build/get-shit-done](https://github.com/gsd-build/get-shit-done) → now [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) | MIT |
 | `skills/authoring-skills` | `writing-skills` + `skill-judge` + `skill-auditor` | obra/superpowers; [softaworks/agent-toolkit](https://github.com/softaworks/agent-toolkit); [glittercowboy/taches-cc-resources](https://github.com/glittercowboy/taches-cc-resources) | MIT |
 | `skills/delegate-to-cli` | `codex` / `gemini` skills | softaworks/agent-toolkit | MIT |
 | `skills/code-review` | `requesting-code-review` + `receiving-code-review` (+ panel lanes from claude-conductor) | obra/superpowers; rbarcante/claude-conductor | MIT; Apache-2.0 |
@@ -69,9 +69,11 @@ reused (no files copied), as noted.
 - **get-shit-done** (by TÂCHES) is MIT but **archived** (2026-06-26); the
   maintained successor is **`open-gsd/gsd-core`** (MIT). We mined prose patterns
   only — the gate taxonomy + STATE.md memory from the original, and (from gsd-core)
-  the **edge-coverage probe** (`testing-principles`) and the **decision-coverage
-  gate** (`feedback-loops`); we did not depend on its code/engine. ("GSD Redux" was
-  the early provisional name, since renamed to gsd-core.)
+  the **edge-coverage probe** (`testing-principles`), the **decision-coverage gate**
+  (`feedback-loops`), and the **package-legitimacy / slopsquat awareness**
+  (`security-hardening`, as a one-line *practice* — none of gsd-core's external
+  `slopcheck` tool or registry calls); we did not depend on its code/engine. ("GSD
+  Redux" was the early provisional name, since renamed to gsd-core.)
 - **NguyenSiTrung/Conductor-Beads** (Apache-2.0) is the upstream toolkit the
   integration *mounts*: `install.sh --with-conductor` clones it at install time
   into the target project. **No Conductor-Beads code is vendored in this repo**;

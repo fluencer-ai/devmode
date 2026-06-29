@@ -115,6 +115,13 @@ A vulnerability report (`npm audit` / equivalent) is not a fire drill — triage
    fix, decide deliberately (pin + mitigate, replace the dep, or accept with an
    ADR). Don't blindly `--force` upgrades that break the build.
 
+**Before you *add* a dependency, vet its legitimacy.** A new package name —
+especially one an AI suggested — can be a **typosquat** or **slopsquat** (a
+plausible name that doesn't exist until an attacker registers it to catch
+hallucinated installs). Confirm it's the real, maintained package (exact name,
+genuine downloads/repo/maintainer, not a days-old look-alike) *before* installing;
+never let a failed install auto-substitute a similarly-named one.
+
 ## Process
 
 1. **Threat-model the change** — what's the trust boundary, what's the worst
@@ -134,6 +141,8 @@ A vulnerability report (`npm audit` / equivalent) is not a fire drill — triage
 - An object accessed by client-supplied id with no ownership check.
 - "We'll add auth later"; trusting a client-sent role/flag.
 - `npm audit` output ignored *or* blindly force-fixed.
+- Installing a new or AI-suggested package without confirming it's the real one —
+  **typosquatting / slopsquatting** (a hallucinated name an attacker pre-registered).
 
 > Adapted from `addyosmani/agent-skills` (`security-and-hardening` +
 > `references/security-checklist.md`), MIT. The *scan-before-you-share* secrets
@@ -141,4 +150,6 @@ A vulnerability report (`npm audit` / equivalent) is not a fire drill — triage
 > the credential-exposure gate in `ruvnet/agent-harness-generator`'s `validate`,
 > MIT — devmode keeps it as a *practice* (the `guardrails.py` hook already denies
 > writes to secret paths; a fuzzy content-scanner in the hook would trade false
-> positives for little gain).
+> positives for little gain). The *vet-before-you-add* dependency-legitimacy check
+> (typosquat / slopsquat awareness) draws on the package-legitimacy gate in
+> `open-gsd/gsd-core` (MIT). See ATTRIBUTION.md.
