@@ -93,7 +93,3 @@ belong in different modules — even if they look similar today.
 - Everything imports the framework → the framework became the architecture; push
   it to the edge. If it's already pervasive, drive the fix with
   [`improve-codebase-architecture`](../improve-codebase-architecture/SKILL.md).
-
-> Adapted from `ryanthedev/code-foundations` (`ca-architecture-boundaries`,
-> Clean Architecture / R. C. Martin), MIT. Positioned as the system-level
-> complement to devmode's functional-core/imperative-shell.

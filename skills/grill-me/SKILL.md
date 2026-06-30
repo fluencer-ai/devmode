@@ -147,7 +147,3 @@ You've reached a shared design concept when you can restate the what, the why,
 the boundaries, and the key trade-offs, and the user agrees without
 corrections. At that point, stop grilling and offer to capture it — as a PRD,
 as issues, or as a short summary the user can hand to an AFK agent.
-
-> Fault taxonomy adapted from `ryanthedev/code-foundations` (`clarify`, MIT);
-> structured A/B/C/D/E choices from `rbarcante/claude-conductor` (Apache-2.0);
-> lineage traces to `obra/superpowers` `brainstorming` (MIT). See ATTRIBUTION.md.

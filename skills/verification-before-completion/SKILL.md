@@ -133,12 +133,3 @@ with the evidence-gated handoff the `tdd-implementer` returns.
 Run the command. Read the output. *Then* make the claim. Pair this with
 [`systematic-debugging`](../systematic-debugging/SKILL.md) (verify the fix
 worked) and [`tdd`](../tdd/SKILL.md) (the red→green evidence for regressions).
-
-> Adapted from `obra/superpowers` (`verification-before-completion`), MIT.
-> Reframed in the devmode voice; scoped against devmode's feedback-loops skill.
-> The output-completeness rule (no `// ...`/"rest follows" truncation; count
-> deliverables; pause cleanly under a token limit) is adapted from
-> `Leonxlnx/taste-skill` (`output-skill`), MIT. The declare-and-confirm-deliverables
-> check (restate the task's promised artifacts; verify each exists) is adapted from
-> `vinilana/dotcontext`'s task-contract gate (MIT — concept only, no app). See
-> ATTRIBUTION.md.

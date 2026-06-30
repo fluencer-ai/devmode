@@ -91,8 +91,3 @@ python3 scripts/audit_skills.py
 
 Use it as the fast gate; use the checklist above for the judgment calls a script
 can't make.
-
-> Consolidated from `obra/superpowers` (`writing-skills` — TDD-for-skills),
-> `softaworks/agent-toolkit` (`skill-judge` — knowledge-delta formula), and
-> `glittercowboy/taches-cc-resources` (`skill-auditor`), all MIT. Reframed in the
-> devmode voice.

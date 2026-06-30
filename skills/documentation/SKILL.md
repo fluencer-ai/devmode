@@ -77,5 +77,3 @@ history intact.
 - A big decision made with no ADR ("why is it like this?" → nobody knows).
 - A README that doesn't actually get you running.
 - Docs updated "later" (i.e. never), in a separate place from the code.
-
-> Adapted from `addyosmani/agent-skills` (`documentation-and-adrs`), MIT.

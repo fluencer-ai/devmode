@@ -214,9 +214,3 @@ reach for
 [`functional-core-imperative-shell`](../functional-core-imperative-shell/SKILL.md)
 or [`improve-codebase-architecture`](../improve-codebase-architecture/SKILL.md)
 before adding more mocks.
-
-> Testing anti-patterns adapted from `obra/superpowers` (MIT); AC↔test
-> traceability from `saidwafiq/deepflow` (MIT); "not observed ≠ absent" from
-> `Chachamaru127/claude-code-harness` (MIT); the edge-coverage probe (per-edge
-> covered/dismissed/backstop/unresolved verdict) from `open-gsd/gsd-core` (MIT).
-> See ATTRIBUTION.md.

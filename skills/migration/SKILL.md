@@ -68,5 +68,3 @@ anything, know the blast radius ([`impact-analysis`](../impact-analysis/SKILL.md
 - A schema change that's breaking in a single step (skip expand-contract).
 - A migration declared "done" with the old code still present (zombie).
 - Re-migrating an area that keeps churning instead of fixing its design.
-
-> Adapted from `addyosmani/agent-skills` (`deprecation-and-migration`), MIT.

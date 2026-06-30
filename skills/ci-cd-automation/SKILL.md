@@ -73,6 +73,3 @@ testing implementation details and over-mocking — see
 - Deploy steps that live only in someone's head / a manual checklist.
 - No rollback path.
 - Secrets in CI logs or committed workflow files.
-
-> Adapted from `addyosmani/agent-skills` (`ci-cd-and-automation`), MIT.
-> Reconciled with devmode's "no blind coverage gate" rule.

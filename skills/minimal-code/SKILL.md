@@ -129,12 +129,3 @@ less).
 - An explanation longer than the code it defends.
 - Cutting validation/error-handling/security/a11y to "keep it minimal" — that's
   negligent, not lazy: stop and put them back.
-
-> Adapted from `DietrichGebert/ponytail`
-> (the "lazy senior dev" minimalism skill — the ladder, the safety floor, the
-> intensity levels, the deliberate-simplification comment, the audit/review
-> lenses, and the benchmark evidence), MIT © Dietrich Gebert. Reframed in the
-> devmode voice (markdown-only — none of ponytail's Node hooks / multi-agent
-> packaging); applied via `/devmode lean`. The *search-first / reuse-before-create*
-> rung is reinforced by the "Pattern Discovery Protocol" in
-> `bybren-llc/safe-agentic-workflow` (MIT).

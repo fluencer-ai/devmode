@@ -75,6 +75,3 @@ file and line references.
   smallest fix.
 - **Will not:** edit the code; rubber-stamp on the producer's say-so; impose a
   blind metric (coverage %, line count) as a blocking gate — report it as signal.
-
-> The verifier/Done-When-evidence discipline is adapted from
-> `ryanthedev/code-foundations` (`post-gate-agent`), MIT.

@@ -59,5 +59,3 @@ Don't expose 100% of users at once:
 - No monitoring/alerts on the new path (can't tell if it's failing).
 - Rollback thresholds invented *during* the incident.
 - A breaking schema/contract change shipped without expand-contract + backup.
-
-> Adapted from `addyosmani/agent-skills` (`shipping-and-launch`), MIT.

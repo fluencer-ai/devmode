@@ -83,7 +83,3 @@ module map already carry everything; don't scaffold empty ceremony.
 - A parent index that lists children that moved or died (the tree lies).
 - Doc updates batched "for later" instead of riding the change that caused them.
 - Scaffolding contracts in every folder of a tiny repo (ceremony without divergence).
-
-> Adapted from `agent0ai/dox`, MIT — the AGENTS.md-tree contract hierarchy,
-> pre-edit traversal, and post-edit "DOX pass". Reframed tool-agnostically and
-> scoped against devmode's module map.

@@ -74,8 +74,3 @@ integration.) A good handoff also:
 - Pasting a worker your entire history instead of a curated brief.
 - The agent re-reading files it already saw, or losing the goal on a long task.
 - Stopping a long task with no handoff (the next session starts from zero).
-
-> Adapted from `addyosmani/agent-skills` (`context-engineering`), MIT —
-> trimmed of Claude-Code-setup specifics to keep it tool-agnostic. The handoff
-> details (reference-don't-duplicate, suggested-skills, redact secrets, temp-dir
-> location) are adapted from `mattpocock/skills` (`handoff`), MIT.

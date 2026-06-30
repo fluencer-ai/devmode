@@ -77,5 +77,3 @@ Push correctness into types so misuse fails at compile time, not runtime:
 - A different error shape per endpoint.
 - A "small tweak" that changes an existing field's type/meaning (breaking).
 - Validating external input deep inside instead of at the boundary.
-
-> Adapted from `addyosmani/agent-skills` (`api-and-interface-design`), MIT.

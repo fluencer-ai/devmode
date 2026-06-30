@@ -61,7 +61,3 @@ unresolved gap matters more than an averaged score that looks fine.
 - Starting to code while the interface is still ambiguous.
 - Not being able to name the command/test that will prove success.
 - Treating the check as a formality to pass rather than gaps to close.
-
-> Adapted from `SuperClaude-Org/SuperClaude_Framework` (`confidence-check`), MIT.
-> Reframed as a gap-closing pre-flight gate (no fake precision score), bookended
-> with devmode's verification-before-completion.

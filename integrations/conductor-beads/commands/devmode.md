@@ -84,8 +84,7 @@ phases); unlike `c`, it adds *routing* + a short pipeline. Parse everything afte
 6. **Deliver.** What changed, the evidence, one line of next/watch. If it turned
    out project-sized, say so and hand off to the full `/devmode` flow.
 
-Keep the user *led, not quizzed*. (Router concept adapted from
-`notque/vexjoy-agent`'s `/do`, MIT — reusing devmode's existing skills/agents/gates.)
+Keep the user *led, not quizzed*.
 
 ### Mode Wiki — `wiki start <path>` | `wiki adopt <folder>`  (first token is `wiki`)  ← runs INLINE
 Deploy a **Karpathy LLM Wiki** (the opt-in `integrations/llm-wiki/` module): a
@@ -109,8 +108,7 @@ maintainer); and offer to **ingest** a first
 source — they drop a file in `raw/sources/`, you write a `wiki/sources/<slug>.md`
 summary and update every affected page. The 7 page types, the frontmatter spec,
 and the ingest/query/lint operations all live in the deployed `KARPATHY.md` —
-read it and follow it. Keep the user *led, not quizzed*. (Concept: Andrej
-Karpathy's *LLM Wiki* gist — pure markdown, app-free.)
+read it and follow it. Keep the user *led, not quizzed*.
 
 ### Mode Lean — `lean <idea>` | `lean goal|plan <objective>`  (first token is `lean`)
 Run with the **`minimal-code`** discipline (the "lazy senior dev" ladder) in the
@@ -134,8 +132,7 @@ handling, security, or accessibility**. Two forms by the **second** token:
   > error handling, security, or accessibility.*
   Then guarantee the limit (`printf '%s' "<brief>" | python3 .devmode/goal_brief.py check --budget 3800` → must say `PASS`) and emit the ready-to-run `/goal …` (or `/plan …`). Re-emit on request.
 
-Keep the user *led, not quizzed*. (The minimalism discipline is adapted from
-`DietrichGebert/ponytail`, MIT — see the `minimal-code` skill.)
+Keep the user *led, not quizzed*.
 
 ### Mode Update — `update <folder>` | `update wiki <folder>`  (first token is `update`)  ← runs INLINE
 Refresh the devmode-MANAGED files in an existing project to the **current base**,

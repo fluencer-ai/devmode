@@ -70,7 +70,3 @@ the outcome and the evidence — not the CLI's self-report.
 - Granting write/network sandbox when read-only would do.
 - Accepting the CLI's "done" without running the tests yourself.
 - Delegating a critical (money/auth/security) module as a gray box.
-
-> Adapted from `softaworks/agent-toolkit` (`codex`, `gemini` skills), MIT.
-> Reframed under devmode's gray-box delegation contract; mechanics are
-> illustrative — verify each CLI's flags before use.

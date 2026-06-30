@@ -70,7 +70,3 @@ rule applies: a spike isn't done until it's deleted or promoted, never left to r
 - Pasting spike code straight into the codebase instead of re-deriving it test-first.
 - Spiking what you could answer by reading the docs/source
   ([`source-of-truth`](../source-of-truth/SKILL.md)) — don't prototype a known.
-
-> Adapted from `mattpocock/skills` (`prototype`), MIT © Matt Pocock — devmode
-> shares its thesis (the four failure modes). Reframed tool-agnostically and
-> wired to devmode's spike→capture→delete discipline.

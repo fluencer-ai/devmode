@@ -70,9 +70,3 @@ design — pick the ones that matter and say why the others don't.
   concern or an explicit "no concern here, because…".
 - This is *review*, not redesign — surface problems and trade-offs; let the
   `design-architect` and the human decide the fix.
-
-> Adapted from `SuperClaude-Org/SuperClaude_Framework` (`spec-panel` /
-> `business-panel-experts` multi-expert review pattern), MIT. Reframed around
-> devmode's own foundations (Ousterhout/Beck/Evans/Clean Architecture). The
-> grounded-lens technique (cite, don't opine) draws on `stanford-oval/storm`
-> (MIT). See ATTRIBUTION.md.

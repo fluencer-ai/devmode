@@ -38,6 +38,3 @@ Review the change for:
   as a blocking gate — report it as a signal, not a verdict.
 
 Be specific with file and line references. Distinguish must-fix from nice-to-have.
-
-> The parallel-review-panel pattern is adapted from `rbarcante/claude-conductor`
-> (`agents/code-quality-analyzer`), Apache-2.0.

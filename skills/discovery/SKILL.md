@@ -103,11 +103,3 @@ map to work from.
   real legacy system has unknowns).
 - Declaring a codebase ready to change without a **test-safety-net read** — the
   first refactor then runs with no net, and you find out the hard way.
-
-> Adapted from `sandeco/reversa` (its Scout/Soul/Detective/Architect prompt
-> pipeline + the 🟢/🟡/🔴 confidence scale), MIT. Reimplemented as a single
-> tool-agnostic devmode skill (reversa's value is the prompts, not its installer).
-> The **readiness read** (test-safety-net + operational readiness → a recommended
-> first move) is adapted from the pre-scaffold `genome` analysis in
-> `ruvnet/agent-harness-generator` (MetaHarness), MIT — reframed to devmode's
-> qualitative 🟢🟡🔴 (no 0–100 score).

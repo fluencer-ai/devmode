@@ -88,7 +88,3 @@ accidental.
 - Renaming/deleting before tracing references ("nothing uses this" — verified?).
 - Changing a signature near the graph root without checking the blast radius.
 - Trusting `grep` alone where dynamic dispatch or DI hides the real callers.
-
-> The reverse-dependency / impact-analysis technique (recipients, transitive
-> parents, cycle/orphan detection, why-per-edge) is adapted from
-> `k-kolomeitsev/data-structure-protocol`, Apache-2.0. Reframed tool-agnostically.

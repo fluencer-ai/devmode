@@ -63,5 +63,3 @@ and the official docs are the truth.** When in doubt, look it up — don't recal
 - Using a pattern from "how it used to work" after a major upgrade.
 - Trusting a blog/SO snippet over the official docs.
 - "Fixing" surprising behavior by guessing instead of reading the docs/source.
-
-> Adapted from `addyosmani/agent-skills` (`source-driven-development`), MIT.

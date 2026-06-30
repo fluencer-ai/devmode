@@ -108,6 +108,3 @@ compaction) judge whether it's essential or accidental, and it powers
 This skill pairs naturally with [`grill-me`](../grill-me/SKILL.md) (the grill
 surfaces terms worth defining) and [`write-prd`](../write-prd/SKILL.md) (the
 PRD should be written in this language).
-
-> The why-per-edge module-map idea is adapted from
-> `k-kolomeitsev/data-structure-protocol` (Apache-2.0). See ATTRIBUTION.md.

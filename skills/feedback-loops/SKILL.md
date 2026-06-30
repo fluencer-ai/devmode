@@ -142,7 +142,3 @@ The AI can take a task, make a change, and within seconds know whether it
 helped — types, compile, tests, and (for UI) the rendered result all tell it the
 truth automatically. Mistakes surface while they're still one line deep instead
 of buried under a feature's worth of code.
-
-> Gate-ladder + AC↔test ratchet adapted from `saidwafiq/deepflow` (MIT); the gate
-> taxonomy + the decision-coverage gate from `open-gsd/gsd-core` (the maintained
-> get-shit-done successor, MIT). See ATTRIBUTION.md.

@@ -91,7 +91,3 @@ pattern when a *real* smell appears, not preemptively.
 - Indirection that hides *no* complexity — that's entropy with a fancy name; the
   `complexity-reviewer` should flag it.
 - Reaching for a pattern before the smell exists ("we might need it").
-
-> Adapted from `ryanthedev/code-foundations` (`gof-design-patterns`), MIT.
-> Reframed under devmode's complexity/deep-module rule — patterns must reduce
-> complexity, not add it.

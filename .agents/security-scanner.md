@@ -42,6 +42,3 @@ severity, and the fix. Tie to the trust boundary it crosses.
 
 Be specific with file and line references. A plausible high-severity finding
 beats ten speculative low ones.
-
-> The parallel-review-panel pattern is adapted from `rbarcante/claude-conductor`
-> (`agents/security-scanner`), Apache-2.0.

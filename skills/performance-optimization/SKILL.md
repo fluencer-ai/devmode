@@ -70,6 +70,3 @@ vanity number.
 - Claiming "it's faster" without a before/after measurement
   ([`verification-before-completion`](../verification-before-completion/SKILL.md)).
 - Trading readability for a speed-up that the profile says doesn't matter.
-
-> Adapted from `addyosmani/agent-skills` (`performance-optimization` +
-> `references/performance-checklist.md`), MIT.

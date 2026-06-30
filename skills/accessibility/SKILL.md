@@ -77,6 +77,3 @@ are design decisions, not retrofits).
 - Color the sole carrier of meaning (red/green status with no text).
 - A modal that doesn't trap focus or restore it on close.
 - "Lighthouse says 100" treated as fully accessible (it isn't).
-
-> Authored for devmode from the WCAG 2.1 AA quick-reference in
-> `addyosmani/agent-skills` (`references/accessibility-checklist.md`), MIT.

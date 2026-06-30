@@ -85,6 +85,3 @@ instead of attempting fix #4.
 | "Try this first, investigate later" | The first fix sets the pattern. Do it right from the start. |
 | "I'll test after I confirm the fix" | Untested fixes don't stick. The failing test proves the cause. |
 | "Reference is long, I'll adapt it" | Partial understanding guarantees bugs. Read it fully. |
-
-> Adapted from `obra/superpowers` (`systematic-debugging`), MIT. Reframed in the
-> devmode voice and wired to devmode's tdd / verification / architecture skills.

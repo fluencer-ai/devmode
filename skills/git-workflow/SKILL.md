@@ -67,5 +67,3 @@ surgical. A messy history hides the very information you'll need under pressure.
 - `reset --hard` to "clean up" with uncommitted work present.
 - `--no-verify` to dodge a failing hook.
 - A 2,000-line PR doing five things.
-
-> Adapted from `addyosmani/agent-skills` (`git-workflow-and-versioning`), MIT.

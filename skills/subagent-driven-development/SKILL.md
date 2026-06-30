@@ -108,7 +108,3 @@ Use the least powerful model that can do the role:
 - Making a subagent read the plan instead of handing it the text.
 - Trusting self-review as a substitute for an independent review.
 - Letting an agent's "success" stand in for inspecting the diff.
-
-> Adapted from `obra/superpowers` (`subagent-driven-development`) and the
-> delegation discipline in `cowwoc/cat`, MIT / source-available (idea-level
-> reuse). Wired to devmode's design-interface/delegate, tdd, and verification.

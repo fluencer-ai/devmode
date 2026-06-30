@@ -39,7 +39,3 @@ For the change, check:
   behavior, never the verdict. A high percentage with untested edges still fails.
 
 Be specific: name the untested behavior and the input that would exercise it.
-
-> The parallel-review-panel pattern is adapted from `rbarcante/claude-conductor`
-> (`agents/test-coverage-analyzer`), Apache-2.0. Scoped to devmode's
-> behavior-over-coverage testing stance.

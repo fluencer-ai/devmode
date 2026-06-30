@@ -143,13 +143,3 @@ never let a failed install auto-substitute a similarly-named one.
 - `npm audit` output ignored *or* blindly force-fixed.
 - Installing a new or AI-suggested package without confirming it's the real one —
   **typosquatting / slopsquatting** (a hallucinated name an attacker pre-registered).
-
-> Adapted from `addyosmani/agent-skills` (`security-and-hardening` +
-> `references/security-checklist.md`), MIT. The *scan-before-you-share* secrets
-> reflex (grep the diff before commit/push/paste; rotate on leak) is reinforced by
-> the credential-exposure gate in `ruvnet/agent-harness-generator`'s `validate`,
-> MIT — devmode keeps it as a *practice* (the `guardrails.py` hook already denies
-> writes to secret paths; a fuzzy content-scanner in the hook would trade false
-> positives for little gain). The *vet-before-you-add* dependency-legitimacy check
-> (typosquat / slopsquat awareness) draws on the package-legitimacy gate in
-> `open-gsd/gsd-core` (MIT). See ATTRIBUTION.md.
