@@ -117,6 +117,7 @@ the running process is the evidence. (In devmode projects this is enforced by th
 | "Linter passed" | The linter doesn't compile or run the code. |
 | "The agent said success" | Verify independently; agents over-report. |
 | "Partial check is enough" | Partial proves nothing about the whole. |
+| "Pre-existing failure, not mine" | A red you ship is still yours — "0 failures, this turn" means zero, old ones included; fix it or get explicit sign-off to defer. |
 
 ## Attach the evidence (don't just assert it)
 

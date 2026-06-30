@@ -43,6 +43,12 @@ module, its responsibility, its public interface, what it depends on — exactly
 the table [`ubiquitous-language`](../ubiquitous-language/SKILL.md) wants. Read
 one module per pass to preserve context; don't skim the whole repo at once.
 
+**Read the highest-fan-in module first** — the hub most others name in their
+`Depends on` cells — before the leaves; that's where the design concept
+concentrates, so later modules are read with it in hand. (Fan-in by eye over the
+`Depends on` column — no graph engine.) Tag it 🟡: the biggest hub is often a
+god-object or `utils` dump — a smell to break up, not a design to revere.
+
 ### 3. Domain — the glossary (→ UBIQUITOUS_LANGUAGE.md)
 Extract the **terms** half of the ubiquitous language: the domain nouns/verbs the
 code uses (entities, states, key operations), each tied to its `in code as`
