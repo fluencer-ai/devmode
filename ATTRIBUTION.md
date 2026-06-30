@@ -43,6 +43,7 @@ reused (no files copied), as noted.
 | `skills/verification-before-completion` (declare-and-confirm the task's concrete deliverables before "done") | the task-contract `requiredArtifacts`/`expectedOutputs` gate (concept only — none of the MCP server / runtime / tree-sitter / replay engine) | [vinilana/dotcontext](https://github.com/vinilana/dotcontext) | MIT |
 | `skills/grill-me` + `skills/design-critique` (perspective-guided, cite-everything external grounding: diverse personas → grounded multi-turn questioning → surface unknown-unknowns — folded into existing skills, **no** new `/devmode research` command) | STORM / Co-STORM's methodology (concept only — none of the dspy/retriever app) | [stanford-oval/storm](https://github.com/stanford-oval/storm) | MIT |
 | `skills/code-review` ("comprehension debt", maker/checker), `skills/subagent-driven-development` (worktree isolation) | the *loop-engineering* essays | [Osmani](https://addyosmani.com/blog/loop-engineering/) · [Autocomplete](https://medium.com/autocomplete-real-world-ai/wtf-is-a-agentic-coding-loop-and-how-to-build-one-58eedb7cbcae) · [Greyling](https://cobusgreyling.medium.com/loop-engineering-62926dd6991c) | essays (concepts) |
+| `skills/code-review` (the *green-by-deletion* tripwire — a fix that disables/comments the very test it was meant to satisfy is an automatic finding) | the `loop-verifier` "no-cheating" gate (concept only — none of the npm CLIs / MCP server / scheduler / readiness-score) | [cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering) | MIT |
 | `skills/self-scorecard`, `scripts/scorecard.py`, `scripts/dashboard.py` | — devmode-original — | (none) | — |
 | `skills/goal-brief`, `scripts/goal_brief.py` | — devmode-original — (emits Claude Code `/goal` & `/plan` commands; the commands are referenced, not vendored) | (none) | — |
 | `integrations/conductor-beads` (STATE.md memory pattern) | `templates/state.md` | [gsd-build/get-shit-done](https://github.com/gsd-build/get-shit-done) → now [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) | MIT |
@@ -89,7 +90,23 @@ reused (no files copied), as noted.
 - The **loop-engineering essays** (Osmani; Autocomplete/Real-World-AI; Greyling)
   are prose, not code — we reused *concepts* (maker/checker split, comprehension
   debt, worktree isolation, "design loops, don't prompt turn-by-turn"); they
-  validated devmode's existing architecture more than they changed it.
+  validated devmode's existing architecture more than they changed it. The
+  **`cobusgreyling/loop-engineering`** *repo* (MIT) turns that essay into npm CLIs +
+  an MCP server + a scheduler — all of which devmode refuses (app/runtime,
+  human-in-the-loop by design); the one markdown-shaped delta its `loop-verifier`
+  added beyond the essay is the **green-by-deletion** tripwire now in `code-review`.
+  (Its Loop Readiness Score is a 0–100 rubric already covered by `self-scorecard`'s
+  0–10; its `loop-constraints.md` is enforced harder by devmode's deterministic hooks.)
+- **Evaluated and absorbed nothing** (recorded so they aren't re-litigated):
+  **`safishamsi/graphify`** (MIT) — a tree-sitter parser + NetworkX/Neo4j graph
+  engine + MCP server; the graph-as-markdown methodology is already devmode's
+  (`ubiquitous-language` dep-map, `impact-analysis` blast-radius + why-per-edge,
+  parser-free `discovery`, the `llm-wiki` [[wikilink]] graph), and the parser/graph-DB
+  is the class devmode refuses. **`affaan-m/ecc`** (MIT) — an app-heavy sibling
+  (continuous-learning JSONL runtime, a Node security scanner, a council panel);
+  every novel piece is an app/DB/runtime and every markdown idea is already covered
+  (`design-critique`, `minimal-code`, `discovery`, the supersede-the-ADR spine,
+  `verification-before-completion`).
 - **Andrej Karpathy's *LLM Wiki* gist** is the concept behind the
   `integrations/llm-wiki/` module. We implemented it as **pure, app-free
   markdown** (3 layers, 7 canonical page types, ingest/query/lint) — deliberately

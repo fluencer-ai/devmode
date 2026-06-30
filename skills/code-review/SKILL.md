@@ -37,7 +37,10 @@ Review in two passes — wrong order lets over/under-building slip through:
      leaked internals, growing interfaces, dead code.
    - **code quality** (`code-quality-analyzer`): readability, duplication, naming.
    - **security** (`security-scanner`): vulnerabilities, secret leakage, authz.
-   - **test adequacy** (`test-coverage-analyzer`): untested behaviors/edges/ACs.
+   - **test adequacy** (`test-coverage-analyzer`): untested behaviors/edges/ACs —
+     and any test disabled/skipped or assertion commented-out/weakened **in the
+     same diff as the fix it was meant to satisfy** (green-by-deletion is an
+     automatic finding).
 
 **Critical modules** (auth, money, security, irreversible effects) are reviewed
 **in full** — never accepted on a gray-box basis.
@@ -101,4 +104,7 @@ This is where the value is realized or lost:
 > "comprehension debt" framing are reinforced by the *loop-engineering* essays
 > (Osmani; Autocomplete; Greyling); the **immutable gate-independence** rule
 > (never collapse the checker into the maker for a critical gate) from
-> `bybren-llc/safe-agentic-workflow` (MIT). Reframed in the devmode voice.
+> `bybren-llc/safe-agentic-workflow` (MIT); the **green-by-deletion** tripwire (a
+> fix that disables/comments the very test it should satisfy is an automatic
+> finding) from `cobusgreyling/loop-engineering`'s `loop-verifier` (MIT). Reframed
+> in the devmode voice.
