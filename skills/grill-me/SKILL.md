@@ -111,9 +111,12 @@ from research, not priors:
    security reviewer, a maintainer, the official docs). Diverse viewpoints surface
    the *unknown unknowns* a single angle misses.
 2. **Dispatch one fresh subagent per perspective**
-   ([`subagent-driven-development`](../subagent-driven-development/SKILL.md)),
-   each issued web search/fetch and told to bring back **cited** findings — every
-   claim carries a source or it doesn't count
+   ([`subagent-driven-development`](../subagent-driven-development/SKILL.md)), each
+   given **only the question plus minimal context — never your running conversation
+   or your own stated leaning**. When you're also the one synthesizing, feeding a
+   voice your position makes it mirror that position back, destroying the very
+   independence you dispatched it for. Each is issued web search/fetch and told to
+   bring back **cited** findings — every claim carries a source or it doesn't count
    ([`verification-before-completion`](../verification-before-completion/SKILL.md)).
 3. **Cross-examine**: where the perspectives disagree is where the real decision
    lives — surface the contradiction, don't average it away.

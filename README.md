@@ -420,6 +420,7 @@ projects. Full per-artifact mapping with licenses:
 | [stanford-oval/storm](https://github.com/stanford-oval/storm) | `grill-me` + `design-critique` — STORM/Co-STORM's perspective-guided, cite-everything research grounding, folded into existing skills (no new command; an equivalent `deep-research` skill already exists) | MIT |
 | [bitjaru/styleseed](https://github.com/bitjaru/styleseed) | `ux-design` — the 2:1 proximity ratio (within-group spacing ≤ half the between-group gap, so grouping is checkable, not implied); concept only, none of its React/Tailwind component library or `npx` installer | MIT |
 | [context-labs/halo](https://github.com/context-labs/halo) | `systematic-debugging` — treat a diagnostic's claims as evidence, not directive (verify a tool/agent's path/line/"missing-X" assertions before acting; re-search by concept), from its `halo-loop` skill; concept only, none of its RLM engine / trace runtime / OTel-JSONL format | MIT |
+| [affaan-m/ecc](https://github.com/affaan-m/ecc) | `grill-me` — anti-anchoring context isolation (dispatch each perspective subagent with only the question + minimal context, never your running conversation or stated leaning, or it mirrors your position back), from its `council` skill; concept only, none of its continuous-learning runtime / scanner / panel app | MIT |
 
 devmode and [mattpocock/skills](https://github.com/mattpocock/skills) are
 **siblings**: both were distilled from the thesis in Matt Pocock's *"Claude Code

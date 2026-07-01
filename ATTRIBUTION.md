@@ -44,6 +44,7 @@ reused (no files copied), as noted.
 | `skills/systematic-debugging` (diagnostic-evidence-not-directive — verify a tool's/agent's file/line/"missing-X" claims against the real repo before acting; re-search by concept, not its path guess) | the `halo-loop` skill's "treat engine output as evidence, not a directive; verify before you edit" discipline (concept only — none of the RLM engine / trace runtime / OTel-JSONL format / CLI) | [context-labs/halo](https://github.com/context-labs/halo) | MIT (by classification; LICENSE file unreadable) |
 | `skills/verification-before-completion` (declare-and-confirm the task's concrete deliverables before "done") | the task-contract `requiredArtifacts`/`expectedOutputs` gate (concept only — none of the MCP server / runtime / tree-sitter / replay engine) | [vinilana/dotcontext](https://github.com/vinilana/dotcontext) | MIT |
 | `skills/grill-me` + `skills/design-critique` (perspective-guided, cite-everything external grounding: diverse personas → grounded multi-turn questioning → surface unknown-unknowns — folded into existing skills, **no** new `/devmode research` command) | STORM / Co-STORM's methodology (concept only — none of the dspy/retriever app) | [stanford-oval/storm](https://github.com/stanford-oval/storm) | MIT |
+| `skills/grill-me` (anti-anchoring context isolation — dispatch each perspective subagent with only the question + minimal context, never your running conversation or stated leaning, or the voice mirrors your position back) | the `council` skill's fresh-subagent anti-anchoring mechanic (concept only — none of the panel app / persistence runtime) | [affaan-m/ecc](https://github.com/affaan-m/ecc) | MIT |
 | `skills/code-review` ("comprehension debt", maker/checker), `skills/subagent-driven-development` (worktree isolation) | the *loop-engineering* essays | [Osmani](https://addyosmani.com/blog/loop-engineering/) · [Autocomplete](https://medium.com/autocomplete-real-world-ai/wtf-is-a-agentic-coding-loop-and-how-to-build-one-58eedb7cbcae) · [Greyling](https://cobusgreyling.medium.com/loop-engineering-62926dd6991c) | essays (concepts) |
 | `skills/code-review` (the *green-by-deletion* tripwire — a fix that disables/comments the very test it was meant to satisfy is an automatic finding) | the `loop-verifier` "no-cheating" gate (concept only — none of the npm CLIs / MCP server / scheduler / readiness-score) | [cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering) | MIT |
 | `skills/self-scorecard`, `scripts/scorecard.py`, `scripts/dashboard.py` | — devmode-original — | (none) | — |
@@ -99,16 +100,26 @@ reused (no files copied), as noted.
   added beyond the essay is the **green-by-deletion** tripwire now in `code-review`.
   (Its Loop Readiness Score is a 0–100 rubric already covered by `self-scorecard`'s
   0–10; its `loop-constraints.md` is enforced harder by devmode's deterministic hooks.)
-- **Evaluated and absorbed nothing** (recorded so they aren't re-litigated):
+- **Evaluated and absorbed nothing** (recorded so it isn't re-litigated):
   **`safishamsi/graphify`** (MIT) — a tree-sitter parser + NetworkX/Neo4j graph
   engine + MCP server; the graph-as-markdown methodology is already devmode's
   (`ubiquitous-language` dep-map, `impact-analysis` blast-radius + why-per-edge,
   parser-free `discovery`, the `llm-wiki` [[wikilink]] graph), and the parser/graph-DB
-  is the class devmode refuses. **`affaan-m/ecc`** (MIT) — an app-heavy sibling
-  (continuous-learning JSONL runtime, a Node security scanner, a council panel);
-  every novel piece is an app/DB/runtime and every markdown idea is already covered
+  is the class devmode refuses. A verbatim re-read of the shipped `skill.md` (1204
+  lines) confirmed every behavioral maxim is already covered — provenance tagging
+  (EXTRACTED/INFERRED/AMBIGUOUS) ≈ `discovery`'s 🟢/🟡/🔴 confidence scale; "never
+  hallucinate an edge; if the graph lacks info, say so" ≈ `verification-before-completion`
+  + `systematic-debugging`; the rest (graph.json, cohesion scores, exports, the
+  skip-chunk/>50%-fail threshold) is app mechanics or a gameable numeric gate.
+- **`affaan-m/ecc`** (MIT) — an app-heavy sibling (continuous-learning JSONL
+  runtime, a Node security scanner, a `council` decision panel); nearly every novel
+  piece is an app/DB/runtime and its markdown ideas are otherwise already covered
   (`design-critique`, `minimal-code`, `discovery`, the supersede-the-ADR spine,
-  `verification-before-completion`).
+  `verification-before-completion`). The **one** markdown-shaped delta a verbatim
+  re-read surfaced — `council`'s anti-anchoring rule ("launch each voice as a fresh
+  subagent with **only the question and relevant context**, not the full ongoing
+  conversation") — is now folded into `grill-me`'s perspective-guided-research step
+  (attributed in the table above); none of the panel app / persistence runtime.
 - **Andrej Karpathy's *LLM Wiki* gist** is the concept behind the
   `integrations/llm-wiki/` module. We implemented it as **pure, app-free
   markdown** (3 layers, 7 canonical page types, ingest/query/lint) — deliberately
