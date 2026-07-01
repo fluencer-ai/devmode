@@ -28,6 +28,7 @@ reused (no files copied), as noted.
 | `integrations/.../hooks/guardrails.py` (+ test) — deterministic PreToolUse gates-as-code | R-rule guardrail engine (`go/internal/guardrail`) — *patterns only, not the Go binary* | Chachamaru127/claude-code-harness | MIT |
 | Domain skills: `frontend-ui-engineering`, `api-design`, `security-hardening`, `performance-optimization`, `browser-testing`, `ci-cd-automation`, `documentation`, `git-workflow`, `migration`, `shipping`, `context-engineering`, `source-of-truth` | the corresponding `agent-skills` skills (generalized off their web stack; coverage-gate reconciled to devmode's base) | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | MIT |
 | `skills/accessibility`, `skills/ux-design` | authored for devmode; a11y from `references/accessibility-checklist.md` (agent-skills) | addyosmani/agent-skills (a11y ref) + devmode-original (ux-design) | MIT |
+| `skills/ux-design` (the **2:1 proximity ratio** — within-group spacing ≤ half the between-group spacing, making the qualitative proximity rule mechanically checkable) | the DESIGN-LANGUAGE proximity rule (concept only — none of the React/Tailwind/Vite component library, JSON tokens, Framer-Motion "seeds" engine, brand skins, or `npx` installer) | [bitjaru/styleseed](https://github.com/bitjaru/styleseed) | MIT © 2026 StyleSeed Contributors |
 | `scripts/audit_skills.py` — description-overlap detector + trigger-word lint | `scripts/detect_dupes.sh` (Jaccard) + `scripts/lint.sh` (trigger/length) | [khendzel/skills-janitor](https://github.com/khendzel/skills-janitor) | MIT |
 | `skills/discovery` — codebase reverse-engineering for `/devmode adopt` | Scout/Soul/Detective/Architect prompt pipeline + 🟢/🟡/🔴 confidence scale | [sandeco/reversa](https://github.com/sandeco/reversa) | MIT |
 | `skills/doc-contracts` — hierarchical AGENTS.md doc-contract tree (pre-edit traversal + post-edit doc pass) | the `AGENTS.md` framework file | [agent0ai/dox](https://github.com/agent0ai/dox) | MIT |
@@ -166,6 +167,43 @@ reused (no files copied), as noted.
   (ground a knowledge gap with diverse, cited web investigation before guessing) and
   `design-critique` (a lens grounds with a citation, not a hunch) — mapped onto
   primitives devmode already has (subagent fan-out, evidence-over-assertion).
+
+- **bitjaru/styleseed** (MIT © 2026 StyleSeed Contributors) is a "design engine +
+  methodology" for AI coding tools — a hybrid of a substantive markdown knowledge
+  base and a **web app** (48 React components, JSON design tokens, a Vite scaffold,
+  a Framer-Motion "seeds" animation engine, 7 brand skins, 15 `/ss-*` slash-skills,
+  an `npx` installer). We absorbed exactly one tool-agnostic, markdown-shaped idea:
+  the **2:1 proximity ratio** (within-group spacing ≤ half the between-group
+  spacing), folded into `ux-design` to make its existing qualitative proximity rule
+  mechanically checkable — the ratio only, none of the web-flavored pixel form-ladder.
+  We took **none** of the React/Tailwind component library, tokens, motion engine,
+  skins, or installer (all app/runtime devmode refuses). Rejected as already-covered:
+  the "10 coherence axes" table (a longer restatement of `frontend-ui-engineering`'s
+  consistency locks, plus framework-specific values), an ordered "why does this look
+  off?" diagnosis probe (its dimensions already live in `frontend-ui-engineering`'s
+  tell table + pre-flight scan — a second overlapping checklist would be bloat), and
+  `ss-score`'s weighted 0–100 visual rubric (collides with `self-scorecard`'s 0–10
+  process scorecard and is keyed to Tailwind-specific deductions). Its single-accent
+  / one-radius / one-theme locks, emoji-as-icons ban, all-states rule, contrast and
+  reduced-motion rules are already at or below devmode's `frontend-ui-engineering` /
+  `ux-design` / `accessibility` coverage.
+- **Evaluated and absorbed nothing — context-labs/halo** (HALO / `halo-engine`, MIT
+  by classification; the exact copyright string was unreadable — LICENSE/LICENSE.md
+  returned 404 on GitHub — so treat the holder as unconfirmed): an **app + runtime +
+  trace-parser**, precisely the class devmode refuses. It is a specialized LLM "RLM"
+  agent runtime that ingests OpenTelemetry/OpenInference JSONL trace spans, explores
+  them with a bundled toolkit (a Deno JS sandbox + ripgrep), and emits a findings
+  report — shipped as a desktop app (`curl | sh`), a Typer CLI (`pip install
+  halo-engine`), and a Python streaming API, depending on openai / openai-agents /
+  pydantic / numpy / pandas. The OTel/OpenInference JSONL schema + `setup_tracing()`
+  is a data format + a vendored instrumentation module (a parser/observability
+  integration, not a document). Its one on-philosophy idea — the 5-step diagnose →
+  verify → minimal-change → re-measure loop, and its `halo-loop` maxims ("treat
+  engine output as evidence not a directive", "the tool can't see your repo — verify
+  every path claim before editing", "make the minimal-blast-radius edit") — is fully
+  covered already by `self-scorecard`, `verification-before-completion`,
+  `systematic-debugging`, `impact-analysis`, `code-review`, `delegate-to-cli`, and
+  `minimal-code`. Nothing markdown-shaped and net-new; honest skip.
 
 If you are an author here and want a correction to this attribution, please open
 an issue.

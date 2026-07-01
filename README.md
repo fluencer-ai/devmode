@@ -418,6 +418,7 @@ projects. Full per-artifact mapping with licenses:
 | [ruvnet/agent-harness-generator](https://github.com/ruvnet/agent-harness-generator) | `discovery` — the **readiness read** (test-safety-net + operational → a recommended first move, from its pre-scaffold `genome`); `security-hardening` — the scan-before-you-share secrets reflex (concepts only; none of its WASM kernel / witness-signing / multi-host infra) | MIT |
 | [vinilana/dotcontext](https://github.com/vinilana/dotcontext) | `verification-before-completion` — declare-and-confirm the task's promised deliverables before "done" (concept only; none of its MCP / runtime / tree-sitter / replay app) | MIT |
 | [stanford-oval/storm](https://github.com/stanford-oval/storm) | `grill-me` + `design-critique` — STORM/Co-STORM's perspective-guided, cite-everything research grounding, folded into existing skills (no new command; an equivalent `deep-research` skill already exists) | MIT |
+| [bitjaru/styleseed](https://github.com/bitjaru/styleseed) | `ux-design` — the 2:1 proximity ratio (within-group spacing ≤ half the between-group gap, so grouping is checkable, not implied); concept only, none of its React/Tailwind component library or `npx` installer | MIT |
 
 devmode and [mattpocock/skills](https://github.com/mattpocock/skills) are
 **siblings**: both were distilled from the thesis in Matt Pocock's *"Claude Code

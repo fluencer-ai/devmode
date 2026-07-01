@@ -44,7 +44,10 @@ A screen should answer "where do I look first?" instantly.
 - **Size, weight, color, and space** create rank — use them intentionally, and
   use *fewer* of them per view (restraint reads as confidence).
 - **Group by proximity and alignment.** Related things sit close and aligned;
-  whitespace is structure, not waste.
+  whitespace is structure, not waste. Make it checkable: keep within-group
+  spacing at most half the between-group spacing (a ~2:1 gap), so grouping is
+  visible, not implied. Uniform spacing everywhere destroys grouping — the #1
+  spacing tell.
 - **Density to match the task** — a dashboard and a landing page want opposite
   densities; choose deliberately.
 
