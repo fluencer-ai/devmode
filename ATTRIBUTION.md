@@ -41,6 +41,7 @@ reused (no files copied), as noted.
 | `skills/frontend-ui-engineering` (brief-inference, design dials, concrete AI-tell bans, consistency locks, motivated motion + reduced-motion, mechanical pre-flight, image-first prototyping, audit-first redesign) + `skills/verification-before-completion` (output-completeness: no `// …` truncation; count + pause cleanly) | the `taste-skill` / `redesign-skill` / `output-skill` skills | [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) | MIT |
 | `skills/code-review` (immutable gate-independence — the implementer never self-certifies a critical quality/security gate) + `skills/minimal-code` (search-first / reuse-before-create) | the vNext gate contract + the "Pattern Discovery Protocol" | [bybren-llc/safe-agentic-workflow](https://github.com/bybren-llc/safe-agentic-workflow) | MIT © J. Scott Graham / ByBren LLC |
 | `skills/discovery` (the **readiness read** — test-safety-net + operational readiness → a recommended first move) + `skills/security-hardening` (the *scan-before-you-share* secrets reflex) | the pre-scaffold `genome` analysis + the `validate` credential-exposure gate (concepts only — none of the WASM kernel / witness-signing / multi-host infra) | [ruvnet/agent-harness-generator](https://github.com/ruvnet/agent-harness-generator) (MetaHarness) | MIT |
+| `skills/systematic-debugging` (diagnostic-evidence-not-directive — verify a tool's/agent's file/line/"missing-X" claims against the real repo before acting; re-search by concept, not its path guess) | the `halo-loop` skill's "treat engine output as evidence, not a directive; verify before you edit" discipline (concept only — none of the RLM engine / trace runtime / OTel-JSONL format / CLI) | [context-labs/halo](https://github.com/context-labs/halo) | MIT (by classification; LICENSE file unreadable) |
 | `skills/verification-before-completion` (declare-and-confirm the task's concrete deliverables before "done") | the task-contract `requiredArtifacts`/`expectedOutputs` gate (concept only — none of the MCP server / runtime / tree-sitter / replay engine) | [vinilana/dotcontext](https://github.com/vinilana/dotcontext) | MIT |
 | `skills/grill-me` + `skills/design-critique` (perspective-guided, cite-everything external grounding: diverse personas → grounded multi-turn questioning → surface unknown-unknowns — folded into existing skills, **no** new `/devmode research` command) | STORM / Co-STORM's methodology (concept only — none of the dspy/retriever app) | [stanford-oval/storm](https://github.com/stanford-oval/storm) | MIT |
 | `skills/code-review` ("comprehension debt", maker/checker), `skills/subagent-driven-development` (worktree isolation) | the *loop-engineering* essays | [Osmani](https://addyosmani.com/blog/loop-engineering/) · [Autocomplete](https://medium.com/autocomplete-real-world-ai/wtf-is-a-agentic-coding-loop-and-how-to-build-one-58eedb7cbcae) · [Greyling](https://cobusgreyling.medium.com/loop-engineering-62926dd6991c) | essays (concepts) |
@@ -187,23 +188,24 @@ reused (no files copied), as noted.
   / one-radius / one-theme locks, emoji-as-icons ban, all-states rule, contrast and
   reduced-motion rules are already at or below devmode's `frontend-ui-engineering` /
   `ux-design` / `accessibility` coverage.
-- **Evaluated and absorbed nothing — context-labs/halo** (HALO / `halo-engine`, MIT
-  by classification; the exact copyright string was unreadable — LICENSE/LICENSE.md
-  returned 404 on GitHub — so treat the holder as unconfirmed): an **app + runtime +
-  trace-parser**, precisely the class devmode refuses. It is a specialized LLM "RLM"
-  agent runtime that ingests OpenTelemetry/OpenInference JSONL trace spans, explores
-  them with a bundled toolkit (a Deno JS sandbox + ripgrep), and emits a findings
-  report — shipped as a desktop app (`curl | sh`), a Typer CLI (`pip install
-  halo-engine`), and a Python streaming API, depending on openai / openai-agents /
-  pydantic / numpy / pandas. The OTel/OpenInference JSONL schema + `setup_tracing()`
-  is a data format + a vendored instrumentation module (a parser/observability
-  integration, not a document). Its one on-philosophy idea — the 5-step diagnose →
-  verify → minimal-change → re-measure loop, and its `halo-loop` maxims ("treat
-  engine output as evidence not a directive", "the tool can't see your repo — verify
-  every path claim before editing", "make the minimal-blast-radius edit") — is fully
-  covered already by `self-scorecard`, `verification-before-completion`,
-  `systematic-debugging`, `impact-analysis`, `code-review`, `delegate-to-cli`, and
-  `minimal-code`. Nothing markdown-shaped and net-new; honest skip.
+- **context-labs/halo** (HALO / `halo-engine`, MIT by classification; the exact
+  copyright string was unreadable — LICENSE/LICENSE.md returned 404 on GitHub — so
+  treat the holder as unconfirmed) is an **app + runtime + trace-parser**, precisely
+  the class devmode refuses: a specialized LLM "RLM" runtime that ingests OTel/
+  OpenInference JSONL trace spans, explores them with a bundled toolkit (a Deno JS
+  sandbox + ripgrep), and emits a findings report — shipped as a desktop app
+  (`curl | sh`), a Typer CLI (`pip install halo-engine`), and a Python streaming API
+  (openai / openai-agents / pydantic / numpy / pandas). We took **none** of that
+  machinery, nor its OTel/JSONL schema + `setup_tracing()` (a data format + vendored
+  instrumentation, not a document). But on a second, closer read of its `halo-loop`
+  SKILL.md we *did* absorb **one** genuinely markdown-shaped principle it states more
+  sharply than devmode had — *treat a diagnostic's output as evidence, not a
+  directive: a tool/agent that can't see the code asserts file paths, line numbers,
+  and "X is missing" from convention, so verify each claim against the real repo
+  before acting, and re-search by the concept (error string, symbol name), not its
+  path guess* — folded into `systematic-debugging` (Phase 1). The rest of its loop
+  (diagnose → verify → minimal-change → re-measure) is already `self-scorecard` +
+  `verification-before-completion` + `impact-analysis` + `minimal-code`.
 
 If you are an author here and want a correction to this attribution, please open
 an issue.

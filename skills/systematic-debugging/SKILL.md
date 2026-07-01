@@ -38,6 +38,11 @@ before tracing the cause is the failure mode this skill exists to prevent.
   *where* it breaks, then investigate that component — don't theorize blind.
 - **Trace the bad value backward.** Where does it originate? What passed it in?
   Keep going up the call stack to the source. Fix at the source, not the symptom.
+- **A diagnostic's claim is a hypothesis, not a fact.** When a tool, log summary,
+  or subagent that can't see the code names a file, a line, or "X is missing," treat
+  it as evidence *pointing* somewhere — not a directive. Verify it against the real
+  repo before acting; if the pointer is wrong (a hallucinated path), re-search by the
+  *concept* (the error string, the symbol name), not its guess.
 
 ### Phase 2 — Pattern analysis
 - **Find working examples** of similar code in the same codebase.
