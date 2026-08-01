@@ -36,6 +36,16 @@ Before starting implementation, answer each honestly. Any "no" is a stop signal.
    (the command, the test, the observable outcome)? If I can't name it, I'm not
    ready to claim "done" later either.
 
+## Prove the read with worked examples
+
+The Goal check fails silently when you *restate* the task and it sounds right —
+abstract agreement is exactly where a misread hides. Before building anything
+non-trivial, make the interpretation concrete: give **three examples of what the
+result will actually do — at least one an edge case** — and confirm they match
+what the user meant. An example that forks into "well, it depends" isn't a detail
+to guess at later; it's a gap to resolve *now* — surface it as a question. Cheap
+to confirm up front, expensive to discover after you've built the wrong thing.
+
 ## What to do with the result
 
 - **All five solid** → proceed; build test-first ([`tdd`](../tdd/SKILL.md)).

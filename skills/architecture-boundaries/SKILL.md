@@ -40,6 +40,26 @@ This is why the functional core in FCIS imports no DB/HTTP/clock: the same rule,
 one module down. A framework is a *detail* you plug in, not the thing your logic
 is built around — keep it at the edge so you could swap it without touching policy.
 
+## A boundary owns validity — parse, don't validate
+
+A boundary controls more than dependency direction; it owns the **validity** of
+what crosses it. Parse untrusted external input — manifests, args, remote targets,
+API payloads — **once, at the boundary**, into a trusted domain type, then let
+policy rely on canonical, already-valid states. The inner core should never re-ask
+"is this well-formed / present / fresh?" — the type it received has already
+answered that. Convert-and-narrow at the edge (return a domain type or an error)
+instead of re-checking the same raw shape everywhere it flows.
+
+**The smell that a boundary is missing:** the same defensive check scattered
+across the code — repeated record/field checks, normalization in every function, a
+readiness guard in every event handler, a stale-response guard at each call site.
+Duplicated validity checks mean **no boundary owns validity**. Collapse them into
+one parsing seam; downstream code then trusts the type.
+
+(Structural validity — well-formed, present, fresh — belongs at this seam.
+Business-rule decisions — *is this allowed?* — still belong in policy / the
+functional core.)
+
 ## SRP is about actors, not "doing one thing"
 
 > A module should be responsible to one, and only one, **actor** — a group of

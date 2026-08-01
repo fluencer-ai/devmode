@@ -68,6 +68,12 @@ history intact.
 
 - **Document the why and the non-obvious; let the code show the what.**
 - **Update docs in the same commit as the change** they describe.
+- **Anchor code references on the durable identifier** — when a doc/ADR/handoff/
+  glossary points into code, cite the symbol name plus a short quoted excerpt of
+  the load-bearing lines, not a bare `file:line`. Line numbers rot the moment
+  unrelated code shifts above them; the symbol and the lines that matter don't —
+  and a drifted excerpt is *visibly* wrong (fixable), while a stale line number
+  silently points somewhere plausible-but-wrong.
 - **Less, but true** — a small set of accurate docs beats a large stale set.
 - **Right altitude** — enough to act on, not a transcription of the code.
 

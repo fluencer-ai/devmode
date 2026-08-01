@@ -45,7 +45,12 @@ navigable and testable instead of scattered.
 This is a repeatable, reversible refactor. Take small steps and keep tests green
 throughout — never reshape architecture without a safety net.
 
-1. **Map what exists, and the blast radius.** Explore the codebase and list the
+1. **Map what exists, and the blast radius.** Scope before you scan (YAGNI):
+   deepening a module only pays off where future changes land, so weight the parts
+   of the codebase that keep changing. Unless the user named a target, walk a good
+   stretch of `git log` for hot spots — the files that keep coming up — and let
+   those pull your attention first; if churn is scattered with no clear hot spot,
+   widen the net. Then explore the codebase and list the
    current modules, their public surfaces, and their dependencies. Note where
    logic for one concept is smeared across many files, and where modules expose
    internals they shouldn't. Before moving anything, run
@@ -55,7 +60,11 @@ throughout — never reshape architecture without a safety net.
 2. **Find clusters of related code.** Look for code that changes together,
    shares data, or serves one
    [`ubiquitous-language`](../ubiquitous-language/SKILL.md) concept but lives in
-   separate shallow pieces. Those clusters are candidate deep modules.
+   separate shallow pieces. Those clusters are candidate deep modules. Apply the
+   **deletion test** to anything that looks shallow: imagine deleting it. If the
+   complexity simply vanishes, it was a pass-through — delete it, don't deepen it.
+   If the complexity reappears, scattered across N callers, it was earning its keep
+   and belongs behind one deep interface.
 3. **Design the simple interface first.** For each candidate, decide the small
    public surface that should remain — the contract callers need. Everything
    else becomes internal. Design this deliberately; it's the lid of the box (see

@@ -38,7 +38,7 @@ Dentro de `devmode/` você tem quatro tipos de peça:
 
 | Peça | O que é | Onde fica |
 |------|---------|-----------|
-| **41 skills** | 20 de *processo* + 18 de *domínio* + 3 *meta* (`self-scorecard`, `discovery`, `goal-brief`) | `skills/<nome>/SKILL.md` |
+| **42 skills** | 21 de *processo* + 18 de *domínio* + 3 *meta* (`self-scorecard`, `discovery`, `goal-brief`) | `skills/<nome>/SKILL.md` |
 | **8 agentes** | Subagentes que encarnam papéis do processo (inclui o painel de review) | `.agents/*.md` |
 | **2 referências** | Fundamentos teóricos e guia de diagnóstico | `references/*.md` |
 | **templates + script** | Modelos (PRD, glossário) + auditor da pack (`scripts/audit_skills.py`) | `skills/*/assets/`, `scripts/` |
@@ -47,12 +47,13 @@ E o [`CLAUDE.md`](CLAUDE.md) amarra tudo: é o manifesto + a tabela do fluxo.
 Várias skills foram **adaptadas** de projetos MIT — créditos em
 [`ATTRIBUTION.md`](ATTRIBUTION.md).
 
-### As 20 skills de processo, agrupadas por fase
+### As 21 skills de processo, agrupadas por fase
 
 ```
 1. ALINHAR      grill-me ............... conceito de design compartilhado (+ taxonomia de falhas, opções A/B/C)
 2. LINGUAGEM    ubiquitous-language .... vocabulário único + mapa de módulos (+ why por dependência)
 3. ESPECIFICAR  write-prd .............. PRD explícito sobre módulos e interfaces
+                divergent-ideation ..... gerar candidatos amplos antes de escolher
                 design-critique ........ revisar o design/PRD por várias lentes antes de codar
 4. ARQUITETAR   functional-core-imperative-shell . separar lógica pura de I/O (nível módulo)
                 architecture-boundaries .......... fronteiras de sistema (regras vs. infraestrutura)
@@ -386,7 +387,7 @@ do merge.
 Em **toda fase**, o orquestrador mostra um **score** (skill `self-scorecard`): resumo do que foi feito + nota 0–10 em 5 critérios (Correctness, Design, Testing, Safety, Clarity) com deltas (`.devmode/scorecard.py`), e atualiza um **dashboard visual** (`.devmode/dashboard.py` → `devmode-dashboard.html`, sem servidor nem registro). O dashboard traz uma **faixa de KPIs**, uma **esteira do workflow** (as fases Align→Refactor, alcançadas/atual), um **timeline por fase**, um **sparkline** da tendência de score, e um **painel de Gates** alimentado por `.devmode/gates.json` (emitido por um `ci/check.sh`). No fim, `--final` dá **recomendações por critério**. O dashboard é **zero-setup,
 sem servidor nem registro** — basta abrir o `devmode-dashboard.html`.
 
-Os 41 skills e 8 agentes são a **base agnóstica de ferramenta** — funcionam
+Os 42 skills e 8 agentes são a **base agnóstica de ferramenta** — funcionam
 sozinhos. Mas quando o trabalho dura muitas sessões, falta ao devmode uma espinha
 de **orquestração** (tracks, status, dependências) e de **memória persistente**
 (que sobrevive à compactação da conversa). É aí que entra a integração:

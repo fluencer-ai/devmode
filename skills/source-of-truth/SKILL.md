@@ -63,3 +63,11 @@ and the official docs are the truth.** When in doubt, look it up — don't recal
 - Using a pattern from "how it used to work" after a major upgrade.
 - Trusting a blog/SO snippet over the official docs.
 - "Fixing" surprising behavior by guessing instead of reading the docs/source.
+- **Emitting a command, flag, query, or config by copying a nearby example
+  instead of its own definition.** The mundane call detail — a flag name, arg
+  order, whether auth is a `--flag` or an env var — feels beneath verifying, so it
+  ships unchecked and wrong; and topic-grouped docs quietly invite cross-applying
+  a *sibling* command's flags onto yours. Check the invocation against the
+  authoritative definition (the command's own `--help`/option list, the API
+  schema, the real function signature), not prose docs and not the example that
+  "looks right".

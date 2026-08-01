@@ -39,6 +39,14 @@ Writing a skill is [`tdd`](../tdd/SKILL.md) applied to process docs:
 3. **REFACTOR — close loopholes.** Re-run; find the new rationalization the agent
    reaches for; plug it; re-verify. Repeat until it complies under pressure.
 
+**Editing is not just adding.** When you change a skill that already works, a new
+rule can dilute or quietly contradict guidance it already carried — the pack
+accretes edits over many passes, so behavior it once handled can regress. Don't
+stop at proving the new failure is fixed: re-run a scenario the skill *already*
+handled to confirm you didn't break it, and try one *different*, unseen case in
+the same class so the fix generalizes instead of overfitting the single scenario
+you watched fail.
+
 This is why the strongest skills (see
 [`systematic-debugging`](../systematic-debugging/SKILL.md),
 [`verification-before-completion`](../verification-before-completion/SKILL.md))
@@ -53,11 +61,35 @@ carry rationalization tables and red-flag lists — those are the plugged loopho
 - **Body (imperative, <500 lines):** lead with the *why* (the problem and the
   principle), then the steps/decision rules, then anti-patterns/red flags.
   Explain reasoning rather than barking MUSTs — the model has good theory of mind
-  and follows understood rules better than rote ones.
+  and follows understood rules better than rote ones. **Steer by the positive.** A
+  prohibition drags the forbidden behavior into context and makes it *more*
+  available (say "don't think of an elephant" and the elephant is all there is), so
+  state the target — "write one-line comments", not "never write verbose
+  comments". Keep a bare "don't" only as a guardrail you genuinely can't phrase
+  positively, and even then pair it with what to do instead.
 - **Cross-references:** link sibling skills by relative path; reference them by
   *name* in templates that get copied into other projects.
 - **Bundled resources** (`assets/`, `references/`, `scripts/`) only when they pull
   their weight; keep SKILL.md scannable.
+
+## Leading words
+
+The cheapest way to steer behavior is to **recruit a concept the model already
+holds**. A *leading word* is a compact term already in the model's pretraining —
+`lesson`, `fog of war`, `tracer bullets`, `tight`, `red` — that the agent thinks
+*with* while running the skill. Used as a repeated token (never restated as a
+sentence), it accumulates meaning across the skill and anchors a whole region of
+behavior for almost no tokens, because the priors come free.
+
+It pays twice: in the body it anchors *execution* (the agent reaches for the same
+behavior every time the word appears — the consistency a skill exists to buy); in
+the description, and wherever the same word lives in your prompts, PRDs, and code,
+it anchors *invocation*. devmode already runs on this (`grill`, `ratchet`,
+`headlights`) — name the concept, don't paraphrase it. Coin your own word only if
+you then *define* it: a made-up term recruits no priors, so you pay in definition
+tokens what a pretrained word gives free. And a word too weak to beat the default
+(`be thorough` when the agent already is) is a **no-op** — the fix is a stronger
+word (`relentless`), not more prose.
 
 ## Audit checklist
 
@@ -65,7 +97,9 @@ Run this when reviewing the pack (the script below automates the mechanical part
 
 - **Frontmatter present & valid** — `name` matches the folder; `description`
   states what + when.
-- **Knowledge delta is real** — not restating what the model already knows.
+- **Knowledge delta is real** — not restating what the model already knows; apply
+  the same test line by line (a line the model already obeys is a no-op), and
+  settle no-op disputes by running the skill, not by debating the default.
 - **Right altitude** — concrete enough to act on, general enough to reuse; not
   overfit to one example.
 - **Progressive disclosure** — SKILL.md under ~500 lines; detail pushed to
@@ -74,6 +108,12 @@ Run this when reviewing the pack (the script below automates the mechanical part
   or duplicate it (e.g. coverage targets vs. testing-principles; patterns-as-
   decoration vs. deep modules). Overlapping skills must scope against each other
   explicitly.
+- **Consolidate, don't just patch** — removal, merge, and compression are
+  first-class skill edits, not only addition. When a skill has been patched
+  repeatedly and reads as accreted (stale, redundant, or conflicting rules),
+  prefer a wholesale rewrite for coherence over one more append. This is
+  [`improve-codebase-architecture`](../improve-codebase-architecture/SKILL.md)'s
+  shallow→deep instinct applied to the skill *document*.
 - **Links resolve** — every relative link points at a real file.
 - **Reasoning over MUSTs** — heavy ALL-CAPS rules are a yellow flag; reframe as
   explained principles.

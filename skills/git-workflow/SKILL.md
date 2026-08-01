@@ -34,6 +34,22 @@ surgical. A messy history hides the very information you'll need under pressure.
   (each worker on its own files/worktree, no collisions).
 - Keep trunk releasable; gate merges on CI ([`ci-cd-automation`](../ci-cd-automation/SKILL.md)).
 
+## Resolving conflicts
+
+When a merge or rebase stops on a conflict, **resolve it — never `--abort` to
+escape**. Work it hunk by hunk:
+
+- **Recover each side's intent from its primary source** — the commit message,
+  the linked PR, the issue — not just the surrounding diff. You can't merge two
+  changes correctly until you know *why* each was made.
+- **Preserve both intents where they compose.** Where they genuinely conflict,
+  keep the side that serves the *merge's stated goal* and note the trade-off in
+  the commit body. Never invent new behavior at a conflict marker — a merge is
+  not the place to sneak in a fix.
+- **Re-run the project's checks after resolving** (typecheck → test → format); a
+  conflict resolved wrong is a bug that still compiles. Then stage, commit, and
+  finish the merge/rebase.
+
 ## Safe operations (the guardrails back these)
 
 - **Never force-push a shared branch**; never `push --force` to main/master.

@@ -28,6 +28,13 @@ made concrete for wire/library contracts.
 - **Small, hard-to-misuse surface.** Few endpoints/functions, each doing a clear
   thing. Make the easy path the correct path; make illegal states impossible to
   express (see types below).
+- **Design for the consumer's selection model — agents included.** When an LLM
+  agent drives the surface, the *name* is the interface: it often picks before any
+  schema/description loads, and reliably chooses one well-named entry-with-flags
+  over several specialized variants — reconstructing the missing ones by hammering
+  the general path instead of finding the precise one. Collapse near-duplicate
+  variants into a single entry parameterized by a flag (direction / depth / mode),
+  and make every name state what it does.
 - **Consistency.** Same naming, pagination, filtering, error envelope, and
   date/ID formats across the whole API. Inconsistency is a per-call tax on every
   consumer.

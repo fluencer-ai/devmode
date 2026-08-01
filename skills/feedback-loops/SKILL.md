@@ -102,6 +102,15 @@ The point of the ladder is **objective judgment**: each level is decided by an
 exit code or a count, never by an LLM judging an LLM. Reserve subjective review
 (the `complexity-reviewer`) for *design* quality, not for "does it pass".
 
+**Don't corrupt the signal you're reading.** A gate is only as trustworthy as the
+exit code and output it inspects — so never pre-pipe an expensive build or test
+through `head`/`tail` (or any truncating filter) to "keep it short". `head` can
+close the pipe and kill the job early; `tail` throws away the earliest failure;
+and either way the pipeline's exit status becomes the *filter's*, not the job's —
+so a red run can read green. Run the job once, capture its true exit status and
+full output, then derive a short failure summary from the saved output. This
+applies equally when a CLI proxy or wrapper sits in front of the command.
+
 **Decision coverage — the same ratchet for decisions.** Just as every acceptance
 criterion needs a passing test (L4), every **decision** — an ADR, a resolved
 trade-off — needs to actually *land*: referenced by at least one plan item or test

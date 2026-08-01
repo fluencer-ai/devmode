@@ -67,6 +67,31 @@ security/money/auth control is the *last* place to cut (see
   is complexity smuggled back in. (Explanation the user *asked* for — a report, a
   walkthrough, per-phase notes — is not debt; give it in full.)
 
+## Editing existing code — the surgical rule
+
+The ladder above governs what you *write*. When you *change* code that already
+exists, a second discipline applies: **touch only what the request requires, and
+clean up only the mess your own change made.**
+
+- **No drive-by improvements.** Don't reformat, rename, or "tidy" adjacent code,
+  comments, or imports the request didn't ask you to touch, and don't refactor what
+  isn't broken. A diff that also shifts conventions is two changes wearing one hat,
+  and hides the real one.
+- **Match the surrounding style** even where you'd do it differently — consistency
+  with the file beats your personal preference.
+- **Orphans you created, you remove; dead code you found, you leave.** Delete the
+  imports/vars/functions *your* change left unused — but pre-existing dead code
+  stays unless the user asked for it. Notice it, *mention* it, don't quietly cut it
+  (map the blast radius via
+  [`impact-analysis`](../impact-analysis/SKILL.md) before any removal).
+- **The test:** every changed line traces directly to the request. A line you can't
+  tie back to it is scope creep — revert it.
+
+This is the edit-time reading of "shortest diff": the smallest diff isn't the one
+that also cleaned three unrelated things — it's the one a reviewer can tie, line
+for line, to what was asked. ("Deletion over addition" means *your* change is
+leaner, never a licence to delete code you didn't touch.)
+
 ## Mark deliberate simplifications — the `minimal:` comment
 
 A shortcut reads as *intent, not ignorance* when you name it. Mark deliberate
@@ -129,3 +154,6 @@ less).
 - An explanation longer than the code it defends.
 - Cutting validation/error-handling/security/a11y to "keep it minimal" — that's
   negligent, not lazy: stop and put them back.
+- Drive-by refactoring or restyling untouched code, or deleting pre-existing dead
+  code, while making an unrelated change — every changed line must trace to the
+  request.

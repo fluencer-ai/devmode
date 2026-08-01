@@ -4,7 +4,7 @@ Run:  python3 -m unittest test_audit_skills   (from the scripts/ directory)
 """
 import unittest
 
-from audit_skills import count_drift
+from audit_skills import count_drift, collect_subcounts, subcount_conflicts
 
 
 def drift(text, skills=41, agents=8, rel="DOC.md"):
@@ -66,6 +66,37 @@ class CountDriftTest(unittest.TestCase):
         errs = drift("**40 skills** | 20 skills de processo + 18 de domínio")
         self.assertEqual(len(errs), 1)
         self.assertIn("40", errs[0])
+
+
+class SubCountConsistency(unittest.TestCase):
+    """Sub-counts have no filesystem ground truth, so they're checked against
+    each other: every doc must state the same per-category number."""
+
+    @staticmethod
+    def conflicts(*docs):
+        seen: dict = {}
+        for rel, body in docs:
+            collect_subcounts(rel, body, seen)
+        return subcount_conflicts(seen)
+
+    def test_disagreeing_process_counts_are_flagged(self):
+        # the exact regression a 41→42 pass left behind: one doc never updated
+        errs = self.conflicts(("README.md", "21 *process* + 18 *domain* + 3 *meta*"),
+                              ("manual.md", "### As 20 skills de processo"))
+        self.assertEqual(len(errs), 1)
+        self.assertIn("process", errs[0])
+
+    def test_agreeing_counts_pass(self):
+        self.assertEqual(
+            self.conflicts(("README.md", "21 *process* + 18 *domain* + 3 *meta*"),
+                           ("manual.md", "As 21 skills de processo e 18 de domínio")), [])
+
+    def test_provenance_row_is_not_a_pack_subcount(self):
+        # "12 domain skills came from <upstream>" counts one source's contribution,
+        # not what the pack holds — an external link marks it as provenance
+        self.assertEqual(
+            self.conflicts(("README.md", "| [x](https://github.com/x) | 12 domain skills | MIT |"),
+                           ("README.md", "21 *process* + 18 *domain* + 3 *meta*")), [])
 
 
 if __name__ == "__main__":

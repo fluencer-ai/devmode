@@ -124,6 +124,40 @@ COUNT_RE = re.compile(r"(\d+)\s+(skills|subagents|agentes|agents)\b", re.I)
 # "18 skills de domínio" — is a partial count, not the grand total, so it is
 # left out of the comparison.
 BREAKDOWN_RE = re.compile(r"\s*(de\s+)?(process|processo|domains?|dom[íi]nio|meta)\b", re.I)
+# A sub-count has no filesystem ground truth (nothing marks a skill "process" vs
+# "domain"), so it can't be checked against reality — but every doc must at least
+# agree with every other doc. A stale "20 skills de processo" survived a 41→42
+# reconciliation precisely because the total check skips these; this catches the
+# contradiction instead.
+SUBCOUNT_RE = re.compile(
+    r"(\d+)\s+(?:\*?skills?\*?\s+)?(?:de\s+)?\*?(process|processo|domains?|dom[íi]nio|meta)\*?\b", re.I)
+_CATEGORY = {"process": "process", "processo": "process", "domain": "domain",
+             "domains": "domain", "domínio": "domain", "dominio": "domain", "meta": "meta"}
+
+
+def subcount_conflicts(seen: dict[str, dict[int, list[str]]]) -> list[str]:
+    """Return one error per sub-category whose written counts disagree across docs."""
+    errors: list[str] = []
+    for cat, by_value in sorted(seen.items()):
+        if len(by_value) > 1:
+            detail = "; ".join(f"{v} in {', '.join(locs[:3])}"
+                               for v, locs in sorted(by_value.items()))
+            errors.append(f"conflicting '{cat}' sub-counts across docs: {detail}")
+    return errors
+
+
+def collect_subcounts(rel: str, text: str, seen: dict[str, dict[int, list[str]]]) -> None:
+    """Record every written per-category sub-count so conflicts can be reported."""
+    for lineno, line in enumerate(text.splitlines(), 1):
+        # An attribution/provenance row ("12 domain skills came from <source>") counts
+        # what one upstream contributed, not what the pack holds — different claim,
+        # so an external link on the line disqualifies it from the consistency check.
+        if "](http" in line:
+            continue
+        for m in SUBCOUNT_RE.finditer(line):
+            cat = _CATEGORY.get(m.group(2).lower())
+            if cat:
+                seen.setdefault(cat, {}).setdefault(int(m.group(1)), []).append(f"{rel}:{lineno}")
 
 
 def count_drift(rel: str, text: str, real_skills: int, real_agents: int) -> list[str]:
@@ -154,6 +188,7 @@ def audit_counts() -> list[str]:
                    if os.path.isdir(agents_dir) else 0)
     print(f"{DIM}Checking written totals against {real_skills} skills / {real_agents} agents…{OFF}")
     errors: list[str] = []
+    seen_subcounts: dict[str, dict[int, list[str]]] = {}
     scanned = 0
     for dp, dn, fns in os.walk(ROOT):
         if "/workspaces" in dp or "/.git" in dp:
@@ -165,9 +200,10 @@ def audit_counts() -> list[str]:
                 continue
             mf = os.path.join(dp, f)
             scanned += 1
-            errors += count_drift(os.path.relpath(mf, ROOT),
-                                  open(mf, encoding="utf-8").read(),
-                                  real_skills, real_agents)
+            rel, body = os.path.relpath(mf, ROOT), open(mf, encoding="utf-8").read()
+            errors += count_drift(rel, body, real_skills, real_agents)
+            collect_subcounts(rel, body, seen_subcounts)
+    errors += subcount_conflicts(seen_subcounts)
     flag = f"{RED}✗{OFF}" if errors else f"{GREEN}✓{OFF}"
     print(f"  {flag} {scanned} markdown files scanned, {len(errors)} count drift(s)")
     return errors

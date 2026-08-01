@@ -29,13 +29,34 @@ before tracing the cause is the failure mode this skill exists to prevent.
 ### Phase 1 — Root-cause investigation
 - **Read the error completely.** Stack traces, line numbers, codes — they often
   contain the answer. Don't skim past warnings.
-- **Reproduce it reliably.** Exact steps; every time or intermittent? If you
-  can't reproduce, gather more data — don't guess.
+- **Reproduce it with a red-capable loop.** Build one command you have *already
+  run once* that goes RED on this bug's exact user-facing symptom (not merely
+  "runs without erroring") and is deterministic and fast. Every time or
+  intermittent? Can't reproduce → raise the reproduction rate (loop the trigger,
+  add stress) or gather more data — don't guess. **No hypothesis until that red
+  command exists.** (Loop mechanics live in
+  [`feedback-loops`](../feedback-loops/SKILL.md).)
+- **Minimise the repro.** Once it's red, shrink to the smallest scenario that
+  still goes red — cut inputs, callers, config, and steps *one at a time*,
+  re-running after each. Fewer moving parts shrink the hypothesis space, and the
+  minimal repro becomes the regression test.
 - **Check recent changes.** `git diff`, recent commits, new deps, config/env
   differences. What changed right before it broke?
-- **Instrument the boundaries** in multi-component systems. Log what enters and
-  exits each component (API → service → DB; CI → build → sign). Run once to see
-  *where* it breaks, then investigate that component — don't theorize blind.
+- **Sweep for every site the symptom could come from — before you pick a
+  subsystem.** Search the *whole* codebase for the symptom itself: the user's
+  literal words, the error string, the observable behavior, across *every* layer.
+  Enumerate all candidate sites first and rule on each, then narrow to one.
+  Anchoring on the subsystem you happen to have been working in is the most common
+  way a careful, well-grounded investigation lands on the wrong code — the volume
+  of grounding you did *there* makes the wrong conclusion feel solid. Breadth
+  first, then depth.
+- **Instrument the boundaries** in multi-component systems. Prefer a debugger and
+  one breakpoint over log-everything-and-grep; when you do log what enters and
+  exits each component (API → service → DB; CI → build → sign), **tag every debug
+  line with a unique prefix** (e.g. `[DEBUG-a4f2]`) so cleanup is a single grep.
+  Run once to see *where* it breaks, then investigate that component — don't
+  theorize blind. For performance problems logs mislead: **measure a baseline
+  first** (timing/profiler), then bisect.
 - **Trace the bad value backward.** Where does it originate? What passed it in?
   Keep going up the call stack to the source. Fix at the source, not the symptom.
 - **A diagnostic's claim is a hypothesis, not a fact.** When a tool, log summary,
@@ -61,10 +82,16 @@ before tracing the cause is the failure mode this skill exists to prevent.
 ### Phase 4 — Fix the root cause
 - **Write a failing test first** that reproduces the bug (lean on
   [`tdd`](../tdd/SKILL.md) and [`testing-principles`](../testing-principles/SKILL.md)).
+  **If no correct seam exists** — the only test you can write is too shallow to
+  exercise the real bug pattern at its call site — that itself is the finding: the
+  architecture is preventing the bug from being locked down. Note it and hand off
+  to [`improve-codebase-architecture`](../improve-codebase-architecture/SKILL.md)
+  rather than shipping a false-confidence test.
 - **One fix, addressing the root cause.** No "while I'm here" extras.
 - **Verify with evidence** (see
   [`verification-before-completion`](../verification-before-completion/SKILL.md)):
-  test passes, nothing else broke, the original symptom is gone.
+  test passes, nothing else broke, the original symptom is gone, and all
+  `[DEBUG-…]` instrumentation is removed (grep the prefix).
 
 ### The 3-fix rule — question the architecture
 If three fixes have failed — each revealing a new problem elsewhere, or each
@@ -73,8 +100,34 @@ a wrong architecture. Surface it to your human partner and consider
 [`improve-codebase-architecture`](../improve-codebase-architecture/SKILL.md)
 instead of attempting fix #4.
 
+## Fix the class, not just the line
+
+A fix to the one line you were shown leaves every *sibling* defect intact — and
+AI-written code is full of siblings, because the same shallow pattern gets
+copy-pasted across sites. After the root-cause fix is verified (Phase 4), take one
+more deliberate step: **recover the governing invariant and decide whether the
+whole class needs closing.**
+
+- **Recover the principle**, not the incident — the rule the bug violated
+  ("compare timestamps in UTC", "validate this input before use").
+- **Confirm it's a real class first.** Rule out a one-off before generalizing: a
+  flaky/stochastic result, an external failure (a dependency or the environment,
+  not your code), or a bad premise (the test/spec was wrong). Don't ratchet
+  against noise.
+- **Search for the siblings** — the other places the same latent defect lives.
+  This is the *reverse* of Phase 2's "find working examples".
+- **Close it both ways — as its own change, not smuggled into the bug fix**
+  (Phase 4 stays one fix): *forward*, prevent the class; *backward*, migrate the
+  existing population incrementally if it's large
+  ([`migration`](../migration/SKILL.md)), scoped with
+  [`impact-analysis`](../impact-analysis/SKILL.md) so the sweep stays bounded.
+- **Install a ratchet** — a lint rule or a test that fails on the *pattern*, not
+  just this input. The regression test guards the incident; the ratchet guards the
+  class.
+
 ## Red flags — stop and return to Phase 1
 
+- Naming the culprit subsystem before searching the whole repo for the symptom
 - "Quick fix now, investigate later" · "just try changing X" · "it's probably X"
 - Proposing fixes before tracing data flow
 - Changing multiple things at once

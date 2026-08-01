@@ -46,7 +46,18 @@ anything, know the blast radius ([`impact-analysis`](../impact-analysis/SKILL.md
 ## Kill zombie code
 
 - A migration isn't done until the old path is **deleted**, not just unused.
-  Dead-but-present code misleads readers and the AI, and rots.
+  Code is prompt material for the next agent: leave the retired pattern and its
+  replacement side by side and *both* read as precedent, so the next AI
+  cargo-cults whichever it lands on — worse than double maintenance, it poisons
+  every future change in the area. Incremental *cutover* still holds (move
+  behavior in reversible steps), but a pattern you've decided to retire gets its
+  whole discoverable population fixed in one coherent pass, so only one form
+  remains to copy.
+- **Ratchet the retired form out.** After deleting it, add a check that fails if
+  it reappears — a lint rule, a CI grep, or a test — so a later agent can't
+  silently reintroduce it (the ratchet spirit of
+  [`feedback-loops`](../feedback-loops/SKILL.md), aimed at the deprecated
+  pattern). Enable the rule, repair every violation, and lock it in the same change.
 - Watch the **churn rule:** if a file/area is being rewritten repeatedly, that's
   a signal the design is wrong — stop and reconsider
   ([`improve-codebase-architecture`](../improve-codebase-architecture/SKILL.md)),
@@ -68,3 +79,5 @@ anything, know the blast radius ([`impact-analysis`](../impact-analysis/SKILL.md
 - A schema change that's breaking in a single step (skip expand-contract).
 - A migration declared "done" with the old code still present (zombie).
 - Re-migrating an area that keeps churning instead of fixing its design.
+- A retired pattern left side by side with its replacement (both become precedent
+  for the next AI), or deleted with no ratchet to keep it from creeping back.

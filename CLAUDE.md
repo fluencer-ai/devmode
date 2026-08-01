@@ -50,6 +50,7 @@ the affected phases for the delta. Record the re-entry as its own scored phase
 | 1. Align | [`grill-me`](skills/grill-me/SKILL.md) | A shared design concept, reached by relentless interview before any asset exists |
 | 2. Language | [`ubiquitous-language`](skills/ubiquitous-language/SKILL.md) | A glossary of domain terms shared by you, the AI, and the code |
 | 3. Specify | [`write-prd`](skills/write-prd/SKILL.md) | A PRD that is explicit about which modules and interfaces change |
+| 3. Specify | [`divergent-ideation`](skills/divergent-ideation/SKILL.md) | A wide candidate set for an open, hard-to-reverse decision — generated *before* choosing |
 | 3. Specify | [`design-critique`](skills/design-critique/SKILL.md) | Pressure-test the design/PRD through several expert lenses before building |
 | 4. Architect | [`functional-core-imperative-shell`](skills/functional-core-imperative-shell/SKILL.md) | A structure where pure logic is isolated from I/O — the foundation for testability |
 | 4. Architect | [`architecture-boundaries`](skills/architecture-boundaries/SKILL.md) | System-level boundaries — business rules independent of infrastructure (the FCIS instinct, scaled up) |

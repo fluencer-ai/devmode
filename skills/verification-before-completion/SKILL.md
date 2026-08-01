@@ -58,6 +58,23 @@ Skipping any step is asserting, not verifying.
 | Config/deploy applied | The **running** system reflects it (live env, endpoint, behavior) | the source/host file is correct on disk |
 | Deliverables produced | Each artifact the task *promised* exists — the files, the report, the N tests are present | a green check, without confirming what was actually produced |
 
+## Ground per claim, not per session
+
+Grounding is not transitive: verifying four neighboring things does not verify the
+*one* load-bearing claim — and the volume of grounding you did makes the
+unverified claim *feel* as solid as the verified rest. Isolate the single claim the
+result rests on and verify *that* one directly ("it's built like its neighbors" is
+not evidence about it).
+
+- **A prior can be self-minted, not just stale recall** — it's also a conclusion
+  you reached *this session* from nearby code, and that kind is the more dangerous,
+  because it feels freshly earned and rides on the credibility of everything else
+  you verified. Verify it before you lean on it.
+- **Do the cheapest decisive check yourself** — if one file (a config, an
+  entrypoint) would settle the load-bearing claim, open it. Ending your turn by
+  asking the human to confirm what a file you could have read is the same deferral,
+  one turn later.
+
 ## Red flags — stop before you speak
 
 - "should", "probably", "seems to", "looks correct"
@@ -118,6 +135,7 @@ the running process is the evidence. (In devmode projects this is enforced by th
 | "The agent said success" | Verify independently; agents over-report. |
 | "Partial check is enough" | Partial proves nothing about the whole. |
 | "Pre-existing failure, not mine" | A red you ship is still yours — "0 failures, this turn" means zero, old ones included; fix it or get explicit sign-off to defer. |
+| "I'll flag it as untested and move on" | A caveat on your *own* work — "not tested against the real API", "deployed but never exercised" — is an unmet acceptance criterion, not a footnote. Resolve it before it reaches a blast radius; the bigger the radius, the lower the bar for *running it* over *reasoning about it*. |
 
 ## Attach the evidence (don't just assert it)
 

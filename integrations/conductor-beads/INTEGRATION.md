@@ -26,13 +26,14 @@ do not replace it.
  ┌═══════════════════════════════════════════════════════════════════════════┐
  ║ BASE · devmode — how we think, design, and test (source of truth)         ║
  ║                                                                           ║
- ║ grill-me · ubiquitous-language · write-prd · design-critique ·            ║
+ ║ grill-me · ubiquitous-language · write-prd ·                              ║
+ ║ divergent-ideation · design-critique ·                                    ║
  ║ functional-core-imperative-shell · architecture-boundaries ·              ║
  ║ design-interface-delegate-implementation · design-patterns ·              ║
  ║ feedback-loops · tdd · testing-principles · confidence-check ·            ║
  ║ impact-analysis · systematic-debugging · verification-before-completion · ║
  ║ subagent-driven-development · delegate-to-cli ·                           ║
- ║ improve-codebase-architecture · authoring-skills · …  (41 skills total)   ║
+ ║ improve-codebase-architecture · authoring-skills · …  (42 skills total)   ║
  ║                                                                           ║
  ║ + 8 agents: design-architect · requirements-planner · tdd-implementer ·   ║
  ║ architecture-refactorer · complexity-reviewer + review panel              ║
@@ -73,7 +74,7 @@ choices with a recommendation.
 /devmode "build a coupon redemption endpoint"
   → ALIGN     (grill-me)        [GATE: confirm the design concept]
   → LANGUAGE  (ubiquitous-language)
-  → SPECIFY   (write-prd + design-critique) [GATE: resolve trade-offs, approve spec]
+  → SPECIFY   (write-prd + divergent-ideation + design-critique) [GATE: resolve trade-offs, approve spec]
   → ARCHITECT (FCIS / boundaries / interfaces) [GATE: approve interfaces]
   → IMPLEMENT (tdd / feedback-loops / debugging) [GATE: "look at it run"]
   → REVIEW    (code-review panel)  [GATE: okay the merge] → verify

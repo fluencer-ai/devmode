@@ -64,6 +64,42 @@ the term means the same thing in a meeting and in a file.
    (a Seat belongs to a Subscription), say so — that's the domain model leaking
    through, which is exactly what you want.
 
+6. **Optionally, stress-test the slippery boundaries in a short dialogue.** A flat
+   table defines each term in isolation, so it hides the ambiguities that live
+   *between* related terms — the exact bug you're trying to kill. When two terms
+   feel slippery against each other, write a 3–5 line exchange between a developer
+   and a domain expert that uses the terms precisely and forces the boundary into
+   the open. Keep it in the glossary next to the terms it clarifies:
+
+   > **Dev:** When a customer places an Order, do we create the Invoice then?
+   > **Expert:** No — an Invoice is only generated once a Shipment is confirmed. A
+   > single Order can produce several Invoices if items ship separately.
+   > **Dev:** So a Shipment cancelled before dispatch has no Invoice?
+   > **Expert:** Right — the Invoice is tied to the Shipment, not the Order.
+
+   Reach for it only where a definition alone hasn't settled the argument.
+
+## Don't let a primitive delete the domain concept
+
+Reusing a primitive one layer down — a token, a link, a session, a cache key — is
+a virtue right up until it erases the thing the feature is actually about. The
+trap is fusing a **property the feature requires** (email-binding, single-use,
+consent) with an **implementation that happens to carry it today** (an auth link,
+a signed URL, a session). Once fused, the reuse looks automatically correct, and
+you borrow an *ephemeral* artifact to stand in for a *durable* domain record.
+
+Separate the two: **name the property, then ask whether the primitive *models* it
+or merely *coincides* with it today.** An auth link is not an invitation; a cache
+key is not a job; a session is not an audit trail.
+
+The tell is **lifecycle**. When the concept must be revoked, resent, expired on
+its own clock, run several at once, or record who accepted and when, that
+lifecycle *is* a domain term — it belongs in the glossary as a first-class entry
+with its own status invariant (e.g. `requested → active / declined`), not smuggled
+into a primitive that can't hold those states. Adding a well-chosen, durable term
+is the *deep* move here — the counterweight to reuse
+([`minimal-code`](../minimal-code/SKILL.md)), not a contradiction of it.
+
 ## Map the modules too — they are part of the language
 
 The ubiquitous language is not only domain nouns and verbs. Whenever you plan or

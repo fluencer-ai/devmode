@@ -75,6 +75,26 @@ sweep, and **re-run the full suite right after** — a rename isn't done until g
 (this is exactly what [`verification-before-completion`](../verification-before-completion/SKILL.md)
 catches: a broken import that "looks" like a clean rename).
 
+## Reusing a state value inherits every behavior keyed on it
+
+The four questions trace an *entity* you're changing. But there's a blast radius
+with no symbol to "find references" on: **repurposing an existing state value** —
+a status, flag, enum case, or column value — to mean something new (`trialing` as
+a migration bridge, `pending` as "awaiting review", `archived` as "soft-deleted").
+You aren't changing the type's signature, so entity-tracing never fires — yet the
+value you write is read all over the system. Reusing it silently *inherits*
+everything already keyed on it: schedulers, event handlers, access gates,
+grant/cleanup sweeps, UI branches. The one behavior you wanted rides in with all
+the others.
+
+Before adopting the reuse, **grep every consumer of the value** (the value, not
+just the type) across every layer and list what each one does with it — the
+inherited behavior set is part of the decision, not a surprise. Then **verify by
+diffing the whole system's response** — side-effect records, related rows, any
+ledger/audit trail — before and after, not just the fields you predicted would
+change. The tell that you skipped this: you validated the one behavior you wanted
+and discovered the rest one bug at a time.
+
 ## Record the "why" on dependencies
 
 When a dependency is non-obvious (this module calls that one *because*…), capture

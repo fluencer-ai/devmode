@@ -85,6 +85,22 @@ as a handful of boxes and their contracts, not thousands of lines. That smaller
 mental model is what makes a high volume of AI-generated code sustainable rather
 than crushing.
 
+## Design the interface twice when it's high-stakes
+
+Spending attention on the interface doesn't mean polishing your first idea — your
+first idea is rarely the best. When an interface is high-stakes or hard to
+reverse, sketch **2–3 radically different shapes** before committing, each under a
+different forcing constraint (minimise the surface to 1–3 entry points / maximise
+flexibility / optimise the most common caller), and for each note its signatures +
+invariants, one usage example, what it hides, and its trade-offs. Then commit to
+the shape that is **deepest** (most behavior per unit of interface) and puts the
+seam in the right place — or to a hybrid. Reserve this for interfaces that earn
+it; routine ones don't need a bake-off.
+[`prototyping`](../prototyping/SKILL.md) covers making those alternatives
+*runnable* when paper isn't enough, and
+[`subagent-driven-development`](../subagent-driven-development/SKILL.md) lets you
+generate the competing shapes in parallel.
+
 ## Guardrails
 
 - A gray box is only as safe as its interface tests. If a module is

@@ -52,6 +52,13 @@ independence under pressure: a security or quality gate on a critical path is no
 self-certified to save a round, however small the change *feels*. Maker and
 checker stay different — that's what makes the green meaningful.
 
+**Independence is temporal, not just structural.** Form your own read of the
+*actual diff* before you ingest the author's summary or the PRD's abstraction of
+it (and before leaning on any scanner output). A review anchored on the author's
+framing inherits whatever that framing silently dropped — you end up checking the
+change against the story told about it, never against what it really does. Read
+the code first; read the story second.
+
 ## Requesting a review (make the reviewer effective)
 
 A reviewer who has to guess scope reviews badly. Give them:
@@ -89,6 +96,25 @@ This is where the value is realized or lost:
   happen", "I'll do it later" is exactly the gap that ships. If you disagree,
   say why with evidence — don't dismiss silently.
 - **Don't mark done with open findings.** Spec-reviewer found issues = not done.
+
+## The loop has to converge
+
+"Act on every finding" means *resolve* every finding — not *fix* every one, and it
+is not a licence for the reviewer to keep widening scope until nothing ships. Each
+finding gets one honest response: **fix it** (the default for anything material),
+**defer it** — only for a genuinely non-material or out-of-scope finding, and only
+as a *recorded* follow-up with a written reason — or **refute it** with evidence.
+
+**Materiality bar.** Reviewers raise findings that affect correctness, safety,
+changeability, or an acceptance criterion — not stylistic wishes dressed as
+blockers. **New scope** a reviewer uncovers (a pre-existing issue, an adjacent
+improvement) becomes a follow-up item, not a gate on *this* change.
+
+**Stopping rule.** The quality pass is done when no material finding is left
+unresolved — each one fixed, deferred-with-rationale, or refuted. The exceptions
+that can never be deferred: spec-compliance findings, and any finding on a
+**critical module** (auth/money/security/irreversible effects) — those block until
+fixed. That keeps the gate both meaningful and bounded.
 
 ## Red flags
 

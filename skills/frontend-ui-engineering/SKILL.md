@@ -32,7 +32,7 @@ generic. AI UIs have a *tell*; recognize and kill the defaults:
 | Centered single column; 3 equal feature cards | No rhythm — the formula | Real layout: grid, asymmetry, zig-zag, varied families |
 | Default `Inter`+slate; default serifs (Fraunces, Instrument Serif) | The recognizable LLM type stack | A typeface chosen to fit the brand |
 | Emoji or hand-rolled SVG as icons | Inconsistent, unprofessional | A real icon set |
-| "John Doe" / "Acme" / filler verbs ("Elevate") / fake-precise numbers / `<div>` fake screenshots | Screams generated | Believable names/brands/copy; real or generated images |
+| "John Doe" / "Acme" / filler verbs ("Elevate") / fake-precise numbers / `<div>` fake screenshots | Screams generated | Believable demo names/brands; never fabricate a stat/proof — real value, honest placeholder, or drop the slot |
 
 The fix isn't "more polish" — it's *intent*: every choice maps to a design
 decision (see [`ux-design`](../ux-design/SKILL.md)), not a library default.

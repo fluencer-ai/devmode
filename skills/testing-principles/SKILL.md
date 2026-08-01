@@ -129,7 +129,7 @@ the ones your domain needs; the discipline is the per-edge *verdict*, not the li
 
 ## Anti-patterns to refuse
 
-Three test smells are common enough to name and refuse outright:
+Four test smells are common enough to name and refuse outright:
 
 1. **Testing the mock, not the code.** Asserting that a mocked element exists
    (`getByTestId('sidebar-mock')`) proves the mock is present, not that anything
@@ -144,6 +144,15 @@ Three test smells are common enough to name and refuse outright:
    assumption about how a collaborator behaves; if you don't understand the
    collaborator, the mock will drift from reality and give you green tests over
    broken code. Understand it, or use the real thing.
+4. **Tautological tests — the expected value comes from the code itself.** When
+   the assertion recomputes the expected value the same way the code does
+   (`expect(add(a, b)).toBe(a + b)`, a snapshot baselined from whatever the code
+   just produced, a constant asserted equal to itself), the test passes *by
+   construction* — it can never disagree with the code, so it survives every
+   regression and proves nothing. The expected value must come from an
+   **independent source of truth**: a known-good literal, a worked example
+   computed by hand, or the spec. Before asserting, ask: *"where did this expected
+   value come from — the spec, or the code's own logic?"*
 
 ## Trace acceptance criteria to tests
 
