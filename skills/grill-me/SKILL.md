@@ -100,6 +100,24 @@ none of these" escape. It's faster for the human to pick than to compose, and it
 forces *you* to have actually thought through the interpretations. Reserve
 open questions for genuinely open axes.
 
+## Ask in rounds — work the frontier, not a drip
+
+Serial one-question-at-a-time is slow and makes the user wait on you. Batch by
+**frontier**: every decision whose prerequisites are *already settled* — the
+questions you can ask now without guessing at answers you haven't heard yet. Ask
+that whole frontier in one round: **number each question and give your recommended
+answer**, then stop and wait. A question whose answer depends on another question
+still open in this round belongs to the *next* round, not this one.
+
+Each round's answers reshape the design tree — settled decisions push the frontier
+outward and unblock what depended on them. Recompute and ask the next round.
+You're done when **the frontier is empty**: every branch visited, nothing left
+silently assumed.
+
+(This is how "one branch at a time" is *paced*, not a contradiction of it: you
+still finish a line of dependent decisions before opening an unrelated one — you
+just don't drip-feed questions that were all answerable at the same moment.)
+
 ## Ground a knowledge gap before you guess (perspective-guided research)
 
 Some gaps aren't in the *user's* head — they're shared ignorance: an unfamiliar
@@ -136,6 +154,11 @@ it the moment a gap turns out to be ignorance, not preference. (Run it ad hoc vi
   this to run long.
 - **One branch at a time.** Don't scatter. Finish resolving a line of
   dependent decisions before opening a new one, so the user can think clearly.
+- **Facts are your job; decisions are theirs.** Never ask the user for something
+  you could look up — the filesystem, the code, the docs, the dependency's actual
+  API. Go find it (dispatch a subagent if it's slow) and don't block on it: only
+  the questions *downstream* of that fact wait, so ask the rest of the round now.
+  Asking the user to do your research is how an interview turns into a chore.
 - **Surface assumptions, don't smuggle them.** Whenever you'd otherwise fill a
   gap by guessing, turn the guess into a question.
 - **Disagree out loud — once.** When you believe the user's direction is wrong,
