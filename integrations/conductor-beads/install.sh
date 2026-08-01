@@ -72,6 +72,22 @@ info "devmode base:   $DEVMODE_ROOT"
 info "project target: $PROJECT_DIR"
 [ -d "$PROJECT_DIR/.git" ] || warn "target is not a git repo — Conductor commits locally; consider 'git init'."
 
+# Preflight: every enforcing part of devmode is Python — all five hooks, the
+# scorecard, the dashboard, the doctors. Without python3 they install but can
+# never run, and the gates would be inert while the output claimed otherwise.
+# Say it once, loudly, up front rather than emitting a warning nobody reads.
+HAVE_PY3=0
+if command -v python3 >/dev/null 2>&1; then
+  HAVE_PY3=1
+else
+  err "python3 NOT FOUND — devmode's enforcement layer cannot run."
+  err "  the hooks (guardrails / verify-gate / phase-gate / session-resume),"
+  err "  the scorecard, the dashboard and the doctors are all Python."
+  err "  Install python3, then re-run this installer (it is idempotent)."
+  warn "Continuing: the markdown base (skills, agents, references) still works;"
+  warn "the deterministic gates will NOT be wired."
+fi
+
 # helper: copy a file only if absent (or --force)
 copy_template() {
   local src="$1" dst="$2"
@@ -120,10 +136,19 @@ if [ "$WITH_SKILLS" -eq 1 ]; then
   mkdir -p "$PROJECT_DIR/.claude/skills" "$PROJECT_DIR/.claude/agents" "$PROJECT_DIR/.claude/devmode/references"
   cp -R "$DEVMODE_ROOT/skills/." "$PROJECT_DIR/.claude/skills/"
   ok "copied $(find "$DEVMODE_ROOT/skills" -name SKILL.md | wc -l | tr -d ' ') devmode skills → .claude/skills/"
-  cp "$DEVMODE_ROOT"/.agents/*.md "$PROJECT_DIR/.claude/agents/" 2>/dev/null && \
-    ok "copied $(find "$DEVMODE_ROOT/.agents" -name '*.md' | wc -l | tr -d ' ') agents → .claude/agents/" || true
-  cp "$DEVMODE_ROOT"/references/*.md "$PROJECT_DIR/.claude/devmode/references/" 2>/dev/null && \
-    ok "copied references → .claude/devmode/references/" || true
+  # The agents are load-bearing (review panel + orchestrator). A silent copy
+  # failure would leave a project that looks installed but can delegate nothing.
+  if cp "$DEVMODE_ROOT"/.agents/*.md "$PROJECT_DIR/.claude/agents/" 2>/dev/null; then
+    ok "copied $(find "$PROJECT_DIR/.claude/agents" -name '*.md' | wc -l | tr -d ' ') agents → .claude/agents/"
+  else
+    err "FAILED to copy agents from $DEVMODE_ROOT/.agents — the review panel and"
+    err "  the devmode-orchestrator will not exist in this project. Fix and re-run."
+  fi
+  if cp "$DEVMODE_ROOT"/references/*.md "$PROJECT_DIR/.claude/devmode/references/" 2>/dev/null; then
+    ok "copied references → .claude/devmode/references/"
+  else
+    warn "no references copied (foundations/failure-modes) — background docs only."
+  fi
 else
   info "skipping skill copy (--no-skills): relying on a global devmode install"
 fi
@@ -172,7 +197,12 @@ else
 fi
 
 # 2c. Guardrails — deterministic PreToolUse enforcement hook (optional)
-if [ "$GUARDRAILS" -eq 1 ]; then
+if [ "$GUARDRAILS" -eq 1 ] && [ "$HAVE_PY3" -eq 0 ]; then
+  step "Installing guardrails (gates-as-code)"
+  err "--with-guardrails requested but python3 is missing: the hooks would be"
+  err "  wired to an interpreter that isn't there, so every gate would be inert."
+  err "  NOT wiring them. Install python3 and re-run to get the gates."
+elif [ "$GUARDRAILS" -eq 1 ]; then
   step "Installing guardrails (gates-as-code)"
   mkdir -p "$PROJECT_DIR/.claude/hooks"
   copy_template "$SCRIPT_DIR/hooks/guardrails.py"      "$PROJECT_DIR/.claude/hooks/guardrails.py"
@@ -181,7 +211,8 @@ if [ "$GUARDRAILS" -eq 1 ]; then
   copy_template "$SCRIPT_DIR/hooks/devmode_phase_gate.py" "$PROJECT_DIR/.claude/hooks/devmode_phase_gate.py"
   copy_template "$SCRIPT_DIR/hooks/session_resume.py"  "$PROJECT_DIR/.claude/hooks/session_resume.py"
   # Idempotently merge the PreToolUse guardrail + Stop verify/phase gates + the SessionStart warm-resume into settings.json
-  python3 - "$PROJECT_DIR/.claude/settings.json" <<'PY' && ok "wired PreToolUse guardrail + Stop verify/phase gates + SessionStart resume into .claude/settings.json" || warn "could not merge settings.json — wire hooks by hand"
+  WIRED=0
+  python3 - "$PROJECT_DIR/.claude/settings.json" <<'PY' && WIRED=1 || WIRED=0
 import json, os, sys
 path = sys.argv[1]
 pre_cmd = 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/guardrails.py"'
@@ -206,10 +237,28 @@ if not any(h.get("command") == session_cmd for g in start for h in g.get("hooks"
     start.append({"hooks": [{"type": "command", "command": session_cmd}]})
 json.dump(data, open(path, "w"), indent=2)
 PY
-  warn "guardrails block: sudo, force-push, --no-verify, rm -rf /, writes to .env/.git/secrets; ask: reset --hard, scoped rm -rf, reading secrets."
-  warn "verify-gate (Stop): blocks ending a turn after rebuild/docker build/deploy/.env without a fresh end-to-end check (override: write 'VERIFY-OK: <reason>')."
-  warn "phase-gate (Stop): auto-refreshes devmode-dashboard.html from .devmode/scorecard.json, and blocks ending a full /devmode turn that did NOT delegate to the devmode-orchestrator agent (override: write 'DEVMODE-OK: <reason>')."
-  warn "session-resume (SessionStart): injects a warm-resume hint (last phase, score, active track, next action) from .devmode/scorecard.json — read-only, fail-open."
+  # Prove the wiring landed instead of announcing gates that may not exist.
+  if [ "$WIRED" -eq 1 ] && python3 - "$PROJECT_DIR/.claude/settings.json" <<'VERIFY'
+import json, sys
+try:
+    d = json.load(open(sys.argv[1], encoding="utf-8"))
+except Exception:
+    sys.exit(1)
+h = d.get("hooks", {})
+found = {c.get("command", "") for ev in h.values() for g in ev for c in g.get("hooks", [])}
+need = ("guardrails.py", "verify_gate.py", "devmode_phase_gate.py", "session_resume.py")
+sys.exit(0 if all(any(n in f for f in found) for n in need) else 1)
+VERIFY
+  then
+    ok "wired + verified in .claude/settings.json: PreToolUse guardrail, Stop verify/phase gates, SessionStart resume"
+    warn "guardrails block: sudo, force-push, --no-verify, rm -rf /, writes to .env/.git/secrets; ask: reset --hard, scoped rm -rf, reading secrets."
+    warn "verify-gate (Stop): blocks ending a turn after rebuild/docker build/deploy/.env without a fresh end-to-end check (override: write 'VERIFY-OK: <reason>')."
+    warn "phase-gate (Stop): auto-refreshes devmode-dashboard.html from .devmode/scorecard.json, and blocks ending a full /devmode turn that did NOT delegate to the devmode-orchestrator agent (override: write 'DEVMODE-OK: <reason>')."
+    warn "session-resume (SessionStart): injects a warm-resume hint (last phase, score, active track, next action) from .devmode/scorecard.json — read-only, fail-open."
+  else
+    err "settings.json wiring FAILED or is incomplete — the gates are NOT active."
+    err "  Fix it by hand (.claude/settings.json) or re-run; do not assume the gates bite."
+  fi
 else
   info "skipping guardrails (use --with-guardrails to enable deterministic enforcement)"
 fi
@@ -274,9 +323,21 @@ if command -v python3 >/dev/null 2>&1; then
 fi
 
 # --- done --------------------------------------------------------------------
+# Report reality, not intent: these strings come from what the run actually did.
+BEADS_STATUS=" · memory: not requested"
+if [ "${BEADS:-0}" -eq 1 ] || [ "${BEADS_STEALTH:-0}" -eq 1 ]; then
+  if [ "${BEADS_LIVE:-0}" -eq 1 ]; then BEADS_STATUS=" · memory: LIVE (bd)"
+  else BEADS_STATUS=" · memory: NOT LIVE (see the doctor above)"; fi
+fi
+GATES_STATUS="· gates: not requested"
+if [ "$GUARDRAILS" -eq 1 ]; then
+  if [ "${WIRED:-0}" -eq 1 ]; then GATES_STATUS="· gates: wired + verified"
+  else GATES_STATUS="· gates: NOT ACTIVE (wiring failed)"; fi
+fi
+
 step "Done — next steps"
 cat <<EOF
-BASE established (devmode) · LAYER mounted (Conductor) · memory (Beads)
+BASE established (devmode) · LAYER mounted (Conductor)${BEADS_STATUS} ${GATES_STATUS}
 
 ${c_green}Easiest path — guided mode:${c_off}
   Run  ${c_green}/devmode "<what you want to build>"${c_off}

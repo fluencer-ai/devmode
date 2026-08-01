@@ -71,7 +71,7 @@ if [ -d "$P/.claude/hooks" ]; then
   ok "hooks refreshed (incl. session_resume)"
   # idempotently wire the SessionStart resume hook into settings.json
   if [ -f "$P/.claude/settings.json" ]; then
-    python3 - "$P/.claude/settings.json" <<'PY' && ok "SessionStart resume wired in settings.json" || warn "could not wire session_resume — add it by hand"
+    python3 - "$P/.claude/settings.json" <<'PY' && ok "SessionStart resume wired in settings.json" || err "FAILED to wire session_resume in settings.json — warm resume will NOT run; fix it by hand"
 import json, os, sys
 path = sys.argv[1]
 cmd = 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/session_resume.py"'
