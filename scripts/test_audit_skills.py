@@ -4,7 +4,8 @@ Run:  python3 -m unittest test_audit_skills   (from the scripts/ directory)
 """
 import unittest
 
-from audit_skills import count_drift, collect_subcounts, subcount_conflicts
+from audit_skills import (count_drift, collect_subcounts, subcount_conflicts,
+                          PROVENANCE_RE)
 
 
 def drift(text, skills=41, agents=8, rel="DOC.md"):
@@ -97,6 +98,24 @@ class SubCountConsistency(unittest.TestCase):
         self.assertEqual(
             self.conflicts(("README.md", "| [x](https://github.com/x) | 12 domain skills | MIT |"),
                            ("README.md", "21 *process* + 18 *domain* + 3 *meta*")), [])
+
+
+class ProvenanceInLoadedFiles(unittest.TestCase):
+    """Skills/agents/commands carry only what they DO; credit lives in the docs."""
+
+    def test_attribution_footer_is_caught(self):
+        for line in ("> Adapted from `obra/superpowers` (`x`), MIT.",
+                     "> Consolidated from `a/b` and `c/d`.",
+                     "the pattern from github.com/foo/bar",
+                     "see https://github.com/foo/bar",
+                     "reinforced by `x/y` (MIT)"):
+            self.assertTrue(PROVENANCE_RE.search(line), f"missed: {line}")
+
+    def test_functional_content_is_not_flagged(self):
+        for line in ('<svg xmlns="http://www.w3.org/2000/svg">',
+                     "reach for [`impact-analysis`](../impact-analysis/SKILL.md) first",
+                     "keep within-group spacing at half the between-group spacing"):
+            self.assertIsNone(PROVENANCE_RE.search(line), f"false positive: {line}")
 
 
 if __name__ == "__main__":

@@ -283,6 +283,53 @@ def audit_overlap(threshold: float = 0.40) -> list[str]:
     return []  # informational only — never fails the run
 
 
+# A loaded file (skill, agent, command, deployed template) is re-read into context
+# on every use, so upstream provenance in it is attention spent on something the
+# agent cannot act on — and the pack lost that discipline twice before it was
+# written down. Credit belongs in README.md / ATTRIBUTION.md, which is also where a
+# licence's attribution condition is satisfied. Functional URLs (an XML namespace)
+# are not provenance and are allowed.
+PROVENANCE_RE = re.compile(
+    r"https?://(?:www\.)?(?:github|gist\.github)\.com/"      # a source repo link
+    r"|\bgithub\.com/[\w.-]+/[\w.-]+"                         # …or a bare owner/repo
+    r"|\((?:MIT|Apache-2\.0|CC-BY[\w.-]*)\)"                  # "(MIT)"
+    r"|,\s*(?:MIT|Apache-2\.0|CC-BY[\w.-]*)\b"                # ", MIT"
+    r"|\bAdapted from\b|\bConsolidated from\b",               # the footer opener
+    re.I)
+LOADED_GLOBS = ("skills", ".agents",
+                os.path.join("integrations", "conductor-beads", "commands"),
+                os.path.join("integrations", "conductor-beads", "agents"),
+                os.path.join("integrations", "conductor-beads", "templates"),
+                os.path.join("integrations", "llm-wiki", "templates"))
+
+
+def audit_provenance() -> list[str]:
+    """Fail if a context-loaded file carries upstream credit instead of the docs."""
+    errors: list[str] = []
+    scanned = 0
+    for rel_root in LOADED_GLOBS:
+        base = os.path.join(ROOT, rel_root)
+        if not os.path.isdir(base):
+            continue
+        for dp, _dn, fns in os.walk(base):
+            for f in fns:
+                if not f.endswith((".md", ".py")):
+                    continue
+                mf = os.path.join(dp, f)
+                scanned += 1
+                for lineno, line in enumerate(
+                        open(mf, encoding="utf-8").read().splitlines(), 1):
+                    m = PROVENANCE_RE.search(line)
+                    if m:
+                        errors.append(
+                            f"{os.path.relpath(mf, ROOT)}:{lineno}: provenance in a "
+                            f"loaded file ('{m.group(0)[:40]}') — move it to "
+                            f"README.md / ATTRIBUTION.md")
+    flag = f"{RED}✗{OFF}" if errors else f"{GREEN}✓{OFF}"
+    print(f"  {flag} {scanned} loaded files scanned, {len(errors)} provenance leak(s)")
+    return errors
+
+
 def audit_links() -> list[str]:
     errors: list[str] = []
     checked = 0
@@ -321,17 +368,21 @@ def main() -> int:
     print()
     mirror_errors = audit_mirrors()
     print()
+    prov_errors = audit_provenance()
+    print()
     audit_overlap()
     print()
     link_errors = audit_links()
-    errors = skill_errors + agent_errors + count_errors + mirror_errors + link_errors
+    errors = (skill_errors + agent_errors + count_errors + mirror_errors
+              + prov_errors + link_errors)
     print()
     if errors:
         print(f"{RED}✗ {len(errors)} issue(s):{OFF}")
         for e in errors:
             print(f"  {RED}-{OFF} {e}")
         return 1
-    print(f"{GREEN}✓ skills + agents are consistent (frontmatter, names, counts, links).{OFF}")
+    print(f"{GREEN}✓ skills + agents are consistent "
+          f"(frontmatter, names, counts, provenance, links).{OFF}")
     return 0
 
 

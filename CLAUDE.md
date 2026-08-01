@@ -75,8 +75,7 @@ checks frontmatter, names, links, mirror-drift, and description overlap).
 work each phase — a 0–10 score on five criteria (Correctness, Design, Testing,
 Safety, Clarity) tracked with deltas (`scripts/scorecard.py`) and a visual
 overview (`scripts/dashboard.py` → a self-contained `devmode-dashboard.html`, no
-server/registration: a KPI strip, a workflow pipeline of the phases, a per-phase
-timeline, a score-trend sparkline, and a gates panel fed by `.devmode/gates.json`). [`discovery`](skills/discovery/SKILL.md) reverse-engineers
+server/registration). [`discovery`](skills/discovery/SKILL.md) reverse-engineers
 an existing codebase into the starting artifacts (used by `/devmode adopt`).
 [`goal-brief`](skills/goal-brief/SKILL.md) turns a spec into a ready-to-run Claude
 `/goal` or `/plan` command (≤3800 chars, budget-checked by
@@ -182,24 +181,14 @@ that base — the base stays the source of truth:
   skill-by-phase map. The layer also installs a **guided front door** — the
   `devmode-orchestrator` agent invoked via the `/devmode` command — which drives
   the whole phase machine for you and pauses only at human decision gates (it
-  carries the *process*; you still make the *decisions*, made easy). Three modes:
-  `/devmode start <name> <idea>` scaffolds a new `workspaces/<name>` project;
-  `/devmode adopt <folder>` deploys devmode into an *existing* codebase and runs
-  `discovery` on it; `/devmode update <folder>` (and `/devmode update wiki <folder>`)
-  refreshes the devmode-managed files (or a wiki's schema) in a project to the
-  current base, leaving all project-owned content untouched; `/devmode goal
-  <objective>` (opt-in) emits a ready-to-run Claude `/goal`/`/plan` command
-  referencing the spec; `/devmode [idea]` guides/resumes in the current project. It shows a `self-scorecard` at every gate
-  and refreshes `devmode-dashboard.html` (the zero-setup, no-server visualization).
-  For ad-hoc ops/debug, **`/devmode c [comment]`** applies the gates *per-turn*
-  (root-cause-first, evidence-before-done) without spinning up the phase machine —
-  the cheap trigger for "don't abandon the discipline when things break". For a
-  single bounded task, **`/devmode do <task>`** routes it to the right
-  skill(s)+agent and runs a short evidence-gated pipeline — the single-task sibling
-  (every entry point starts with `/devmode`). **`/devmode lean <idea>`** runs the
-  full flow with the `minimal-code` (ponytail) discipline foregrounded — write only
-  what's needed, never cut safety; **`/devmode lean goal <objective>`** emits a
-  `/goal` that bakes that discipline in.
+  carries the *process*; you still make the *decisions*, made easy). It shows a
+  `self-scorecard` at every gate and refreshes `devmode-dashboard.html`.
+  **Every entry point starts with `/devmode`** — scaffold a new project, adopt an
+  existing one, refresh a project to the current base, run one bounded task, apply
+  the gates to an ad-hoc turn, emit a `/goal` brief, or foreground the
+  `minimal-code` discipline. The **command file is the source of truth** for the
+  modes and their arguments; it loads when you invoke it, so it isn't restated
+  here.
 - [`integrations/llm-wiki/`](integrations/llm-wiki/README.md) — an **opt-in
   knowledge module** (independent of the code process): deploys a **Karpathy LLM
   Wiki** — a persistent, LLM-maintained **markdown** knowledge base (no app, no DB,
@@ -208,7 +197,7 @@ that base — the base stays the source of truth:
   <path>`** scaffolds a fresh wiki; **`/devmode wiki adopt <folder>`** adds it to an
   existing project (non-destructive). The deployed `KARPATHY.md` is the schema that
   makes the agent a disciplined maintainer (ingest/query/lint over 7 page types).
-  Concept: Andrej Karpathy's *LLM Wiki* gist (credited in `ATTRIBUTION.md`).
+  Credited in [`ATTRIBUTION.md`](ATTRIBUTION.md).
 - **Enforcement, not advice (the gates bite).** `--with-guardrails` wires the
   deterministic hooks into `.claude/settings.json`: a **PreToolUse guardrail**
   (`guardrails.py`, blocks dangerous ops); a **Stop `verify_gate.py`** that

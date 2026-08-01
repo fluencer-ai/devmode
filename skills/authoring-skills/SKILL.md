@@ -115,6 +115,12 @@ Run this when reviewing the pack (the script below automates the mechanical part
   [`improve-codebase-architecture`](../improve-codebase-architecture/SKILL.md)'s
   shallow→deep instinct applied to the skill *document*.
 - **Links resolve** — every relative link points at a real file.
+- **No provenance inside the skill** — a skill carries only what it *does*. Where
+  a rule came from (an upstream repo, its license, a URL) is metadata the agent
+  can't act on, and a loaded file re-spends that attention on every task. Credit
+  belongs in the human-facing docs (`README.md`, `ATTRIBUTION.md`) — which is also
+  where a licence's attribution *condition* is satisfied. Same rule for agents,
+  commands, and deployed templates; the auditor enforces it.
 - **Reasoning over MUSTs** — heavy ALL-CAPS rules are a yellow flag; reframe as
   explained principles.
 
