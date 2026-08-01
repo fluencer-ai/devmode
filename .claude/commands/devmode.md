@@ -178,6 +178,10 @@ after** as `<idea>`.
    ```
 3. **Make it a working repo:** `git -C "workspaces/<name>" init -q` (Conductor
    commits locally). Announce the new project path.
+3b. **Prove the memory layer is live — don't assume it** (see *Memory gate* below):
+   ```bash
+   python3 "workspaces/<name>/.devmode/beads_doctor.py" "workspaces/<name>"
+   ```
 4. **Begin:** treat `<idea>` as the goal, enter the new project
    (`workspaces/<name>`), and start **Phase 1 (ALIGN)** — the orchestrator's
    `grill-me` interview. From here, follow the orchestrator playbook end to end.
@@ -207,6 +211,10 @@ relative path to the target repo).
    explicitly wants a single flat file* should you offer to inline the import
    (merge `CLAUDE.devmode.md` in, then drop it). (`/devmode start` writes the
    `CLAUDE.md` directly — no pointer needed.)
+2c. **Prove the memory layer is live — don't assume it** (see *Memory gate* below):
+   ```bash
+   python3 "<folder>/.devmode/beads_doctor.py" "<folder>"
+   ```
 3. **Run discovery** (skill: `discovery`) on the codebase — Scout → Map → Domain
    → Synthesize. Produce, with 🟢/🟡/🔴 confidence tags:
    - seed `<folder>/UBIQUITOUS_LANGUAGE.md` (terms + module map),
@@ -249,6 +257,31 @@ Run/resume in the **current** project (don't scaffold):
 - Blank → check `bd ready` + the track `plan.md`/notes; offer to resume from where
   it stands (design concept + next step).
 - An idea → treat it as the goal and enter Phase 1 (ALIGN).
+
+## Memory gate — `start` and `adopt` must prove Beads is live
+
+Beads is the memory that survives compaction. Its failure is **silent**: if `bd`
+isn't installed the install still finishes, `conductor/beads.json` keeps saying
+`enabled: true`, and the session quietly falls back to the agent's own context —
+found out much later, when a handoff you believed was durable never existed.
+
+So **run the doctor and show its output** before entering ALIGN:
+
+```bash
+python3 <project>/.devmode/beads_doctor.py <project>
+```
+
+It checks the *running* system, not the config: `bd` on PATH, `.beads/` present,
+and `bd` actually answering **inside that project** (exit 0 = live, 1 = not).
+
+- **Green** → say so in one line (`memory: live — N issues`) and continue.
+- **Red** → **stop and tell the user before any phase work.** Name the exact
+  consequence: *handoffs will live only in this conversation and be lost on
+  compaction.* Give the fix (`brew install beads` / `npm i -g @beads/bd`, then
+  `bd init --stealth`), then let them choose: fix it now, or continue explicitly
+  without durable memory. Never proceed silently — that's the failure this gate
+  exists to prevent. (The installer already flips `beads.json` to `enabled:false`
+  when the doctor fails, so the state on disk never claims memory it doesn't have.)
 
 ## Then drive the phase machine (all modes)
 

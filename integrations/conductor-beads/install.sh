@@ -111,8 +111,9 @@ copy_template "$TEMPLATES_DIR/UBIQUITOUS_LANGUAGE.md" "$PROJECT_DIR/UBIQUITOUS_L
 # 1b2. devmode tooling the project runs itself: scorecard + dashboard (→ .devmode/)
 mkdir -p "$PROJECT_DIR/.devmode"
 cp "$DEVMODE_ROOT/scripts/scorecard.py" "$DEVMODE_ROOT/scripts/dashboard.py" \
-   "$DEVMODE_ROOT/scripts/goal_brief.py" "$PROJECT_DIR/.devmode/" 2>/dev/null \
-  && ok "copied scorecard.py + dashboard.py + goal_brief.py → .devmode/" || warn "devmode scripts not found in base"
+   "$DEVMODE_ROOT/scripts/goal_brief.py" "$DEVMODE_ROOT/scripts/beads_doctor.py" \
+   "$PROJECT_DIR/.devmode/" 2>/dev/null \
+  && ok "copied scorecard.py + dashboard.py + goal_brief.py + beads_doctor.py → .devmode/" || warn "devmode scripts not found in base"
 
 # 1c. devmode skills + agents + references (the base process itself).
 if [ "$WITH_SKILLS" -eq 1 ]; then
@@ -223,11 +224,43 @@ if [ "$BEADS" -eq 1 ] || [ "$BEADS_STEALTH" -eq 1 ]; then
       if [ "$BEADS_STEALTH" -eq 1 ]; then bd init --stealth; else bd init; fi
     ) && ok "Beads initialized" || warn "bd init returned non-zero — check Dolt server (bd dolt start) on v0.56+"
   else
-    warn "'bd' not found. Install: npm i -g @beads/bd  (then 'bd init')."
-    warn "Beads is optional — set enabled:false in conductor/beads.json to run without it."
+    err "'bd' not found on PATH — the memory layer will NOT work."
+    err "Install:  brew install beads   (or: npm i -g @beads/bd), then: bd init --stealth"
+  fi
+
+  # Prove it, don't assume it. A silent Beads failure is the expensive one: the
+  # install still "succeeds", beads.json keeps claiming enabled:true, and the
+  # session falls back to the agent's own context — discovered only much later,
+  # when a handoff that was supposed to be durable turns out never to exist.
+  if command -v python3 >/dev/null 2>&1 && [ -f "$PROJECT_DIR/.devmode/beads_doctor.py" ]; then
+    if python3 "$PROJECT_DIR/.devmode/beads_doctor.py" "$PROJECT_DIR"; then
+      BEADS_LIVE=1
+    else
+      BEADS_LIVE=0
+      # Make the state on disk honest, so nothing downstream trusts a dead layer.
+      python3 - "$PROJECT_DIR/conductor/beads.json" <<'PY' || true
+import json, sys, os
+p = sys.argv[1]
+if os.path.isfile(p):
+    try:
+        d = json.load(open(p, encoding="utf-8"))
+    except Exception:
+        sys.exit(0)
+    if d.get("enabled") is True:
+        d["enabled"] = False
+        d.setdefault("_devmode", {})["disabled_reason"] = (
+            "beads_doctor found the memory layer not live at install time; set back "
+            "to true once `python3 .devmode/beads_doctor.py .` passes.")
+        json.dump(d, open(p, "w", encoding="utf-8"), indent=2)
+        print("  ! conductor/beads.json set enabled:false so it matches reality")
+PY
+      warn "Continuing WITHOUT durable memory. Re-run the doctor after installing bd:"
+      warn "  python3 .devmode/beads_doctor.py ."
+    fi
   fi
 else
   info "skipping bd init (use --beads or --beads-stealth; or run it later)"
+  info "memory check on demand:  python3 .devmode/beads_doctor.py ."
 fi
 
 # =============================================================================

@@ -60,8 +60,8 @@ fi
 # 5. .devmode scripts — NEVER the data (scorecard.json / gates.json)
 mkdir -p "$P/.devmode"
 cp "$DEVMODE_ROOT"/scripts/scorecard.py "$DEVMODE_ROOT"/scripts/dashboard.py \
-   "$DEVMODE_ROOT"/scripts/goal_brief.py "$P/.devmode/"
-ok "scorecard.py + dashboard.py + goal_brief.py refreshed (scorecard.json untouched)"
+   "$DEVMODE_ROOT"/scripts/goal_brief.py "$DEVMODE_ROOT"/scripts/beads_doctor.py "$P/.devmode/"
+ok "scorecard.py + dashboard.py + goal_brief.py + beads_doctor.py refreshed (scorecard.json untouched)"
 
 # 6. hooks — only if the project already uses them; add the SessionStart resume if missing
 if [ -d "$P/.claude/hooks" ]; then
