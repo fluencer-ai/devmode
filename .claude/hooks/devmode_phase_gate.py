@@ -10,8 +10,8 @@ Two enforcements, both keyed off the transcript (deterministic, not vibes):
      The agent can no longer "forget" to refresh it — the gate does it at turn end.
 
   2) ORCHESTRATOR DELEGATION on a full `/devmode` turn (blocks): if THIS turn's
-     user prompt invoked `/devmode` in a phase-driving mode (i.e. NOT
-     `c`/`do`/`wiki`/`lean`/`update`/`goal`/`plan`/`adopt`/`start`) and NO `devmode-orchestrator` agent was
+     user prompt invoked `/devmode` in a phase-driving mode (blank resume,
+     start, adopt, lean idea, or a bare idea) and NO `devmode-orchestrator` agent was
      spawned in the same turn, BLOCK ending the turn with a reminder to delegate.
      Conscious override: write `DEVMODE-OK: <reason>` in the reply.
 
@@ -30,9 +30,12 @@ import sys
 
 # /devmode invocation marker in a user message (command tag or injected body).
 CMD_MARK = re.compile(r"<command-name>/?devmode</command-name>|/devmode\s+—\s+guided mode")
-# Modes that do NOT require spinning up the orchestrator inline (per the command):
-# `c`, `do`, `wiki`, `update` run inline; `lean`/goal/plan/adopt/start are their own (command-defined) flows.
-NONFULL = re.compile(r"^(c|do|wiki|lean|update|goal|plan|adopt|start)\b", re.IGNORECASE)
+# Modes that run inline. Lean only runs inline for its goal/plan variants.
+# The token must END the argument or be followed by a space: `\b` also fires on
+# punctuation, so `wiki-like docs feature` and `goal: ship the beta` — bare ideas,
+# not modes — would silently skip the orchestrator gate.
+INLINE = re.compile(r"^(c|do|wiki|update|goal|plan)(\s|$)", re.IGNORECASE)
+LEAN_INLINE = re.compile(r"^lean\s+(goal|plan)(\s|$)", re.IGNORECASE)
 OVERRIDE = re.compile(r"DEVMODE-OK:", re.IGNORECASE)
 
 
@@ -150,7 +153,7 @@ def main() -> None:
                     prompt_idx = i
                     if CMD_MARK.search(txt):
                         args = devmode_args(txt)
-                        prompt_is_devmode_full = not (args == "" or NONFULL.match(args))
+                        prompt_is_devmode_full = not (INLINE.match(args) or LEAN_INLINE.match(args))
                     else:
                         prompt_is_devmode_full = False
                 elif typ == "assistant" and OVERRIDE.search(txt):
@@ -167,11 +170,12 @@ def main() -> None:
         overridden = override_idx > prompt_idx
         if not delegated and not overridden:
             block(
-                "🚦 devmode gate: você rodou /devmode (modo de condução de fase) e está "
-                "encerrando o turno SEM ter delegado ao agente devmode-orchestrator. "
-                "Conduza a fase delegando: Task(subagent_type='devmode-orchestrator', ...) "
-                "— não encarne o processo inline. Se a delegação realmente não se aplica "
-                "neste turno, escreva no texto: DEVMODE-OK: <motivo>."
+                "🚦 devmode gate: you ran /devmode (phase-driving mode) and are "
+                "ending the turn WITHOUT having delegated to the devmode-orchestrator "
+                "agent. Drive the phase by delegating: "
+                "Task(subagent_type='devmode-orchestrator', ...) — do not embody the "
+                "process inline. If delegation genuinely does not apply this turn, "
+                "write in your text: DEVMODE-OK: <reason>."
             )
     allow()
 

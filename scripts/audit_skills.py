@@ -111,14 +111,111 @@ def audit_agents() -> list[str]:
     return errors
 
 
+CODEX_READ_ONLY_AGENTS = {
+    "complexity-reviewer",
+    "code-quality-analyzer",
+    "security-scanner",
+    "test-coverage-analyzer",
+}
+
+
+def _toml_string(text: str, key: str) -> str | None:
+    match = re.search(rf'^\s*{re.escape(key)}\s*=\s*"([^"]*)"\s*$', text, re.M)
+    return match.group(1) if match else None
+
+
+def audit_codex_agents() -> list[str]:
+    """Validate project-scoped Codex adapters and their canonical sources."""
+    errors: list[str] = []
+    codex_dir = os.path.join(ROOT, ".codex", "agents")
+    if not os.path.isdir(codex_dir):
+        return [".codex/agents: missing Codex agent adapters"]
+
+    base_agents = {
+        f[:-3] for f in os.listdir(os.path.join(ROOT, ".agents"))
+        if f.endswith(".md")
+    }
+    expected = base_agents | {"devmode-orchestrator"}
+    found = {f[:-5] for f in os.listdir(codex_dir) if f.endswith(".toml")}
+    for name in sorted(expected - found):
+        errors.append(f".codex/agents/{name}.toml: missing adapter")
+    for name in sorted(found - expected):
+        errors.append(f".codex/agents/{name}.toml: no canonical Claude agent")
+
+    print(f"{DIM}Auditing {len(found)} Codex agent adapters…{OFF}")
+    for name in sorted(found):
+        path = os.path.join(codex_dir, f"{name}.toml")
+        rel = os.path.relpath(path, ROOT)
+        text = open(path, encoding="utf-8").read()
+        configured_name = _toml_string(text, "name")
+        if configured_name != name:
+            errors.append(f"{rel}: name '{configured_name}' != file '{name}'")
+        if not _toml_string(text, "description"):
+            errors.append(f"{rel}: missing description")
+        instructions = re.search(r'^\s*developer_instructions\s*=\s*"""(.+?)"""', text, re.M | re.S)
+        if not instructions or not instructions.group(1).strip():
+            errors.append(f"{rel}: missing developer_instructions")
+
+        source = (os.path.join(".claude", "agents", "devmode-orchestrator.md")
+                  if name == "devmode-orchestrator"
+                  else os.path.join(".agents", f"{name}.md"))
+        if source not in text:
+            errors.append(f"{rel}: does not reference canonical source {source}")
+        elif not os.path.isfile(os.path.join(ROOT, source)):
+            errors.append(f"{rel}: canonical source missing: {source}")
+
+        sandbox = _toml_string(text, "sandbox_mode")
+        if name in CODEX_READ_ONLY_AGENTS and sandbox != "read-only":
+            errors.append(f"{rel}: review-only adapter must set sandbox_mode = \"read-only\"")
+        print(f"  {GREEN}✓{OFF} {name}")
+    return errors
+
+
+def audit_codex_skills(root: str = ROOT) -> list[str]:
+    """Every skill must be *reachable from Codex*, not just present.
+
+    `audit_codex_agents` guards the Codex agent surface; the Codex **skill**
+    surface had no guard at all. A skill added to `skills/` without its
+    `.agents/skills/` link is invisible to Codex while the audit still exits 0.
+    The Claude side cannot desync from itself (`skills/` is its own discovery
+    root), so the asymmetry is real and one-directional.
+    """
+    errors: list[str] = []
+    skills_dir = os.path.join(root, "skills")
+    codex_dir = os.path.join(root, ".agents", "skills")
+    if not os.path.isdir(skills_dir):
+        return []
+    names = sorted(n for n in os.listdir(skills_dir)
+                   if os.path.isdir(os.path.join(skills_dir, n)))
+    print(f"{DIM}Checking Codex skill view ({len(names)} links + launcher)…{OFF}")
+    for name in names:
+        rel = f".agents/skills/{name}"
+        link = os.path.join(codex_dir, name)
+        expected = os.path.join("../../skills", name)
+        if not os.path.islink(link):
+            errors.append(f"{rel}: missing link — '{name}' is invisible to Codex")
+            continue
+        actual = os.readlink(link)
+        if actual != expected:
+            errors.append(f"{rel}: links to '{actual}', expected '{expected}'")
+        elif not os.path.isfile(os.path.join(link, "SKILL.md")):
+            errors.append(f"{rel}: link resolves to no SKILL.md")
+    for extra in ("SKILL.md", "agents/openai.yaml"):
+        if not os.path.isfile(os.path.join(codex_dir, "devmode", *extra.split("/"))):
+            errors.append(f".agents/skills/devmode/{extra}: launcher file missing")
+    flag = f"{RED}✗{OFF}" if errors else f"{GREEN}✓{OFF}"
+    print(f"  {flag} {len(names)} skills reachable from Codex, {len(errors)} problem(s)")
+    return errors
+
+
 # The skill/agent totals are hand-written as prose in ~10 tracked files (README
-# badges + "What's in the box" + the section headings, manual.md, INTEGRATION.md,
+# badges + "What's in the box" + the section headings, both manuals, INTEGRATION.md,
 # the /devmode command and the orchestrator agent). audit_skills/audit_agents
 # count the real folders but never checked those written numbers, so the docs
 # could drift silently — a stale "38 skills" nearly shipped to the GitHub About.
 #
 # A digit glued to skills/agents is a TOTAL claim. The nouns cover English
-# `skills`/`agents`, the README's `subagents`, and manual.md's PT-BR `agentes`.
+# `skills`/`agents`, the README's `subagents`, and MANUAL-PT-BR.md's `agentes`.
 COUNT_RE = re.compile(r"(\d+)\s+(skills|subagents|agentes|agents)\b", re.I)
 # ...except a number qualified by a sub-category — "20 skills de processo",
 # "18 skills de domínio" — is a partial count, not the grand total, so it is
@@ -131,6 +228,13 @@ BREAKDOWN_RE = re.compile(r"\s*(de\s+)?(process|processo|domains?|dom[íi]nio|me
 # contradiction instead.
 SUBCOUNT_RE = re.compile(
     r"(\d+)\s+(?:\*?skills?\*?\s+)?(?:de\s+)?\*?(process|processo|domains?|dom[íi]nio|meta)\*?\b", re.I)
+# The README states each sub-count TWICE and in two shapes: the digit-first prose
+# ("21 *process* + 18 *domain*") that SUBCOUNT_RE matches, and the section heading
+# "<b>Process skills (21)</b>" where the digit trails the category. Only the first
+# was collected, so a stale "(20)" heading sat one screen from a correct "21" and
+# the audit still passed — exactly the drift this check exists to catch.
+SUBCOUNT_TRAILING_RE = re.compile(
+    r"\b(process|processo|domains?|dom[íi]nio|meta)\b[^()\n]{0,20}\((\d+)\)", re.I)
 _CATEGORY = {"process": "process", "processo": "process", "domain": "domain",
              "domains": "domain", "domínio": "domain", "dominio": "domain", "meta": "meta"}
 
@@ -158,6 +262,10 @@ def collect_subcounts(rel: str, text: str, seen: dict[str, dict[int, list[str]]]
             cat = _CATEGORY.get(m.group(2).lower())
             if cat:
                 seen.setdefault(cat, {}).setdefault(int(m.group(1)), []).append(f"{rel}:{lineno}")
+        for m in SUBCOUNT_TRAILING_RE.finditer(line):
+            cat = _CATEGORY.get(m.group(1).lower())
+            if cat:
+                seen.setdefault(cat, {}).setdefault(int(m.group(2)), []).append(f"{rel}:{lineno}")
 
 
 def count_drift(rel: str, text: str, real_skills: int, real_agents: int) -> list[str]:
@@ -212,6 +320,9 @@ def audit_counts() -> list[str]:
 MIRRORS = [
     (".claude/commands/devmode.md", "integrations/conductor-beads/commands/devmode.md"),
     (".claude/agents/devmode-orchestrator.md", "integrations/conductor-beads/agents/devmode-orchestrator.md"),
+    (".codex/config.toml", "integrations/conductor-beads/templates/codex.config.toml"),
+    (".codex/hooks/codex_hooks.py", "integrations/conductor-beads/hooks/codex_hooks.py"),
+    (".claude/hooks/devmode_phase_gate.py", "integrations/conductor-beads/hooks/devmode_phase_gate.py"),
 ]
 
 
@@ -296,7 +407,7 @@ PROVENANCE_RE = re.compile(
     r"|,\s*(?:MIT|Apache-2\.0|CC-BY[\w.-]*)\b"                # ", MIT"
     r"|\bAdapted from\b|\bConsolidated from\b",               # the footer opener
     re.I)
-LOADED_GLOBS = ("skills", ".agents",
+LOADED_GLOBS = ("skills", ".agents", ".codex",
                 os.path.join("integrations", "conductor-beads", "commands"),
                 os.path.join("integrations", "conductor-beads", "agents"),
                 os.path.join("integrations", "conductor-beads", "templates"),
@@ -313,7 +424,7 @@ def audit_provenance() -> list[str]:
             continue
         for dp, _dn, fns in os.walk(base):
             for f in fns:
-                if not f.endswith((".md", ".py")):
+                if not f.endswith((".md", ".py", ".toml", ".json", ".yaml", ".yml")):
                     continue
                 mf = os.path.join(dp, f)
                 scanned += 1
@@ -364,6 +475,10 @@ def main() -> int:
     print()
     agent_errors = audit_agents()
     print()
+    codex_agent_errors = audit_codex_agents()
+    print()
+    codex_skill_errors = audit_codex_skills()
+    print()
     count_errors = audit_counts()
     print()
     mirror_errors = audit_mirrors()
@@ -373,16 +488,16 @@ def main() -> int:
     audit_overlap()
     print()
     link_errors = audit_links()
-    errors = (skill_errors + agent_errors + count_errors + mirror_errors
-              + prov_errors + link_errors)
+    errors = (skill_errors + agent_errors + codex_agent_errors + codex_skill_errors
+              + count_errors + mirror_errors + prov_errors + link_errors)
     print()
     if errors:
         print(f"{RED}✗ {len(errors)} issue(s):{OFF}")
         for e in errors:
             print(f"  {RED}-{OFF} {e}")
         return 1
-    print(f"{GREEN}✓ skills + agents are consistent "
-          f"(frontmatter, names, counts, provenance, links).{OFF}")
+    print(f"{GREEN}✓ skills + Claude/Codex agents are consistent "
+          f"(frontmatter, adapters, names, counts, provenance, links).{OFF}")
     return 0
 
 

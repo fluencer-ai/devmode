@@ -46,6 +46,11 @@ ENV_WRITE = re.compile(r"(^|/)\.env(\.|$|\")")
 OVERRIDE = re.compile(r"VERIFY-OK:", re.IGNORECASE)
 RISKY_RE = re.compile("|".join(RISKY), re.IGNORECASE)
 VERIFY_RE = re.compile("|".join(VERIFY), re.IGNORECASE)
+FAILED_RESULT_RE = re.compile(
+    r"\b(?:exit(?:ed)?(?: with)?(?: code)?|returncode)\s*[:=]?\s*[1-9]\d*\b"
+    r"|\b[1-9]\d*\s+failed\b|\bcommand failed\b",
+    re.IGNORECASE,
+)
 
 
 def allow():
@@ -76,6 +81,8 @@ def main() -> None:
     last_risky = -1
     last_verify = -1
     overridden = False
+    pending_verify_ids: set[str] = set()
+    pending_verify_without_id = False
     i = 0
     for line in lines:
         try:
@@ -98,13 +105,23 @@ def main() -> None:
                 if RISKY_RE.search(blob) or (name in ("Write", "Edit", "MultiEdit") and ENV_WRITE.search(fp or "")):
                     last_risky = i
                 if VERIFY_RE.search(blob):
-                    last_verify = i
+                    tool_id = str(b.get("id") or "")
+                    if tool_id:
+                        pending_verify_ids.add(tool_id)
+                    else:
+                        pending_verify_without_id = True
             elif t == "tool_result":
-                # tool_result output can carry verification evidence (e.g. "COMPLETED")
                 out = b.get("content")
                 text = out if isinstance(out, str) else json.dumps(out) if out else ""
-                if VERIFY_RE.search(text or ""):
+                tool_id = str(b.get("tool_use_id") or "")
+                matched_pending = tool_id in pending_verify_ids if tool_id else pending_verify_without_id
+                succeeded = not b.get("is_error") and not FAILED_RESULT_RE.search(text or "")
+                if succeeded and (matched_pending or VERIFY_RE.search(text or "")):
                     last_verify = i
+                if tool_id:
+                    pending_verify_ids.discard(tool_id)
+                elif pending_verify_without_id:
+                    pending_verify_without_id = False
             elif t == "text":
                 if OVERRIDE.search(b.get("text", "") or ""):
                     overridden = True
@@ -112,13 +129,13 @@ def main() -> None:
 
     if last_risky >= 0 and last_verify <= last_risky and not overridden:
         block(
-            "🚦 devmode gate: você fez uma ação de risco (rebuild/docker build/deploy/"
-            ".env) e ainda NÃO verificou o comportamento end-to-end depois dela.\n"
-            "Antes de concluir: rode uma verificação fresca (ex.: enfileire um job e "
-            "confirme que vai para completed/; ou rode os testes; ou cheque o log do "
-            "container). Mostre a evidência.\n"
-            "Se a verificação realmente não se aplica, escreva no texto: "
-            "VERIFY-OK: <motivo>."
+            "🚦 devmode gate: you performed a risky action (rebuild/docker build/deploy/"
+            ".env) and have NOT yet verified the end-to-end behavior after it.\n"
+            "Before concluding: run a fresh verification (e.g. enqueue a job and "
+            "confirm it reaches completed/; or run the tests; or check the container "
+            "log). Show the evidence.\n"
+            "If verification genuinely does not apply, write in your text: "
+            "VERIFY-OK: <reason>."
         )
     allow()
 

@@ -31,7 +31,7 @@ structured A/B/C choices with a recommendation and rationale, never an open void
 - **Thin conductor — delegate, don't reimplement.** Invoke the skill/agent for
   each step; never re-create what a skill already covers. (You are the imperative
   shell of the process; the skills are the functional core.)
-- **Load per phase.** Read only the skill(s) for the current phase, not all 20 at
+- **Load per phase.** Read only the skill(s) for the current phase, not all 42 at
   once.
 - **The base wins.** Honor the non-negotiables: grill *before* any asset; no blind
   coverage gate; fresh verification before any "done"; critical modules reviewed
@@ -40,8 +40,18 @@ structured A/B/C choices with a recommendation and rationale, never an open void
   `minimal-code` skill active at ARCHITECT + IMPLEMENT: climb the ladder before
   writing (stdlib/native/installed dep over new abstractions; shortest working
   diff) — but never cut validation, error handling, security, or accessibility.
-- **Always uses the layer.** Conductor (tracks/spec/plan) + Beads (persistent
-  memory) are assumed. If absent on first run, set them up before proceeding.
+- **Always uses the workflow layer.** Conductor (tracks/spec/plan) is assumed.
+  Beads is the preferred persistent-memory backend, but after the doctor reports
+  it unavailable the user may explicitly continue without durable memory. Never
+  claim that handoffs survive compaction in that degraded mode.
+- **Translate host commands, not behavior.** In Claude Code, invoke installed
+  `/conductor-*` commands normally. In Codex, when that slash command is not a
+  native entrypoint, read `.claude/commands/<command>.md` in full and execute it
+  as the canonical procedure. If optional Conductor commands were not vendored
+  (`--with-conductor` was omitted), execute the corresponding phase below
+  directly using `conductor/workflow.md` and `conductor/.templates/track/`;
+  missing slash-command files must not block the guided flow. Do not invent a
+  second Codex-specific workflow.
 - **Resumable.** On start, check for in-progress work and offer to resume from
   memory, not from scratch.
 - **Continuous between gates.** Don't ask "should I continue?" between mechanical
@@ -54,9 +64,9 @@ structured A/B/C choices with a recommendation and rationale, never an open void
   `--final` with per-criterion recommendations. The user tracks the trend in numbers.
 - **`/goal` is opt-in, never automatic.** Only when the user explicitly runs
   `/devmode goal <objective>` (or `plan <objective>`) do you produce a ready-to-run
-  Claude `/goal`/`/plan` command via the `goal-brief` skill (it references the
+  cross-host `/goal`/`/plan` command via the `goal-brief` skill (it references the
   track spec and is budget-checked ≤3800 by `.devmode/goal_brief.py`). devmode
-  can't execute `/goal` itself — emit the command for the user to run. Don't wire
+  must not start `/goal` itself — emit the command for the user to run. Don't wire
   `/goal` into the normal Align→…→Review flow.
 - **Guardrails are a hard backstop.** A deterministic `PreToolUse` hook
   (`hooks/guardrails.py`) blocks dangerous ops (sudo, force-push, `--no-verify`,
@@ -72,7 +82,7 @@ structured A/B/C choices with a recommendation and rationale, never an open void
    git-init'd it. Enter that directory and treat `<idea>` as the goal → Phase 1.
 0b. **Existing project? (`/devmode adopt <folder>`)** The command has deployed the
    base+layer into `<folder>`. **The project's `CLAUDE.md` is preserved** — the
-   installer left it byte-for-byte and only appended one pointer line
+   installer left its existing content intact and only appended one pointer line
    (`@CLAUDE.devmode.md`), so devmode composes in via import and the project's own
    instructions stay the host (precedence on conflict). Don't rewrite or merge it
    by default; only inline the import if the user explicitly asks for one flat
@@ -80,8 +90,10 @@ structured A/B/C choices with a recommendation and rationale, never an open void
    seed `UBIQUITOUS_LANGUAGE.md` + `DISCOVERY.md` with 🟢/🟡/🔴 tags, and enter the
    ALIGN gate aimed at the 🔴 gaps — confirm the provisional design concept with
    the user before proposing any change.
-1. **Ensure the layer + guardrails.** Otherwise, if `conductor/` or `.beads/` is
-   missing, run `/conductor-setup` and `bd init --stealth` (announce it; one-time).
+1. **Ensure the layer + guardrails.** Otherwise, if `conductor/` is missing, run
+   `/conductor-setup` (or its canonical command procedure in Codex). If `.beads/`
+   is missing, run the doctor and follow its fix-or-explicitly-degrade gate; do
+   not initialize Beads silently.
    Also check for the deterministic guardrail hook
    (`.claude/hooks/guardrails.py` wired in `.claude/settings.json`); if absent,
    offer to install it (`install.sh … --with-guardrails`) so the safety gates are

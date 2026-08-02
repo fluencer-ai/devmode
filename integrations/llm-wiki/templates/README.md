@@ -1,6 +1,6 @@
 # Your knowledge base — an LLM Wiki
 
-A **living knowledge base** that an AI assistant (e.g. Claude Code) builds and keeps
+A **living knowledge base** that an AI coding assistant builds and keeps
 tidy *for you*. You feed it things you want to remember or understand — articles,
 notes, transcripts, questions — and it turns them into an interlinked set of pages
 that **gets richer over time** instead of starting from zero every time.
@@ -12,7 +12,7 @@ the filing, cross-referencing, and tidying behind the scenes.
 
 ## ▶️ Start here
 
-Open **Claude Code in this folder** and just talk to it. Good first things to say:
+Open **Claude Code or Codex in this folder** and just talk to it. Good first things to say:
 
 - **“What's in here / what is this?”** — it gives you the lay of the land.
 - **“Help me get started.”** — it walks you in, one step at a time.
@@ -101,7 +101,7 @@ for you automatically:
 - **`KARPATHY.md`** — the *schema* that turns the assistant into a disciplined
   maintainer (the page types and the three operations it runs for you: **ingest** a
   new source, **answer** a question, **review** the wiki). `CLAUDE.md` loads it
-  automatically when you open the folder.
+  automatically in Claude Code; `AGENTS.md` gives Codex the equivalent instruction.
 
 You never have to name these — the assistant handles them. Full detail (page types,
 frontmatter, the operation rules) lives in [`KARPATHY.md`](KARPATHY.md), and the

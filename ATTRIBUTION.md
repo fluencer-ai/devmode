@@ -95,9 +95,12 @@ reused (no files copied), as noted.
   obra/superpowers' `brainstorming`; both descend from the same lineage.
 - **mattpocock/skills** (MIT © Matt Pocock) is devmode's **sibling**: both were
   distilled from Matt Pocock's *"Claude Code for real engineers"* talk and share
-  the same thesis and four failure modes. We adapted two skills (`prototype`,
-  `handoff`) and credit the shared lineage; devmode generalized the thesis into a
-  tool-agnostic process rather than a TypeScript/web skill set.
+  the same thesis and four failure modes. It is the single most-drawn-from
+  sibling: `prototype` became `skills/prototyping` and `handoff` folded into
+  `skills/context-engineering`, and the practice-level deltas listed in the table
+  above reach nine further skills. The table is the record — this note only names
+  the lineage. devmode generalized the thesis into a tool-agnostic process rather
+  than a TypeScript/web skill set.
 - The **loop-engineering essays** (Osmani; Autocomplete/Real-World-AI; Greyling)
   are prose, not code — we reused *concepts* (maker/checker split, comprehension
   debt, worktree isolation, "design loops, don't prompt turn-by-turn"); they
@@ -197,8 +200,8 @@ reused (no files copied), as noted.
   app that writes cited, Wikipedia-style reports via *perspective-guided question
   asking* (diverse personas → grounded multi-turn questioning → outline → cited
   synthesis; Co-STORM adds a moderator for *unknown unknowns*). devmode can't vendor
-  the app, and an equivalent `deep-research` skill already exists, so we **did not**
-  add a `/devmode research` command. We folded the *methodology* into `grill-me`
+  the app, and an equivalent deep-research capability already exists outside this
+  pack, so we **did not** add a `/devmode research` command. We folded the *methodology* into `grill-me`
   (ground a knowledge gap with diverse, cited web investigation before guessing) and
   `design-critique` (a lens grounds with a citation, not a hunch) — mapped onto
   primitives devmode already has (subagent fan-out, evidence-over-assertion).

@@ -3,7 +3,7 @@ ceremony. Two behaviors, both keyed off the transcript:
 
   1) DASHBOARD AUTO-REFRESH — a pure side effect that must NEVER block.
   2) ORCHESTRATOR DELEGATION — blocks ending a FULL `/devmode` turn (a
-     phase-driving mode, i.e. NOT c/do/wiki/lean/update/goal/plan/adopt/start)
+     phase-driving mode, including blank resume/start/adopt/lean idea)
      that never spawned the `devmode-orchestrator` subagent. Override: DEVMODE-OK.
 
 Like verify_gate, this is an I/O script, so we drive it as a black box: crafted
@@ -115,12 +115,18 @@ class PhaseGateTest(unittest.TestCase):
         ])
         self.assertAllowed(proc)
 
-    # --- allow: non-full modes run inline / have their own flows ---
+    # --- block: every phase-driving mode delegates before the turn ends ---
+    def test_phase_driving_modes_block_without_orchestrator(self):
+        for args in ["", "lean build a thing", "adopt ./legacy", "start newproj an idea"]:
+            with self.subTest(args=args):
+                proc = self.run_gate([user(devmode_cmd(args))])
+                self.assertBlocked(proc)
+
+    # --- allow: inline modes run without the orchestrator ---
     def test_nonfull_modes_allow(self):
         for args in ["c just an ops comment", "do add a health endpoint",
-                     "wiki start ./kb", "lean build a thing", "update ./proj",
-                     "goal ship it", "plan the thing", "adopt ./legacy",
-                     "start newproj an idea", ""]:
+                     "wiki start ./kb", "update ./proj", "goal ship it",
+                     "plan the thing", "lean goal ship it", "lean plan the thing"]:
             with self.subTest(args=args):
                 proc = self.run_gate([user(devmode_cmd(args))])
                 self.assertAllowed(proc)

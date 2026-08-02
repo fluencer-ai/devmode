@@ -27,12 +27,18 @@ def msg_entry(typ, *blocks):
     return {"type": typ, "message": {"role": typ, "content": list(blocks)}}
 
 
-def tool_use(name, **inp):
-    return {"type": "tool_use", "name": name, "input": inp}
+def tool_use(name, tool_id=None, **inp):
+    block = {"type": "tool_use", "name": name, "input": inp}
+    if tool_id:
+        block["id"] = tool_id
+    return block
 
 
-def tool_result(text):
-    return {"type": "tool_result", "content": text}
+def tool_result(text, tool_id=None, is_error=False):
+    block = {"type": "tool_result", "content": text, "is_error": is_error}
+    if tool_id:
+        block["tool_use_id"] = tool_id
+    return block
 
 
 def text_block(s):
@@ -98,16 +104,26 @@ class VerifyGateTest(unittest.TestCase):
     def test_pytest_after_risky_allows(self):
         proc = self.run_gate([
             msg_entry("assistant", tool_use("Bash", command="docker build -t app .")),
-            msg_entry("assistant", tool_use("Bash", command="pytest -q")),
+            msg_entry("assistant", tool_use("Bash", tool_id="verify", command="pytest -q")),
+            msg_entry("user", tool_result("3 passed", tool_id="verify")),
         ])
         self.assertAllowed(proc)
 
     def test_docker_ps_after_risky_allows(self):
         proc = self.run_gate([
             msg_entry("assistant", tool_use("Bash", command="docker compose up -d")),
-            msg_entry("assistant", tool_use("Bash", command="docker ps")),
+            msg_entry("assistant", tool_use("Bash", tool_id="verify", command="docker ps")),
+            msg_entry("user", tool_result("container healthy", tool_id="verify")),
         ])
         self.assertAllowed(proc)
+
+    def test_failed_verify_after_risky_still_blocks(self):
+        proc = self.run_gate([
+            msg_entry("assistant", tool_use("Bash", command="docker build -t app .")),
+            msg_entry("assistant", tool_use("Bash", tool_id="verify", command="pytest -q")),
+            msg_entry("user", tool_result("1 failed", tool_id="verify", is_error=True)),
+        ])
+        self.assertBlocked(proc)
 
     def test_completed_evidence_in_tool_result_allows(self):
         # the verification signal can land in tool_result output, not just a command.

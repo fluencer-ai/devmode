@@ -6,14 +6,17 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 ![Skills](https://img.shields.io/badge/skills-42-blue.svg)
 ![Agents](https://img.shields.io/badge/agents-8-blue.svg)
+![Hosts](https://img.shields.io/badge/hosts-Claude_Code_%2B_Codex-blue.svg)
 ![Dependencies](https://img.shields.io/badge/runtime_deps-none-lightgrey.svg)
 
 devmode is a complete, **tool-agnostic software development process** packaged as
 42 skills, 8 subagents, deterministic guardrail hooks, a self-scoring system, and
-a zero-setup visual dashboard — built for working *with* AI coding agents (Claude
-Code and similar) without letting the codebase rot.
+a zero-setup visual dashboard — built for working *with* AI coding agents without
+letting the codebase rot. It runs on **Claude Code and Codex** off the same
+sources: one physical copy of the pack, two discovery surfaces.
 
-🇧🇷 **Português:** o manual completo em PT-BR está em [`manual.md`](manual.md).
+📖 **Manual:** the complete usage guide is [`MANUAL.md`](MANUAL.md).
+🇧🇷 **Português:** a mesma íntegra em PT-BR está em [`MANUAL-PT-BR.md`](MANUAL-PT-BR.md).
 
 ---
 
@@ -23,6 +26,7 @@ Code and similar) without letting the codebase rot.
 - [What's in the box](#whats-in-the-box)
 - [The four layers of AI engineering](#the-four-layers-of-ai-engineering)
 - [Quick start](#quick-start)
+- [Hosts: Claude Code and Codex](#hosts-claude-code-and-codex)
 - [The workflow (a loop, not a march)](#the-workflow-a-loop-not-a-march)
 - [The 42 skills](#the-42-skills)
 - [The 8 agents](#the-8-agents)
@@ -32,6 +36,7 @@ Code and similar) without letting the codebase rot.
 - [Repository layout](#repository-layout)
 - [Foundations & reading list](#foundations--reading-list)
 - [Acknowledgments & attribution](#acknowledgments--attribution)
+- [Author](#author)
 - [License](#license)
 
 ---
@@ -78,7 +83,9 @@ direction.**
 | **Integration layer** | Conductor (tracks/spec/plan lifecycle) + Beads (persistent memory) mounted *on top of* the base | [`integrations/conductor-beads/`](integrations/conductor-beads/) |
 | **References** | The principles behind the process + a failure-mode diagnostic table | [`references/`](references/) |
 | **Manifest** | The process spine, beliefs, and usage rules (agent-facing) | [`CLAUDE.md`](CLAUDE.md) |
-| **PT-BR manual** | Guia completo de uso em português | [`manual.md`](manual.md) |
+| **Codex adapters** | `AGENTS.md`, repo skills, custom agents, and hook adapters that map the Claude Code setup to Codex without replacing it | [`AGENTS.md`](AGENTS.md), [`.codex/`](.codex/) |
+| **Manual** | The complete end-to-end usage guide | [`MANUAL.md`](MANUAL.md) |
+| **Manual (PT-BR)** | Guia completo de uso em português | [`MANUAL-PT-BR.md`](MANUAL-PT-BR.md) |
 
 Everything is Markdown + Python-stdlib. **No runtime dependencies, no server, no
 registration, no build step.**
@@ -99,11 +106,12 @@ Modern AI engineering stacks four layers, each wrapping the one beneath —
 
 ### A. Use the skills directly (lightest)
 
-Copy (or symlink) `skills/` and `.agents/` into your agent's skill/agent
-directories — for Claude Code, `.claude/skills/` and `.claude/agents/` in your
-project. The skills are trigger-described: the agent pulls the right one when the
-situation matches (e.g. it reaches for `systematic-debugging` when something
-breaks, `grill-me` when requirements are vague).
+Copy `skills/` once and expose that copy through each agent's discovery path:
+`.claude/skills/` for Claude Code and relative links in `.agents/skills/` for
+Codex. Agent definitions live in `.claude/agents/` and `.codex/agents/`. The
+skills are trigger-described: the agent pulls the right one when the situation
+matches (e.g. it reaches for `systematic-debugging` when something breaks,
+`grill-me` when requirements are vague).
 
 ### B. Install into a real project (recommended)
 
@@ -117,8 +125,8 @@ git clone https://github.com/fluencer-ai/devmode.git && cd devmode
 ```
 
 `adopt` runs the installer for you (`install.sh <folder> --beads-stealth
---with-guardrails`), keeps your existing `CLAUDE.md` byte-for-byte (appends one
-`@CLAUDE.devmode.md` pointer), then runs **discovery** on the codebase and walks
+--with-guardrails`), keeps the existing `CLAUDE.md` content intact and appends
+one `@CLAUDE.devmode.md` pointer, then runs **discovery** on the codebase and walks
 you into the first alignment gate. See [§C](#c-guided-mode--devmode-the-front-door).
 
 What you get in the project:
@@ -126,10 +134,14 @@ What you get in the project:
 - `CLAUDE.md` (or a non-destructive `@CLAUDE.devmode.md` pointer appended to your
   existing one — your project's rules stay the host and take precedence),
 - `.claude/skills/` + `.claude/agents/` (the full pack),
+- `AGENTS.md` / `AGENTS.devmode.md`, `.agents/skills/` links, and
+  `.codex/agents/` for Codex compatibility; the skills are not copied twice and
+  the launcher includes Codex app metadata,
 - `conductor/` (product/tech-stack/workflow/tracks + per-track `spec.md`/`plan.md`
   templates), `UBIQUITOUS_LANGUAGE.md`,
 - `.devmode/` (scorecard.py, dashboard.py, goal_brief.py) + `devmode-dashboard.html`,
-- the deterministic hooks wired into `.claude/settings.json`.
+- the deterministic hooks wired into `.claude/settings.json` and, when trusted
+  in Codex, `.codex/hooks.json`.
 
 **Under the hood / no-Claude fallback.** `adopt` is a thin wrapper over the
 installer; run it directly when scripting (CI) or when not using Claude Code:
@@ -138,12 +150,12 @@ installer; run it directly when scripting (CI) or when not using Claude Code:
 integrations/conductor-beads/install.sh /path/to/your/project --with-guardrails --beads-stealth
 ```
 
-Flags: `--no-skills` (rely on a global install) · `--with-conductor` (vendor the
+Flags: `--no-skills` (rely on a global install; updates preserve this profile) · `--with-conductor` (vendor the
 upstream Conductor commands) · `--beads` / `--beads-stealth` (persistent task
 memory, committed or local) · `--with-guardrails` · `--force`. Idempotent:
 existing files are left alone unless you pass `--force`.
 
-### C. Guided mode — `/devmode` (the front door)
+### C. Guided mode — `/devmode` / `devmode` skill (the front door)
 
 The integration installs a `devmode-orchestrator` agent + `/devmode` command that
 drives the whole phase machine for you, pausing only at human decision gates:
@@ -153,7 +165,7 @@ drives the whole phase machine for you, pausing only at human decision gates:
 /devmode adopt <folder>        # deploy devmode into an EXISTING codebase + run discovery
 /devmode update <folder>       # refresh devmode in a project to the latest base (project files untouched)
 /devmode update wiki <folder>  # refresh a deployed LLM Wiki's schema (knowledge untouched)
-/devmode goal <objective>      # (opt-in) emit a ready-to-run Claude /goal or /plan command
+/devmode goal <objective>      # (opt-in) emit a ready-to-run /goal or /plan command
 /devmode lean <idea>           # run the full flow with the minimal-code (ponytail) discipline
 /devmode lean goal <objective> # emit a /goal that bakes in the lean discipline
 /devmode do <task>             # route & run ONE bounded task, gated (the single-task sibling)
@@ -165,6 +177,19 @@ drives the whole phase machine for you, pausing only at human decision gates:
 
 At every gate it shows a self-scorecard and refreshes `devmode-dashboard.html`.
 **Run it from the project directory** — the hooks key off the project root.
+
+`/devmode <args>` is **verified working in Codex Desktop**: the app resolves that
+slash command to the launcher installed in `.agents/skills/devmode/`. That is the
+one Codex surface where the slash form is confirmed. On CLI/IDE surfaces, skills
+are reached through the official picker — use `/skills` and select `devmode`; no
+Desktop-equivalent slash behavior is promised there until Codex ships official
+support. Either way the launcher reads the same `.claude/commands/devmode.md`
+source and maps it to Codex custom agents and hooks, and the existing Claude Code
+slash command remains unchanged.
+
+The installer records only the paths it actually writes in
+`.devmode/managed-files`. Updates use that ownership manifest, so a project skill,
+agent, reference, or script that happens to have the same name is preserved.
 
 ### D. One task, routed and gated — `/devmode do`
 
@@ -180,6 +205,33 @@ For a single, well-bounded task (not a whole project), `/devmode do <plain-Engli
 `/devmode do` is the single-task sibling of `/devmode` (full project) and
 `/devmode c` (bare per-turn gates) — every entry point starts with `/devmode`, and
 it reuses the existing skills/agents/gates, no new machinery.
+
+## Hosts: Claude Code and Codex
+
+Both hosts read the **same** process. The skills exist once on disk; Codex sees
+them through relative links, and the `.codex/` files are *adapters*, never a
+second copy of the method:
+
+| Piece | Claude Code | Codex |
+|---|---|---|
+| Durable instructions | [`CLAUDE.md`](CLAUDE.md) | [`AGENTS.md`](AGENTS.md) (or an additive `AGENTS.devmode.md` pointer) |
+| The 42 skills | `.claude/skills/` — the single physical copy | [`.agents/skills/`](.agents/skills/) — relative links to that same copy |
+| Role agents | `.claude/agents/` | [`.codex/agents/*.toml`](.codex/agents/) — the same 8 roles as Codex custom agents |
+| Guided front door | the `/devmode` slash command | the repo-shared `devmode` skill + its launcher metadata (`agents/openai.yaml`) |
+| Deterministic gates | hooks wired in `.claude/settings.json` | [`.codex/hooks.json`](.codex/hooks.json) → `.codex/hooks/codex_hooks.py` |
+| Host config | (host defaults) | [`.codex/config.toml`](.codex/config.toml) — enables hooks + multi-agent; **merged** on update, never replaced |
+
+`AGENTS.md` names `CLAUDE.md` and `.claude/commands/devmode.md` as the canonical
+sources, so when an adapter and its source disagree the **adapter** is what gets
+fixed. Adding Codex support removed nothing from the Claude Code surface.
+
+**Invocation.** `/devmode <args>` is **verified working in Codex Desktop**. On
+CLI/IDE surfaces, reach the same skill through the official picker (`/skills` →
+`devmode`) — no Desktop-equivalent slash behavior is promised there until Codex
+ships official support. Codex project hooks only run once the project *and* the
+hook definitions are trusted in `/hooks`; see
+[Enforcement](#enforcement-gates-that-bite) for the one behavioral difference
+(Codex has no interactive *ask*).
 
 ## The workflow (a loop, not a march)
 
@@ -211,7 +263,7 @@ line budgets, link integrity, mirror drift, description-overlap (Jaccard), and
 trigger lint.
 
 <details>
-<summary><b>Process skills (20)</b> — the spine: how to think and build</summary>
+<summary><b>Process skills (21)</b> — the spine: how to think and build</summary>
 
 | Skill | One line |
 |---|---|
@@ -272,7 +324,7 @@ trigger lint.
 |---|---|
 | [`self-scorecard`](skills/self-scorecard/SKILL.md) | The agent judges its own work each phase: 0–10 on Correctness, Design, Testing, Safety, Clarity — with deltas and trend |
 | [`discovery`](skills/discovery/SKILL.md) | Reverse-engineer an existing codebase into the starting artifacts (🟢 confirmed / 🟡 inferred / 🔴 gap) — the `/devmode adopt` engine |
-| [`goal-brief`](skills/goal-brief/SKILL.md) | Turn a spec into a ready-to-run Claude `/goal`/`/plan` command, budget-checked to ≤3800 chars |
+| [`goal-brief`](skills/goal-brief/SKILL.md) | Turn a spec into a cross-host `/goal`/`/plan` command, budget-checked to ≤3800 chars |
 
 </details>
 
@@ -325,6 +377,15 @@ hooks** (Python stdlib, fail-open, with tests), wired by `--with-guardrails`:
 Conscious overrides exist (`VERIFY-OK: <reason>` / `DEVMODE-OK: <reason>`) — the
 gates force the *decision* to skip to be explicit, never silent.
 
+Codex uses `.codex/hooks/codex_hooks.py` as an adapter over the same gates.
+Project-local Codex hooks run only after the project is trusted and the hook
+definitions are trusted in `/hooks`. One behavior differs by necessity: Codex has
+no interactive *ask*, so the guardrail's three ask-rules become a **deny** with a
+third override — the agent must confirm with you and then re-run the command
+carrying `# DEVMODE-GUARDRAIL-OK`. The deny **is** the confirmation prompt; the
+deny-only rules (`sudo`, force-push, `--no-verify`, `rm -rf /`, secret writes)
+have no override on either host.
+
 ## The lab: workspaces & the Teamflow case study
 
 The base stays clean; experiments live in **`workspaces/`** (gitignored scratch).
@@ -348,13 +409,16 @@ rewrite).
 ```text
 devmode/
 ├── CLAUDE.md                    # the manifest: beliefs, workflow table, usage rules
+├── AGENTS.md                    # Codex adapter: loads the same process without replacing Claude
 ├── README.md                    # you are here
-├── manual.md                    # full PT-BR manual
+├── MANUAL.md                    # the full usage manual (English)
+├── MANUAL-PT-BR.md              # the full usage manual (Portuguese)
 ├── ATTRIBUTION.md               # per-artifact third-party credits
 ├── LICENSE                      # MIT
 ├── skills/                      # 42 skills (each: SKILL.md + optional assets/)
-├── .agents/                     # 8 subagent definitions
+├── .agents/                     # 8 subagent definitions + Codex repo-skill exposure
 ├── .claude/                     # mirrors (commands/agents) so /devmode works here too
+├── .codex/                      # Codex config, custom-agent adapters, and hook adapter
 ├── scripts/
 │   ├── audit_skills.py          # pack auditor (consistency, links, overlap, budgets)
 │   ├── scorecard.py             # per-phase 5-criteria self-scoring + trend
@@ -418,7 +482,7 @@ projects. Full per-artifact mapping with licenses:
 | [bybren-llc/safe-agentic-workflow](https://github.com/bybren-llc/safe-agentic-workflow) | `code-review` — the immutable gate-independence rule; `minimal-code` — the search-first / reuse-before-create rung | MIT |
 | [ruvnet/agent-harness-generator](https://github.com/ruvnet/agent-harness-generator) | `discovery` — the **readiness read** (test-safety-net + operational → a recommended first move, from its pre-scaffold `genome`); `security-hardening` — the scan-before-you-share secrets reflex (concepts only; none of its WASM kernel / witness-signing / multi-host infra) | MIT |
 | [vinilana/dotcontext](https://github.com/vinilana/dotcontext) | `verification-before-completion` — declare-and-confirm the task's promised deliverables before "done" (concept only; none of its MCP / runtime / tree-sitter / replay app) | MIT |
-| [stanford-oval/storm](https://github.com/stanford-oval/storm) | `grill-me` + `design-critique` — STORM/Co-STORM's perspective-guided, cite-everything research grounding, folded into existing skills (no new command; an equivalent `deep-research` skill already exists) | MIT |
+| [stanford-oval/storm](https://github.com/stanford-oval/storm) | `grill-me` + `design-critique` — STORM/Co-STORM's perspective-guided, cite-everything research grounding, folded into existing skills (no new command; an equivalent deep-research capability already exists outside this pack) | MIT |
 | [bitjaru/styleseed](https://github.com/bitjaru/styleseed) | `ux-design` — the 2:1 proximity ratio (within-group spacing ≤ half the between-group gap, so grouping is checkable, not implied); concept only, none of its React/Tailwind component library or `npx` installer | MIT |
 | [context-labs/halo](https://github.com/context-labs/halo) | `systematic-debugging` — treat a diagnostic's claims as evidence, not directive (verify a tool/agent's path/line/"missing-X" assertions before acting; re-search by concept), from its `halo-loop` skill; concept only, none of its RLM engine / trace runtime / OTel-JSONL format | MIT |
 | [affaan-m/ecc](https://github.com/affaan-m/ecc) | `grill-me` — anti-anchoring context isolation (dispatch each perspective subagent with only the question + minimal context, never your running conversation or stated leaning, or it mirrors your position back), from its `council` skill; concept only, none of its continuous-learning runtime / scanner / panel app | MIT |
@@ -436,6 +500,12 @@ for real engineers"* talk — that AI is a brilliant tactician with no strategy,
 *you* must supply it. devmode generalized that thesis into a tool-agnostic process
 (42 skills, agents, enforced gates, scorecard/dashboard) combined with the
 reading list above.
+
+## Author
+
+devmode is written and maintained by **Gabriel Sorrentino**
+([LinkedIn](https://www.linkedin.com/in/gabriel-sorrentino/)) —
+[fluencerai.com](https://fluencerai.com) · <gabriel@fluencerai.com>.
 
 ## License
 

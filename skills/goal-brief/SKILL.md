@@ -1,19 +1,20 @@
 ---
 name: goal-brief
 description: >-
-  Turn a devmode spec into a ready-to-run Claude Code `/goal` (or `/plan`)
+  Turn a devmode spec into a ready-to-run `/goal` (or `/plan`)
   command — a compact launch brief (≤3800 chars) that references the spec file in
   detail (step-by-step + tests + acceptance criteria) and is guaranteed to fit
   the limit. Use ONLY when the user explicitly asks for it (e.g. `/devmode goal`,
   "make me a /goal", "generate the goal prompt", "I want to run this as a /goal").
-  Do NOT wire `/goal` into the normal phase flow — it's opt-in. devmode can't
-  invoke `/goal` itself, so it emits the command for you to run each iteration.
+  Do NOT wire `/goal` into the normal phase flow — it's opt-in. By contract,
+  devmode emits the command for the user to run each iteration.
 ---
 
 # goal-brief
 
-`/goal` and `/plan` are powerful Claude Code commands, but they take a *prompt*
-with a character limit (~4000; work to ≤3800). The hard part is that a great
+`/goal` and `/plan` are available in Claude Code and current Codex surfaces, and
+Claude Code applies a prompt limit (~4000; work to ≤3800 for cross-host
+compatibility). The hard part is that a great
 `/goal` needs a *lot* of detail (steps, tests, acceptance criteria) that won't
 fit. devmode already solves that: the **`spec.md` + `plan.md`** of a track *are*
 that detailed objective doc. This skill turns them into a **compact launch brief
@@ -22,12 +23,11 @@ that references the file** — so the long detail lives in the spec, and the
 
 ## Key fact: devmode emits the command; you run it
 
-An agent **cannot invoke a slash command** (`/goal`/`/plan` are user-typed; there
-is no "run a command" tool, and the `Skill` tool runs *skills*, not commands).
-So devmode's job is to **produce a ready-to-run `/goal` command** that you paste
-and run — re-emitting it each iteration you ask for, from the current spec/plan.
-(If `/goal` ever becomes programmatically invocable, this skill is still the
-right *brief builder*.)
+This cross-host workflow deliberately **produces a ready-to-run `/goal` command**
+for the user instead of starting goal mode automatically. That preserves the
+same explicit opt-in behavior on Claude Code and Codex, even where Codex exposes
+goal state programmatically. Re-emit it from the current spec/plan each time the
+user asks.
 
 ## Opt-in only
 
@@ -39,7 +39,7 @@ user explicitly wants a `/goal` (or `/plan`) — typically via `/devmode goal
 
 - **`/plan`** plans the objective. devmode's grill + `write-prd` already *is* the
   planning, producing `spec.md`/`plan.md`. Emit a `/plan` brief (`--kind plan`)
-  when you want Claude to *plan* the goal before executing it.
+  when you want the active agent to *plan* the goal before executing it.
 - **`/goal`** executes the objective from the spec. Emit a `/goal` brief
   (`--kind goal`).
 - You can chain them: `/plan` to refine the spec → re-run this skill → `/goal` to
@@ -55,9 +55,11 @@ user explicitly wants a `/goal` (or `/plan`) — typically via `/devmode goal
 2. **Scaffold the brief** from the spec:
    ```bash
    python3 .devmode/goal_brief.py scaffold conductor/tracks/<id>/spec.md \
-     --kind goal --ref conductor/tracks/<id>/spec.md --budget 3800
+     --plan conductor/tracks/<id>/plan.md --kind goal \
+     --ref conductor/tracks/<id>/spec.md --budget 3800
    ```
-   It extracts the objective + acceptance criteria + test line, wraps them with
+   Omit `--plan` only when the track has no plan yet. The script extracts the
+   objective, acceptance criteria, plan steps, and test line, wraps them with
    devmode execution rules, references the file, and reports the char count.
 3. **Refine** so the brief *references the file in detail* (the spec path, what
    it contains, the acceptance criteria to meet) while staying terse — the file
@@ -88,8 +90,8 @@ user explicitly wants a `/goal` (or `/plan`) — typically via `/devmode goal
 - Emitting a `/goal` without a spec to reference (the brief becomes a vague wish).
 - Handing over a brief that hasn't passed `goal_brief.py check` (may exceed the limit).
 - Wiring `/goal` into the default flow (it's opt-in — only on explicit request).
-- Pretending devmode "ran" the `/goal` — it can't; it emits the command for you.
+- Pretending devmode started `/goal`; this mode's explicit contract is to emit it.
 
-> devmode-original. `/goal` and `/plan` are Claude Code commands (referenced, not
+> devmode-original. `/goal` and `/plan` are cross-host commands (referenced, not
 > vendored). The budget guard is `scripts/goal_brief.py` (installed to
 > `.devmode/goal_brief.py`).

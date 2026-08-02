@@ -43,7 +43,7 @@ direction; the LLM owns the knowledge graph.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ SCHEMA  — this KARPATHY.md (+ the project's CLAUDE.md)         │
+│ SCHEMA — this KARPATHY.md (+ CLAUDE.md / AGENTS.md)           │
 │   Defines how the wiki is structured and maintained.          │
 └──────────────────────────────────────────────────────────────┘
                        ▲ read at session start

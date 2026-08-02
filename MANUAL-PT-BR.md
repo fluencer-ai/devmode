@@ -3,6 +3,8 @@
 > Um guia prático, em português, para usar este conjunto de skills e agentes
 > e desenvolver software com a IA sem cair na armadilha do "specs-to-code".
 
+> 🇺🇸 **English version:** [`MANUAL.md`](MANUAL.md).
+
 Este manual ensina **como usar** o processo que está nesta pasta. Se quiser
 entender o *porquê* de cada peça, leia [`references/foundations.md`](references/foundations.md).
 Se algo estiver dando errado e você não souber qual skill usar, vá direto para
@@ -352,10 +354,16 @@ do merge.
 ### Modos do `/devmode`, score e dashboard
 
 - **`/devmode start <nome> <ideia>`** — cria `workspaces/<nome>` (base+camada+guardrails+Beads), `git init`, e começa pela Fase 1.
-- **`/devmode adopt <pasta>`** — implanta o devmode num **projeto existente** e roda **discovery** (skill `discovery`, estilo reversa): varre o código, detecta stack, monta o **mapa de módulos** + glossário em `UBIQUITOUS_LANGUAGE.md` e um `DISCOVERY.md` (conceito de design provisório + arquitetura), com tags 🟢/🟡/🔴 — e a fase ALIGN ataca os 🔴 com você. Se a pasta já tem `CLAUDE.md`, ele é **preservado byte-a-byte** — o instalador só acrescenta um ponteiro idempotente `@CLAUDE.devmode.md` (composição via import nativo; suas instruções continuam o host e têm precedência). Nada de reescrever; merge num arquivo só é opcional, se você pedir.
-- **`/devmode update <pasta>`** / **`/devmode update wiki <pasta>`** — **atualiza** os arquivos *devmode-managed* de um projeto existente para a base atual, **sem tocar em nada que o projeto possui** (CLAUDE.md, UBIQUITOUS_LANGUAGE, conductor product/tracks, `.devmode/scorecard.json`, seu código). Sobrescreve só o que é do devmode: skills, agentes+orquestrador, o comando `/devmode`, os hooks (incl. `session_resume`), os scripts `.devmode/*.py`, o adaptador `conductor/workflow.md` + `INTEGRATION.md` + templates de track, e `CLAUDE.devmode.md` *só se existir*. A forma `update wiki` refresca só o schema do wiki (`KARPATHY.md`, `README.md`, `raw/README.md`), nunca o conhecimento. Revise com `git -C <pasta> status` (só aparecem arquivos do devmode).
-- **`/devmode goal <objetivo>`** (opt-in) — gera um comando **`/goal` pronto** (≤3800 chars) que referencia o `spec.md` em detalhe (passo-a-passo + testes + critérios de aceite), com o limite **garantido por script** (`.devmode/goal_brief.py`). Use `plan <objetivo>` para um `/plan` (planejar o goal — a recursão `/plan ↔ /goal`). O devmode **não executa o `/goal` sozinho** (um agente não dispara slash-command); ele **te entrega o comando** para você rodar a cada iteração. Não fica embutido no fluxo normal — só quando você pede.
+- **`/devmode adopt <pasta>`** — implanta o devmode num **projeto existente** e roda **discovery** (skill `discovery`, estilo reversa): varre o código, detecta stack, monta o **mapa de módulos** + glossário em `UBIQUITOUS_LANGUAGE.md` e um `DISCOVERY.md` (conceito de design provisório + arquitetura), com tags 🟢/🟡/🔴 — e a fase ALIGN ataca os 🔴 com você. Se a pasta já tem `CLAUDE.md`, o conteúdo existente permanece intacto e o instalador acrescenta apenas um ponteiro idempotente `@CLAUDE.devmode.md` (composição via import nativo; suas instruções continuam o host e têm precedência). Nada de reescrever; merge num arquivo só é opcional, se você pedir.
+- **`/devmode update <pasta>`** / **`/devmode update wiki <pasta>`** — **atualiza** os arquivos *devmode-managed* de um projeto existente para a base atual, **sem sobrescrever nada que o projeto possui**. O instalador registra em `.devmode/managed-files` somente os paths que realmente escreveu; o update usa esse manifesto, preserva colisões de mesmo nome e mantém o perfil `--no-skills`. O `.codex/config.toml` é **mesclado, não substituído**: só as chaves que o devmode declara (marcadas no próprio arquivo pela linha `devmode-managed`) são atualizadas — suas chaves, tabelas e comentários continuam intactos, e um arquivo sem esse marcador nunca tem valor reescrito. A forma `update wiki` refresca `KARPATHY.md` e os how-tos que o módulo possui, preserva o README do host e acrescenta apenas o ponteiro Codex idempotente ao `AGENTS.md`; nunca altera o conhecimento em `wiki/` ou `raw/sources/`. Revise com `git -C <pasta> status`.
+- **`/devmode goal <objetivo>`** (opt-in) — gera um comando **`/goal` pronto** (≤3800 chars) que referencia o `spec.md` em detalhe (passo-a-passo + testes + critérios de aceite), com o limite **garantido por script** (`.devmode/goal_brief.py`). Use `plan <objetivo>` para um `/plan` (planejar o goal — a recursão `/plan ↔ /goal`). Por contrato, o devmode **não inicia o `/goal` sozinho**; ele **te entrega o comando** para você rodar a cada iteração. Não fica embutido no fluxo normal — só quando você pede.
 - **`/devmode <ideia>`** — guia/retoma no projeto atual.
+- **`/devmode c [comentário]`** — o **gatilho de disciplina por turno**: aplica os
+  gates do devmode a um trabalho ad-hoc (ops, debug, uma pergunta solta) **sem**
+  subir a máquina de fases. Contrato do turno: causa-raiz antes de qualquer
+  mudança, backup antes de operação arriscada, e **nenhum "pronto" sem evidência
+  end-to-end fresca** (o hook `Stop` bloqueia o turno se faltar). É o irmão mais
+  leve do `/devmode do <tarefa>`.
 - **`/devmode lean <ideia>`** / **`/devmode lean goal <objetivo>`** — roda com a
   disciplina **`minimal-code`** (a escada "dev sênior preguiçoso" do ponytail) em
   primeiro plano: escrever só o que a tarefa precisa (stdlib/nativo/uma linha),
@@ -376,7 +384,20 @@ do merge.
   query → lint sobre 7 tipos), então o conhecimento **acumula** em vez de ser
   re-derivado a cada pergunta. O `KARPATHY.md` implantado é o *schema* que torna o
   agente um mantenedor disciplinado. Roda **inline** (não é a máquina de fases de
-  código). Conceito: o gist *LLM Wiki* do Andrej Karpathy.
+  código). `start` exige pasta nova/vazia; `adopt` preserva o README do projeto e
+  instala o how-to em `.llm-wiki/README.md`. `CLAUDE.md` e `AGENTS.md` ativam o
+  mesmo schema no Claude Code e no Codex. Conceito: o gist *LLM Wiki* do Andrej Karpathy.
+
+No **Codex Desktop** — a única superfície onde a forma com barra está
+**verificada** — invoque a skill de repositório diretamente como
+**`/devmode <args>`**. Em CLI/IDE, as skills chegam pelo seletor oficial: use
+`/skills` e selecione `devmode` (não prometemos a barra ali enquanto o Codex não
+oferecer suporte oficial). O launcher instalado
+em `.agents/skills/devmode/` lê o mesmo arquivo
+`.claude/commands/devmode.md` e adapta só o mecanismo para `AGENTS.md`,
+`.agents/skills/`, `.codex/agents/` e `.codex/hooks.json`. Os skills base têm uma
+única cópia física em `.claude/skills/`; `.agents/skills/` contém links relativos
+para ela. A configuração Claude continua intacta.
 
 > **Retomada morna (SessionStart).** Com `--with-guardrails`, um hook
 > `session_resume.py` injeta no início de cada sessão um resumo curto (última
@@ -418,9 +439,15 @@ do Beads, não só o status. Detalhes:
 > sem o grafo persistente. Custo baixo no bd ≥ 1.0: usa **Dolt embutido** por
 > padrão — `bd init` funciona sem servidor (verificado no bd 1.0.3).
 
-### Modo guiado (`/devmode`) — ser levado pelo processo
+### Modo guiado (`/devmode` / skill `devmode`) — ser levado pelo processo
 
 Se você não quer pensar em *qual* skill usar e *quando*, use o orquestrador:
+
+```bash
+/devmode "o que você quer construir"
+```
+
+No Codex desktop, use o mesmo slash command:
 
 ```bash
 /devmode "o que você quer construir"
@@ -438,8 +465,17 @@ conceito de design, os trade-offs, aprovar a interface, dizer "pronto"). Ele é 
 ## 10. Para aprofundar
 
 - [`CLAUDE.md`](CLAUDE.md) — manifesto e tabela do fluxo.
+- [`AGENTS.md`](AGENTS.md) — adaptador Codex que aponta para as mesmas fontes de
+  verdade do Claude Code.
 - [`references/foundations.md`](references/foundations.md) — os princípios e a
   lista de leitura (Ousterhout, Brooks, Beck, Evans, Hunt & Thomas, Bernhardt).
 - [`references/failure-modes.md`](references/failure-modes.md) — diagnóstico
   completo sintoma → skill.
 - Os próprios `SKILL.md` em `skills/` — cada um explica o método e o porquê.
+
+---
+
+## Autor
+
+**Gabriel Sorrentino** — [LinkedIn](https://www.linkedin.com/in/gabriel-sorrentino/)
+· [fluencerai.com](https://fluencerai.com) · <gabriel@fluencerai.com>

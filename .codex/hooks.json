@@ -1,0 +1,37 @@
+{
+  "description": "devmode base-repository phase gate for Codex. The three events wired here reconstruct the SAME single phase-gate behavior that Claude's Stop hook (.claude/settings.json) gets for free by reading the session transcript: Codex hooks see one event at a time and carry state across them, so UserPromptSubmit records that the turn is a /devmode turn, PostToolUse records the delegation to devmode-orchestrator, and Stop decides. They are plumbing, not extra enforcement. The PostToolUse matcher is deliberately Agent|spawn_agent only, so tool calls such as Bash never reach it and the verification gate cannot fire in this repo. Safety guardrails and the verification gate are project-level opt-ins installed by install.sh --with-guardrails.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/codex_hooks.py\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Agent|spawn_agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/codex_hooks.py\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/codex_hooks.py\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

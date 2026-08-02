@@ -16,17 +16,18 @@ graph of markdown, so knowledge **compounds** instead of being re-derived per qu
 
 ```
 <project>/
-├── README.md              ← human how-to: use + improve the wiki with Claude Code
+├── README.md              ← human how-to (or .llm-wiki/README.md on adopt)
 ├── KARPATHY.md            ← the SCHEMA: how the wiki is structured + maintained
-├── CLAUDE.md              ← imports @KARPATHY.md (so the agent reads the schema)
+├── CLAUDE.md              ← imports @KARPATHY.md for Claude Code
+├── AGENTS.md              ← tells Codex to read KARPATHY.md
 ├── raw/                   ← layer 1: immutable external sources (human drops, LLM reads)
 │   ├── sources/   assets/
 │   └── README.md
 └── wiki/                  ← layer 2: the LLM-maintained knowledge graph
     ├── index.md           ← the catalog (read first on every query)
     ├── log.md             ← append-only operation log
-    ├── overview.md        ← the global picture
-    └── entities/ concepts/ synthesis/ sources/ queries/ comparisons/   (the 7 types)
+    ├── overview.md        ← the global picture (page type 1 of 7)
+    └── entities/ concepts/ synthesis/ sources/ queries/ comparisons/   (types 2-7)
 ```
 
 ## Use it
@@ -36,6 +37,7 @@ Via the devmode command (recommended):
 ```text
 /devmode wiki start <path>     # scaffold a fresh wiki project at <path>
 /devmode wiki adopt <folder>   # add the wiki to an existing project (non-destructive)
+/devmode update wiki <folder>  # refresh a deployed wiki's schema to the current base
 ```
 
 Or directly:
@@ -43,12 +45,20 @@ Or directly:
 ```bash
 integrations/llm-wiki/install.sh /path/to/project            # fresh
 integrations/llm-wiki/install.sh /path/to/existing --adopt   # existing (audits, moves nothing)
+integrations/llm-wiki/update.sh  /path/to/wiki               # refresh schema, keep knowledge
 ```
 
-The installer is **idempotent and non-destructive** — it won't overwrite your
-files without `--force`, and `--adopt` *audits* an existing repo and proposes a
+The installer is **idempotent and non-destructive** — fresh mode refuses a
+non-empty target, and `--adopt` preserves project-owned files, stores its human
+how-to at `.llm-wiki/README.md` when a host README exists, *audits* the repo, and proposes a
 migration rather than moving anything automatically (migration is deliberate: the
 human curates, the LLM compiles).
+
+**Both hosts get activated, neither gets overwritten.** Claude Code reads an
+idempotent `@KARPATHY.md` import appended to `CLAUDE.md`; Codex has no `@import`
+syntax, so it gets the equivalent instruction in prose in `AGENTS.md`. `update.sh`
+refreshes the schema and *backfills* that Codex pointer on wikis deployed before it
+existed — never touching `wiki/` knowledge or `raw/sources/`.
 
 ## The loop, once deployed
 

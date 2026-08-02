@@ -186,10 +186,11 @@ When the answer is a UI or needs interaction, output HTML (no `<html>/<head>/
   summarizes the widget in one sentence.
 - **Host owns the frame:** transparent background, no top-level padding, no outer
   container with its own background — the card is provided for you.
-- **Scripts run after streaming completes**; a global `sendPrompt(text)` sends a
-  message to chat as if the user typed it (use for "next step needs Claude");
-  handle filtering/sorting/toggling in JS. `<a href>` and `openLink(url)` open the
-  host's link-confirmation dialog.
+- **Scripts run after streaming completes.** On Claude artifact surfaces, the
+  globals `sendPrompt(text)` and `openLink(url)` can hand work back to chat or
+  open the host's link-confirmation dialog. In Codex, use the native inline
+  visualization/artifact surface and ordinary links; call those globals only
+  after feature-detecting them. Handle filtering/sorting/toggling locally in JS.
 
 ## Two small parameters that matter
 

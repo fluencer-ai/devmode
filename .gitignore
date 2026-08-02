@@ -9,5 +9,6 @@ __pycache__/
 devmode-dashboard.html
 .devmode/scorecard.json
 .devmode/gates.json
+.codex-log/
 
 # workspaces/ is scratch — its own .gitignore whitelists only README + itself

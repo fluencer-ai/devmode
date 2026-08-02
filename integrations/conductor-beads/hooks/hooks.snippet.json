@@ -1,5 +1,5 @@
 {
-  "_comment": "devmode guardrails — merge this into .claude/settings.json (install.sh --with-guardrails does it for you). A deterministic PreToolUse gate; see hooks/guardrails.py.",
+  "_comment": "devmode gates — merge this into .claude/settings.json (install.sh --with-guardrails does it for you, and update.sh re-wires all four). These are the SAME four hooks the installer writes: hand-merging only the PreToolUse entry leaves the verify gate, the phase gate and the warm resume inert. Codex users merge hooks/codex.hooks.json into .codex/hooks.json instead.",
   "hooks": {
     "PreToolUse": [
       {
@@ -8,6 +8,34 @@
           {
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/guardrails.py\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/verify_gate.py\""
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/devmode_phase_gate.py\""
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/session_resume.py\""
           }
         ]
       }

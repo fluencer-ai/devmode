@@ -6,12 +6,14 @@ argument-hint: start <name> <idea> | adopt <folder> | update <folder>|wiki <fold
 # /devmode — guided mode
 
 **For the modes that DRIVE THE PHASE MACHINE — `start`, `adopt`, `lean <idea>`, or
-a bare idea / blank resume (Mode Start / Adopt / Lean / Resume, below) — your FIRST
-action MUST be to DELEGATE to the `devmode-orchestrator` agent via the Task tool**
-(`subagent_type: "devmode-orchestrator"`), briefing it with the current state and
-the decision at hand. Do **not** embody the phase machine inline — *spawn the
-orchestrator and relay its gate*. The orchestrator does the mechanical work and
-pauses only at the human decision gates (easy structured choices). The modes that
+a bare idea / blank resume (Mode Start / Adopt / Lean / Resume, below) — the
+phase work MUST run through the `devmode-orchestrator` agent via the Task tool**
+(`subagent_type: "devmode-orchestrator"`). For `start` and `adopt`, first complete
+their deterministic guard/scaffold/doctor steps, then delegate before ALIGN. For
+`lean <idea>`, a bare idea, or blank resume, delegation is the first action. Do
+**not** embody the phase machine inline — *spawn the orchestrator and relay its
+gate*. The orchestrator does the mechanical work and pauses only at the human
+decision gates (easy structured choices). The modes that
 **do NOT** spawn the orchestrator: **`c`, `do`, `wiki`, and `update`** run inline
 with the gates (Modes C-lite, Do, Wiki, Update, below); **`goal`/`plan`** (and
 `lean goal`/`lean plan`) *emit a ready-to-run command* (Mode Goal). None of these
@@ -28,6 +30,15 @@ dashboard can never go stale (it used to, because nothing forced the refresh).
 > `conductor/`, `.claude/`). If the session is rooted elsewhere (e.g. the devmode
 > base repo), that project's `verify_gate.py`/`guardrails.py` hooks don't load
 > (they key off `$CLAUDE_PROJECT_DIR`) and the ops-safety gates go inert.
+>
+> ⚠️ **…except the installer modes, which run from the devmode BASE repo.**
+> `start`, `adopt`, `update`, `update wiki`, `wiki start` and `wiki adopt` invoke
+> scripts under `integrations/…`, and those paths are relative to the base repo —
+> an *installed project has no `integrations/` directory at all*, so running them
+> there exits 127. Before any of those six: **confirm you're at the devmode repo
+> root** (the dir containing `integrations/conductor-beads/install.sh`). If you're
+> not, ask the user for the base path and prefix the command with it — never
+> report success from a command that failed to launch.
 
 Raw input: **$ARGUMENTS**
 
@@ -60,7 +71,7 @@ Then do `[comentário]` under that contract. Keep the user *led, not quizzed*.
 Do ONE bounded task, **routed and gated** — the single-task sibling of the full
 flow. Like `c`, it runs **inline** (do NOT spin up the orchestrator, tracks, or
 phases); unlike `c`, it adds *routing* + a short pipeline. Parse everything after
-`do` as the task. Run these steps, briefly, out loud:
+`do` as the task. Refuse a missing `<task>`. Run these steps, briefly, out loud:
 
 1. **Route.** Classify the task and name the skill lane(s) (+ an agent if it
    helps). State it in one line — `Routing: <skill(s)> [+ <agent>]`. Examples:
@@ -90,7 +101,8 @@ Keep the user *led, not quizzed*.
 Deploy a **Karpathy LLM Wiki** (the opt-in `integrations/llm-wiki/` module): a
 persistent, LLM-maintained **markdown** knowledge base — no app, no database, no
 server. It's a *knowledge* base, not the code phase machine, so it runs **inline**
-(do NOT spin up the orchestrator). The **second** token selects:
+(do NOT spin up the orchestrator). **Guard first: you must be at the devmode base
+repo** (see the installer-modes warning above). The **second** token selects:
 
 - **`wiki start <path>`** — scaffold a FRESH wiki at `<path>`:
   ```bash
@@ -102,8 +114,16 @@ server. It's a *knowledge* base, not the code phase machine, so it runs **inline
   integrations/llm-wiki/install.sh "<folder>" --adopt
   ```
 
-Then, briefly: confirm the scaffold; point the user at `README.md` (the human
-how-to) and `KARPATHY.md` (the schema that makes the agent a disciplined
+Parse everything after the subcommand as the path. Refuse a missing path. A
+fresh start must refuse an existing non-empty directory and direct the user to
+`wiki adopt`; adopt must require an existing directory. The installer activates
+the schema for both hosts without replacing project instructions: Claude Code
+gets an idempotent `@KARPATHY.md` import in `CLAUDE.md`, while Codex gets an
+idempotent explicit read instruction in `AGENTS.md`.
+
+Then, briefly: confirm the scaffold; point the user at the human how-to
+(`README.md`, or `.llm-wiki/README.md` when adopt preserved a host README) and
+`KARPATHY.md` (the schema that makes the agent a disciplined
 maintainer); and offer to **ingest** a first
 source — they drop a file in `raw/sources/`, you write a `wiki/sources/<slug>.md`
 summary and update every affected page. The 7 page types, the frontmatter spec,
@@ -114,6 +134,7 @@ read it and follow it. Keep the user *led, not quizzed*.
 Run with the **`minimal-code`** discipline (the "lazy senior dev" ladder) in the
 foreground — write only what the task needs and **never cut validation, error
 handling, security, or accessibility**. Two forms by the **second** token:
+Refuse a missing `<idea>` or `<objective>` for the selected form.
 
 - **`lean <idea>`** — drive the **full guided flow via the orchestrator** (like a
   bare idea), but brief it to keep `minimal-code` active *every* step: at ARCHITECT
@@ -137,7 +158,9 @@ Keep the user *led, not quizzed*.
 ### Mode Update — `update <folder>` | `update wiki <folder>`  (first token is `update`)  ← runs INLINE
 Refresh the devmode-MANAGED files in an existing project to the **current base**,
 without touching anything the project owns. Runs **inline** (a sync, not the phase
-machine). The **second** token selects what to update:
+machine). Refuse a missing `<folder>`. **Guard first: you must be at the devmode
+base repo** (see the installer-modes warning above). The **second** token selects
+what to update:
 
 - **`update <folder>`** — update the **devmode system** in `<folder>`:
   ```bash
@@ -147,14 +170,24 @@ machine). The **second** token selects what to update:
   orchestrator, the `/devmode` command, the hooks incl. `session_resume`, the
   `.devmode/*.py` scripts, the references, the `conductor/workflow.md` adapter +
   `INTEGRATION.md` + track templates, and `CLAUDE.devmode.md` *only if it exists*).
+  It also refreshes Codex adapters (`AGENTS.devmode.md` when used,
+  `.agents/skills/` links, `.codex/agents/`, and opted-in hooks) without
+  replacing project-owned Codex settings. `.codex/config.toml` is **merged, not
+  replaced**: only the keys devmode declares are refreshed (marked in-file by the
+  `devmode-managed` line); your own keys, tables and comments survive, and a file
+  without that marker never has a value rewritten.
   **Never touches** the project's `CLAUDE.md`, `UBIQUITOUS_LANGUAGE.md`, conductor
   product/tracks/patterns, `.devmode/scorecard.json`, the dashboard, or any code.
 - **`update wiki <folder>`** — update a deployed **LLM Wiki's schema** in `<folder>`:
   ```bash
   integrations/llm-wiki/update.sh "<folder>"
   ```
-  Refreshes only the schema/how-to docs (`KARPATHY.md`, the deployed `README.md`,
-  `raw/README.md`); **never touches** the knowledge (`wiki/` pages, `raw/sources/`).
+  Refreshes only installer-owned schema/how-to docs (`KARPATHY.md`, the deployed
+  `README.md` or `.llm-wiki/README.md`, and installer-owned `raw/README.md`), and
+  backfills the idempotent Codex pointer in `AGENTS.md` — a wiki deployed before
+  Codex support has none, leaving its schema invisible to Codex; **never touches**
+  knowledge (`wiki/` pages, `raw/sources/`, `CLAUDE.md`) and never replaces
+  host-owned docs (the `AGENTS.md` change is additive and idempotent).
 
 After running, tell the user to review with `git -C "<folder>" status` (only
 devmode-managed files should appear) and summarize what was refreshed. Keep the
@@ -165,24 +198,33 @@ Scaffold a brand-new project under `workspaces/` and begin work in it. Parse the
 **second** token as `<name>` (slugify: lowercase, spaces→`-`) and **everything
 after** as `<idea>`.
 
+Refuse missing `<name>` or `<idea>`. After slugification, require `<name>` to
+match `^[a-z0-9][a-z0-9-]*$`; reject dots, slashes, absolute paths, `..`, and any
+other value that could escape or ambiguously address `workspaces/`.
+
 1. **Guard:** confirm you're at the devmode repo root (the dir containing
    `integrations/conductor-beads/install.sh`). If not, tell the user to run it
    from the devmode repo. Refuse if `workspaces/<name>` already exists (suggest a
    new name or `/devmode` to resume).
-2. **Scaffold (copy everything in):** run the installer to copy the devmode base
+2. **Create the working repo before initializing memory:** Beads needs repository
+   context, so create the target and initialize Git before the installer runs:
+   ```bash
+   mkdir -p "workspaces/<name>"
+   git -C "workspaces/<name>" init -q
+   ```
+3. **Scaffold (copy everything in):** run the installer to copy the devmode base
    (CLAUDE.md, 42 skills, 8 agents, references), mount the Conductor layer, drop
    the orchestrator + `/devmode` command, init Beads, and **wire the deterministic
    guardrails hook**:
    ```bash
    integrations/conductor-beads/install.sh "workspaces/<name>" --beads-stealth --with-guardrails
    ```
-3. **Make it a working repo:** `git -C "workspaces/<name>" init -q` (Conductor
-   commits locally). Announce the new project path.
-3b. **Prove the memory layer is live — don't assume it** (see *Memory gate* below):
+4. **Announce the new project path**, then prove the memory layer is live — don't
+   assume it (see *Memory gate* below):
    ```bash
    python3 "workspaces/<name>/.devmode/beads_doctor.py" "workspaces/<name>"
    ```
-4. **Begin:** treat `<idea>` as the goal, enter the new project
+5. **Begin:** treat `<idea>` as the goal, enter the new project
    (`workspaces/<name>`), and start **Phase 1 (ALIGN)** — the orchestrator's
    `grill-me` interview. From here, follow the orchestrator playbook end to end.
 
@@ -192,22 +234,27 @@ after** as `<idea>`.
 ### Mode Adopt — `adopt <folder>`  (first token is `adopt`)
 Deploy devmode into an **existing** codebase and discover it (do NOT scaffold a
 blank project). Parse everything after `adopt` as `<folder>` (an absolute or
-relative path to the target repo).
+relative path to the target repo). Refuse a missing `<folder>`.
 
-1. **Guard:** confirm `<folder>` exists and looks like a code repo. If it already
-   has `conductor/` + `.claude/`, offer to refresh discovery instead of redeploy.
+1. **Guard:** confirm you're at the devmode repo root (the dir containing
+   `integrations/conductor-beads/install.sh`) — the installer path below is
+   relative to it. Then confirm `<folder>` exists and looks like a code repo. If
+   it already has `conductor/` + `.claude/`, offer to refresh discovery instead
+   of redeploy.
 2. **Deploy the base+layer in place:** run the installer against the existing
    folder (it's idempotent — won't clobber files without `--force`):
    ```bash
    integrations/conductor-beads/install.sh "<folder>" --beads-stealth --with-guardrails
    ```
-2b. **Existing `CLAUDE.md` is preserved, not rewritten.** The installer keeps the
-   project's `CLAUDE.md` byte-for-byte and only **appends one idempotent pointer**
+2b. **Existing instructions stay the host.** The installer leaves their content
+   intact and only **appends one idempotent pointer** to `CLAUDE.md`
    — `@CLAUDE.devmode.md` — so the devmode base is composed in via Claude Code's
    native import, while the project's own instructions stay the host (and take
    precedence on conflict). **Default: leave it exactly like that** — don't merge.
    Just confirm to the user that their `CLAUDE.md` is untouched apart from the
-   pointer line, and that `CLAUDE.devmode.md` holds the base. *Only if the user
+   pointer line, and that `CLAUDE.devmode.md` holds the base. Existing
+   `AGENTS.md` receives the equivalent small pointer to `AGENTS.devmode.md` for
+   Codex. *Only if the user
    explicitly wants a single flat file* should you offer to inline the import
    (merge `CLAUDE.devmode.md` in, then drop it). (`/devmode start` writes the
    `CLAUDE.md` directly — no pointer needed.)
@@ -229,11 +276,12 @@ relative path to the target repo).
    the now-understood codebase).
 
 ### Mode Goal — `goal <objective>`  (first token is `goal`)  ·  also `plan <objective>`
-Produce a ready-to-run Claude Code **`/goal`** command (≤3800 chars) that
+Produce a ready-to-run **`/goal`** command (≤3800 chars for Claude compatibility) that
 references a detailed spec — the opt-in bridge to `/goal`/`/plan` (skill:
-`goal-brief`). **devmode can't run `/goal` itself; it emits the command for you
-to run each iteration.** This mode is **only** triggered by an explicit `goal`/
+`goal-brief`). **devmode does not start `/goal` automatically; it emits the
+command for you to run each iteration.** This mode is **only** triggered by an explicit `goal`/
 `plan` token — `/goal` is never wired into the normal flow.
+Refuse a missing `<objective>`.
 
 1. **Ensure the objective doc exists** (the brief references it for the detail):
    if no spec covers `<objective>`, create one first — `grill-me` → `write-prd`
@@ -242,8 +290,10 @@ to run each iteration.** This mode is **only** triggered by an explicit `goal`/
 2. **Build + budget-check the brief** (skill: `goal-brief`):
    ```bash
    python3 .devmode/goal_brief.py scaffold conductor/tracks/<id>/spec.md \
-     --kind goal --ref conductor/tracks/<id>/spec.md --budget 3800
+     --plan conductor/tracks/<id>/plan.md --kind goal \
+     --ref conductor/tracks/<id>/spec.md --budget 3800
    ```
+   Omit `--plan` only when that track genuinely has no `plan.md` yet.
    Refine it to reference the file in detail, then guarantee the limit:
    `printf '%s' "<brief>" | python3 .devmode/goal_brief.py check --budget 3800`
    (must say `PASS`). Use `--kind plan` to emit a `/plan` brief instead (plan the
@@ -283,7 +333,7 @@ and `bd` actually answering **inside that project** (exit 0 = live, 1 = not).
   exists to prevent. (The installer already flips `beads.json` to `enabled:false`
   when the doctor fails, so the state on disk never claims memory it doesn't have.)
 
-## Then drive the phase machine (all modes)
+## Then drive the phase machine (phase-driving modes only)
 
 Delegate per phase; do mechanical work autonomously; stop only at gates:
 ALIGN (grill-me + confidence-check) → LANGUAGE (ubiquitous-language) →

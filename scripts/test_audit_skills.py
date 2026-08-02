@@ -83,14 +83,30 @@ class SubCountConsistency(unittest.TestCase):
     def test_disagreeing_process_counts_are_flagged(self):
         # the exact regression a 41→42 pass left behind: one doc never updated
         errs = self.conflicts(("README.md", "21 *process* + 18 *domain* + 3 *meta*"),
-                              ("manual.md", "### As 20 skills de processo"))
+                              ("MANUAL-PT-BR.md", "### As 20 skills de processo"))
         self.assertEqual(len(errs), 1)
         self.assertIn("process", errs[0])
 
     def test_agreeing_counts_pass(self):
         self.assertEqual(
             self.conflicts(("README.md", "21 *process* + 18 *domain* + 3 *meta*"),
-                           ("manual.md", "As 21 skills de processo e 18 de domínio")), [])
+                           ("MANUAL-PT-BR.md", "As 21 skills de processo e 18 de domínio")), [])
+
+    def test_parenthetical_heading_counts_are_collected(self):
+        # README states its sub-counts twice, in two shapes: the prose
+        # "21 *process* + 18 *domain*" AND the section heading
+        # "<b>Process skills (21)</b>". Only the digit-first shape was matched, so
+        # a stale "(20)" heading sat next to a correct "21" and audited clean.
+        errs = self.conflicts(("README.md", "<summary><b>Process skills (20)</b></summary>"),
+                              ("README.md", "21 *process* + 18 *domain* + 3 *meta*"))
+        self.assertEqual(len(errs), 1, errs)
+        self.assertIn("process", errs[0])
+
+    def test_agreeing_parenthetical_heading_passes(self):
+        self.assertEqual(
+            self.conflicts(("README.md", "<summary><b>Process skills (21)</b></summary>"),
+                           ("README.md", "<summary><b>Domain skills (18)</b></summary>"),
+                           ("README.md", "21 *process* + 18 *domain* + 3 *meta*")), [])
 
     def test_provenance_row_is_not_a_pack_subcount(self):
         # "12 domain skills came from <upstream>" counts one source's contribution,

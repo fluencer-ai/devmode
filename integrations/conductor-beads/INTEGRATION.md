@@ -61,10 +61,12 @@ conflict with the base, the base wins** (see "Frictions resolved" below).
 | 8 | `/conductor-revise` | When implementation reveals the design is wrong, fix the spec/interface — don't bend the implementation | `bd` status/dep updates |
 | 9 | `/conductor-refresh` / `/conductor-archive` | **`impact-analysis`** (blast radius) → **`improve-codebase-architecture`** to consolidate shallow modules; elevate learnings → `patterns.md` + `UBIQUITOUS_LANGUAGE.md` | `bd compact` |
 
-## Guided mode: `/devmode` (the orchestrator)
+## Guided mode: `/devmode` / `devmode` skill (the orchestrator)
 
-You don't have to run the lifecycle by hand. The **`devmode-orchestrator`** agent
-(invoked via the `/devmode` slash command) drives the entire map above for you:
+You don't have to run the lifecycle by hand. The **`devmode-orchestrator`** agent,
+invoked as `/devmode` in Claude Code and Codex Desktop (or selected as `devmode`
+through `/skills` in CLI/IDE), drives the entire map above for
+you:
 it does all the mechanical work — picking the phase, running the right
 skill/agent, the TDD loop, the review panel, bookkeeping, handoff — and pauses
 **only at the human decision gates**, which it presents as easy structured A/B/C
@@ -86,6 +88,18 @@ that matter, made easy. It's a *thin conductor*: it delegates to the deep skills
 never reimplements them (the imperative shell of the process). Definition lives in
 `agents/devmode-orchestrator.md`; the command in `commands/devmode.md`. Both are
 installed into the project's `.claude/` by `install.sh`.
+
+For Codex, `install.sh` also writes `AGENTS.md` / `AGENTS.devmode.md`,
+`.codex/agents/`, `.codex/config.toml`, and, when guardrails are requested,
+`.codex/hooks.json`. `.agents/skills/` contains relative links to the single
+physical skill copy in `.claude/skills/`, plus the Codex-only `devmode` launcher.
+Project-local Codex hooks run only after the project and hook definitions are
+trusted in Codex.
+
+The installer records written assets in `.devmode/managed-files`; the updater
+refreshes only those owned paths and preserves the `--no-skills` profile. This
+prevents same-name project skills, agents, references, and scripts from being
+mistaken for devmode-owned files.
 
 ## Frictions resolved (devmode wins where they disagree)
 
@@ -137,12 +151,20 @@ Two cheap habits keep a long-horizon track resumable:
 
 devmode's skills *persuade* via prompts; that's right for design judgment but
 soft for hard safety rules. The optional **guardrails** add deterministic
-*enforcement* that survives prompt drift — a Claude Code `PreToolUse` hook that
-blocks a small set of dangerous operations regardless of what the agent intends.
+*enforcement* that survives prompt drift — Claude Code hooks plus a Codex hook
+adapter that block a small set of dangerous operations regardless of what the
+agent intends.
 
-- **Install:** `install.sh … --with-guardrails` copies
-  [`hooks/guardrails.py`](hooks/guardrails.py) into `.claude/hooks/` and wires it
-  into `.claude/settings.json` (idempotent).
+- **Install:** `install.sh … --with-guardrails` copies **four** Claude hooks into
+  `.claude/hooks/` and wires each into `.claude/settings.json` (idempotent):
+  [`guardrails.py`](hooks/guardrails.py) on **PreToolUse**,
+  [`verify_gate.py`](hooks/verify_gate.py) and
+  [`devmode_phase_gate.py`](hooks/devmode_phase_gate.py) on **Stop**, and
+  [`session_resume.py`](hooks/session_resume.py) on **SessionStart**. It also
+  copies [`hooks/codex_hooks.py`](hooks/codex_hooks.py) (the single adapter
+  covering all four behaviors) into `.codex/hooks/` and wires `.codex/hooks.json`
+  for Codex. `update.sh` re-wires every one of them, so a project installed
+  before a gate existed gains it instead of carrying a refreshed-but-inert file.
 - **Rules** (first-match-wins, fail-open on any error):
   - **deny** — `sudo`, force-push, `--no-verify`/hook bypass, `rm -rf /`~`*`,
     writes to `.git/`, `.env*`, `.ssh/`, `*.pem`, credentials/secrets.
