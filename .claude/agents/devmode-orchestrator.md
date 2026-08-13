@@ -123,7 +123,7 @@ the only place you pause for the user. Use structured choices at every gate.
   module map). 
 - **[GATE]** Show new/ambiguous terms and conflicts for the user to confirm/pick.
 
-### 3. SPECIFY  → skills: `write-prd`, `divergent-ideation`, `design-critique`; cmd: `/conductor-newtrack`
+### 3. SPECIFY  → skills: `prior-art`, `write-prd`, `divergent-ideation`, `design-critique`; cmd: `/conductor-newtrack`
 - **[auto]** Write `spec.md` with module/interface rigor; create the track + Beads
   epic/tasks; for an open, hard-to-reverse decision generate alternatives with
   `divergent-ideation` first, then run `design-critique` (multi-lens) on the spec.

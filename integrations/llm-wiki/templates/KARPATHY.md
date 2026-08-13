@@ -43,19 +43,19 @@ direction; the LLM owns the knowledge graph.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ SCHEMA — this KARPATHY.md (+ CLAUDE.md / AGENTS.md)           │
-│   Defines how the wiki is structured and maintained.          │
+│ SCHEMA — this KARPATHY.md (+ CLAUDE.md / AGENTS.md)          │
+│   Defines how the wiki is structured and maintained.         │
 └──────────────────────────────────────────────────────────────┘
                        ▲ read at session start
 ┌──────────────────────────────────────────────────────────────┐
-│ WIKI  — wiki/  (LLM-maintained knowledge graph; human reads)  │
-│   entities · concepts · synthesis · sources · queries ·       │
-│   comparisons  +  overview.md · index.md · log.md             │
+│ WIKI  — wiki/  (LLM-maintained knowledge graph; human reads) │
+│   entities · concepts · synthesis · sources · queries ·      │
+│   comparisons  +  overview.md · index.md · log.md            │
 └──────────────────────────────────────────────────────────────┘
                        ▲ compiled from
 ┌──────────────────────────────────────────────────────────────┐
-│ RAW  — raw/sources/ (human drops, LLM reads, NOBODY edits)    │
-│   transcripts · PDFs · web clips    raw/assets/ — images      │
+│ RAW  — raw/sources/ (human drops, LLM reads, NOBODY edits)   │
+│   transcripts · PDFs · web clips    raw/assets/ — images     │
 └──────────────────────────────────────────────────────────────┘
 ```
 

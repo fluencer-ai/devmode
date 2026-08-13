@@ -81,8 +81,9 @@ Write a concise discovery doc:
   data model, integrations.
 - **Readiness read** — *can this code be safely changed?* Two qualitative signals,
   each tagged 🟢/🟡/🔴: the **test safety-net** (is there coverage you can refactor
-  *behind*, or none?) and **operational readiness** (does it build/lint/run; is
-  there CI and a deploy path?). Close with a **recommended first move** — the
+  *behind*, or none?) and **operational readiness** (does CI show it building,
+  linting and running — read the config and the last run rather than executing
+  it — and is there a deploy path?). Close with a **recommended first move** — the
   safest place to start given the risk surface (e.g. 🔴 *no tests around the money
   path* → write characterization tests *before* any change). Keep it qualitative —
   **never a 0–100 score** (devmode rejects gameable metrics; the tags carry the

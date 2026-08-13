@@ -13,14 +13,14 @@ do not replace it.
 
 ```
             ┌──────────────────────────────────────────────────────────┐
- memory     │  Beads — DAG, ready-tasks, notes survive compaction        │
- (optional) │  bd init · prime · ready · update · close · sync · dep      │
+ memory     │  Beads — DAG, ready-tasks, notes survive compaction      │
+ (optional) │  bd init · prime · ready · update · close · sync · dep   │
             └──────────────────────────────────────────────────────────┘
                               backs ▼
    ┌──────────────────────────────────────────────────────────────────┐
-   │  LAYER · Conductor — organizes & persists the work                 │
-   │  tracks · spec/plan · /conductor-* lifecycle                       │
-   │  conductor/workflow.md = task-lifecycle ADAPTER (defers to base)   │
+   │  LAYER · Conductor — organizes & persists the work               │
+   │  tracks · spec/plan · /conductor-* lifecycle                     │
+   │  conductor/workflow.md = task-lifecycle ADAPTER (defers to base) │
    └──────────────────────────────────────────────────────────────────┘
                               sits on ▼
  ┌═══════════════════════════════════════════════════════════════════════════┐
@@ -53,7 +53,7 @@ conflict with the base, the base wins** (see "Frictions resolved" below).
 |---|-----------------|--------------------------|-------|
 | 1 | `/conductor-setup` | Seed `UBIQUITOUS_LANGUAGE.md` (`ubiquitous-language`); fill `product.md`/`tech-stack.md` so feedback loops are real | `bd init` (or `--stealth`) |
 | 2 | **Before** `/conductor-newtrack` | **`grill-me`** — reach the shared design concept first. Do NOT let newtrack create an asset before alignment. | — |
-| 3 | `/conductor-newtrack` → `spec.md` | **`write-prd`** rigor: the spec's *module & interface* section is the heart; mark core/shell and gray-box/critical per `design-interface-delegate-implementation` + `functional-core-imperative-shell`. Pressure-test a high-stakes spec with **`design-critique`** before approving. | `bd create` epic + tasks; `bd dep add` for phase order (the design tree becomes a DAG) |
+| 3 | `/conductor-newtrack` → `spec.md` | **`write-prd`** rigor: the spec's *module & interface* section is the heart; mark core/shell and gray-box/critical per `design-interface-delegate-implementation` + `functional-core-imperative-shell`. Before the spec, run **`prior-art`** on any load-bearing component — if it already exists as a product or an OSS project, that changes what the spec says. Pressure-test a high-stakes spec with **`design-critique`** before approving. | `bd create` epic + tasks; `bd dep add` for phase order (the design tree becomes a DAG) |
 | 4 | → `plan.md` | Tasks fall out of the spec's modules; phase 1 = functional core, phase 2 = shell, critical paths flagged | tasks mapped in `metadata.json` |
 | 5 | `/conductor-implement` | **`confidence-check`** pre-flight → **`tdd`** + **`testing-principles`** + **`feedback-loops`** per `workflow.md`; delegate gray-box implementations (**`subagent-driven-development`** / **`delegate-to-cli`**); **`systematic-debugging`** when a test fails; **`verification-before-completion`** before any "done" | `bd prime`, `bd ready`, `bd update`/`close --continue`, `discovered-from` |
 | 6 | phase verification | **`feedback-loops`** (browser/types) + the **review panel** (`complexity-reviewer` leads; `code-quality-analyzer` / `security-scanner` / `test-coverage-analyzer` in parallel); record ADRs in `decisions.md` | epic notes (COMPLETED/IN PROGRESS/NEXT/KEY DECISIONS) + `bd sync` |
@@ -76,7 +76,7 @@ choices with a recommendation.
 /devmode "build a coupon redemption endpoint"
   → ALIGN     (grill-me)        [GATE: confirm the design concept]
   → LANGUAGE  (ubiquitous-language)
-  → SPECIFY   (write-prd + divergent-ideation + design-critique) [GATE: resolve trade-offs, approve spec]
+  → SPECIFY   (prior-art + write-prd + divergent-ideation + design-critique) [GATE: resolve trade-offs, approve spec]
   → ARCHITECT (FCIS / boundaries / interfaces) [GATE: approve interfaces]
   → IMPLEMENT (tdd / feedback-loops / debugging) [GATE: "look at it run"]
   → REVIEW    (code-review panel)  [GATE: okay the merge] → verify
