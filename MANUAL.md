@@ -40,7 +40,7 @@ Inside `devmode/` there are four kinds of piece:
 
 | Piece | What it is | Where it lives |
 |------|---------|-----------|
-| **42 skills** | 21 *process* + 18 *domain* + 3 *meta* (`self-scorecard`, `discovery`, `goal-brief`) | `skills/<name>/SKILL.md` |
+| **43 skills** | 22 *process* + 18 *domain* + 3 *meta* (`self-scorecard`, `discovery`, `goal-brief`) | `skills/<name>/SKILL.md` |
 | **8 agents** | Subagents that embody the roles in the process (including the review panel) | `.agents/*.md` |
 | **2 references** | Theoretical foundations and a diagnostic guide | `references/*.md` |
 | **templates + script** | Templates (PRD, glossary) + the pack auditor (`scripts/audit_skills.py`) | `skills/*/assets/`, `scripts/` |
@@ -49,12 +49,13 @@ And [`CLAUDE.md`](CLAUDE.md) ties it all together: it is the manifesto + the
 workflow table. Several skills were **adapted** from MIT projects — credits in
 [`ATTRIBUTION.md`](ATTRIBUTION.md).
 
-### The 21 process skills, grouped by phase
+### The 22 process skills, grouped by phase
 
 ```
 1. ALIGN        grill-me ............... shared design concept (+ fault taxonomy, A/B/C options)
 2. LANGUAGE     ubiquitous-language .... one vocabulary + module map (+ a why per dependency)
 3. SPECIFY      write-prd .............. a PRD explicit about modules and interfaces
+                prior-art .............. does it already exist? buy / adopt / build
                 divergent-ideation ..... generate a wide candidate set before choosing
                 design-critique ........ review the design/PRD through several lenses before coding
 4. ARCHITECT    functional-core-imperative-shell . separate pure logic from I/O (module level)
@@ -409,7 +410,7 @@ links to it. The Claude configuration stays intact.
 At **every phase**, the orchestrator shows a **score** (the `self-scorecard` skill): a summary of what was done + a 0–10 mark on 5 criteria (Correctness, Design, Testing, Safety, Clarity) with deltas (`.devmode/scorecard.py`), and it refreshes a **visual dashboard** (`.devmode/dashboard.py` → `devmode-dashboard.html`, no server, no registration). The dashboard carries a **KPI strip**, a **workflow pipeline** (the Align→Refactor phases, reached/current), a **per-phase timeline**, a **sparkline** of the score trend, and a **Gates panel** fed by `.devmode/gates.json` (emitted by a `ci/check.sh`). At the end, `--final` gives **per-criterion recommendations**. The dashboard is **zero-setup,
 no server and no registration** — just open `devmode-dashboard.html`.
 
-The 42 skills and 8 agents are the **tool-agnostic base** — they work on their
+The 43 skills and 8 agents are the **tool-agnostic base** — they work on their
 own. But when the work spans many sessions, devmode lacks a spine for
 **orchestration** (tracks, status, dependencies) and for **persistent memory**
 (one that survives conversation compaction). That is where the integration comes in:

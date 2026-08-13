@@ -27,13 +27,13 @@ do not replace it.
  ║ BASE · devmode — how we think, design, and test (source of truth)         ║
  ║                                                                           ║
  ║ grill-me · ubiquitous-language · write-prd ·                              ║
- ║ divergent-ideation · design-critique ·                                    ║
+ ║ prior-art · divergent-ideation · design-critique ·                        ║
  ║ functional-core-imperative-shell · architecture-boundaries ·              ║
  ║ design-interface-delegate-implementation · design-patterns ·              ║
  ║ feedback-loops · tdd · testing-principles · confidence-check ·            ║
  ║ impact-analysis · systematic-debugging · verification-before-completion · ║
  ║ subagent-driven-development · delegate-to-cli ·                           ║
- ║ improve-codebase-architecture · authoring-skills · …  (42 skills total)   ║
+ ║ improve-codebase-architecture · authoring-skills · …  (43 skills total)   ║
  ║                                                                           ║
  ║ + 8 agents: design-architect · requirements-planner · tdd-implementer ·   ║
  ║ architecture-refactorer · complexity-reviewer + review panel              ║

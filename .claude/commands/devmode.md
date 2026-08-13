@@ -213,7 +213,7 @@ other value that could escape or ambiguously address `workspaces/`.
    git -C "workspaces/<name>" init -q
    ```
 3. **Scaffold (copy everything in):** run the installer to copy the devmode base
-   (CLAUDE.md, 42 skills, 8 agents, references), mount the Conductor layer, drop
+   (CLAUDE.md, 43 skills, 8 agents, references), mount the Conductor layer, drop
    the orchestrator + `/devmode` command, init Beads, and **wire the deterministic
    guardrails hook**:
    ```bash
@@ -337,7 +337,7 @@ and `bd` actually answering **inside that project** (exit 0 = live, 1 = not).
 
 Delegate per phase; do mechanical work autonomously; stop only at gates:
 ALIGN (grill-me + confidence-check) → LANGUAGE (ubiquitous-language) →
-SPECIFY (write-prd + divergent-ideation + design-critique, /conductor-newtrack) → ARCHITECT
+SPECIFY (prior-art + write-prd + divergent-ideation + design-critique, /conductor-newtrack) → ARCHITECT
 (FCIS / boundaries / interfaces) → IMPLEMENT (/conductor-implement: tdd,
 testing-principles, feedback-loops, systematic-debugging) → REVIEW (code-review
 panel) → REFACTOR (impact-analysis → improve-codebase-architecture) as needed.

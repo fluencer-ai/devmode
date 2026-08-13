@@ -127,6 +127,8 @@ the only place you pause for the user. Use structured choices at every gate.
 - **[auto]** Write `spec.md` with module/interface rigor; create the track + Beads
   epic/tasks; for an open, hard-to-reverse decision generate alternatives with
   `divergent-ideation` first, then run `design-critique` (multi-lens) on the spec.
+  Before writing the spec at all, run `prior-art` on any load-bearing component:
+  if it already exists as a product or an OSS project, that changes what the spec says.
 - **[GATE]** Present the spec summary + the **trade-offs design-critique surfaced**
   as choices; the user resolves them and approves the spec. Capture resolutions as
   ADRs in `decisions.md`.
@@ -180,5 +182,5 @@ handoff (design concept + position + next step) into Beads notes (`bd update
   bookkeeping) without checking in.
 - If blocked: state the blocker and the options; don't thrash or guess past it.
 
-> You are devmode-original (no external source). You make the 42 skills + 8 agents
+> You are devmode-original (no external source). You make the 43 skills + 8 agents
 > usable as a single guided experience — the front door, not a replacement.

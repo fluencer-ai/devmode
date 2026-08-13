@@ -4,13 +4,13 @@
 > *"Code is not cheap. Bad code is the most expensive it has ever been."*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-![Skills](https://img.shields.io/badge/skills-42-blue.svg)
+![Skills](https://img.shields.io/badge/skills-43-blue.svg)
 ![Agents](https://img.shields.io/badge/agents-8-blue.svg)
 ![Hosts](https://img.shields.io/badge/hosts-Claude_Code_%2B_Codex-blue.svg)
 ![Dependencies](https://img.shields.io/badge/runtime_deps-none-lightgrey.svg)
 
 devmode is a complete, **tool-agnostic software development process** packaged as
-42 skills, 8 subagents, deterministic guardrail hooks, a self-scoring system, and
+43 skills, 8 subagents, deterministic guardrail hooks, a self-scoring system, and
 a zero-setup visual dashboard — built for working *with* AI coding agents without
 letting the codebase rot. It runs on **Claude Code and Codex** off the same
 sources: one physical copy of the pack, two discovery surfaces.
@@ -28,7 +28,7 @@ sources: one physical copy of the pack, two discovery surfaces.
 - [Quick start](#quick-start)
 - [Hosts: Claude Code and Codex](#hosts-claude-code-and-codex)
 - [The workflow (a loop, not a march)](#the-workflow-a-loop-not-a-march)
-- [The 42 skills](#the-42-skills)
+- [The 43 skills](#the-43-skills)
 - [The 8 agents](#the-8-agents)
 - [Self-evaluation: scorecard & dashboard](#self-evaluation-scorecard--dashboard)
 - [Enforcement: gates that bite](#enforcement-gates-that-bite)
@@ -76,7 +76,7 @@ direction.**
 
 | Piece | What it is | Where |
 |---|---|---|
-| **42 skills** | 21 *process* + 18 *domain* + 3 *meta* skills — each a focused, trigger-described practice | [`skills/`](skills/) |
+| **43 skills** | 22 *process* + 18 *domain* + 3 *meta* skills — each a focused, trigger-described practice | [`skills/`](skills/) |
 | **8 agents** | Subagent role definitions, including a parallel 4-lane review panel | [`.agents/`](.agents/) |
 | **Scripts** | Pack auditor, self-scorecard, HTML dashboard, `/goal` budget checker | [`scripts/`](scripts/) |
 | **Guardrail hooks** | Deterministic PreToolUse + Stop gates + a SessionStart warm-resume (Python, stdlib only) | [`integrations/conductor-beads/hooks/`](integrations/conductor-beads/hooks/) |
@@ -97,7 +97,7 @@ Modern AI engineering stacks four layers, each wrapping the one beneath —
 
 | Layer (wraps the one below) | What it is | In devmode |
 |---|---|---|
-| **Prompt** | the instruction the model acts on | the 42 trigger-described `skills/*/SKILL.md`, audited by `scripts/audit_skills.py` |
+| **Prompt** | the instruction the model acts on | the 43 trigger-described `skills/*/SKILL.md`, audited by `scripts/audit_skills.py` |
 | **Context** | what the model sees, across turns | `ubiquitous-language` + Conductor/Beads memory + `session_resume.py` + `discovery` |
 | **Harness** | the environment around the model | the 8 agents in `.agents/` + deterministic hooks + `feedback-loops` |
 | **Loop** | the multi-run cycle that drives it to done | the `devmode-orchestrator` + `self-scorecard` over `scorecard.py`/`dashboard.py` state |
@@ -215,7 +215,7 @@ second copy of the method:
 | Piece | Claude Code | Codex |
 |---|---|---|
 | Durable instructions | [`CLAUDE.md`](CLAUDE.md) | [`AGENTS.md`](AGENTS.md) (or an additive `AGENTS.devmode.md` pointer) |
-| The 42 skills | `.claude/skills/` — the single physical copy | [`.agents/skills/`](.agents/skills/) — relative links to that same copy |
+| The 43 skills | `.claude/skills/` — the single physical copy | [`.agents/skills/`](.agents/skills/) — relative links to that same copy |
 | Role agents | `.claude/agents/` | [`.codex/agents/*.toml`](.codex/agents/) — the same 8 roles as Codex custom agents |
 | Guided front door | the `/devmode` slash command | the repo-shared `devmode` skill + its launcher metadata (`agents/openai.yaml`) |
 | Deterministic gates | hooks wired in `.claude/settings.json` | [`.codex/hooks.json`](.codex/hooks.json) → `.codex/hooks/codex_hooks.py` |
@@ -242,7 +242,7 @@ skip straight to TDD — the order is the spine, not a bureaucracy.
 |---|---|---|
 | **1. Align** | `grill-me` | A shared design concept, reached by relentless interview *before any asset exists* |
 | **2. Language** | `ubiquitous-language` | A glossary + module map shared by you, the AI, and the code |
-| **3. Specify** | `write-prd` · `divergent-ideation` · `design-critique` | A PRD explicit about which modules/interfaces change — alternatives generated, then pressure-tested through expert lenses |
+| **3. Specify** | `prior-art` · `write-prd` · `divergent-ideation` · `design-critique` | A PRD explicit about which modules/interfaces change — alternatives generated, then pressure-tested through expert lenses |
 | **4. Architect** | `functional-core-imperative-shell` · `architecture-boundaries` · `design-interface-delegate-implementation` · `design-patterns` | Pure logic isolated from I/O; interfaces you design, implementations you delegate |
 | **5. Implement** | `confidence-check` · `feedback-loops` · `tdd` · `testing-principles` · `subagent-driven-development` · `delegate-to-cli` · `systematic-debugging` · `verification-before-completion` · `code-review` | Small test-first steps, tight feedback, root-cause discipline, evidence before "done", independent review |
 | **6. Refactor** | `impact-analysis` · `improve-codebase-architecture` | Blast radius mapped before changing; shallow modules consolidated into deep ones |
@@ -254,7 +254,7 @@ only the affected delta, and record the re-entry as its own scored phase
 (`Re-specify`). The dashboard badges these loop-backs (`↩ re-entry`) so they're
 visible in the trend, not hidden.
 
-## The 42 skills
+## The 43 skills
 
 Each skill is a `SKILL.md` with a trigger-rich description (when to fire) and a
 compact, operational body. The pack is audited by
@@ -263,13 +263,14 @@ line budgets, link integrity, mirror drift, description-overlap (Jaccard), and
 trigger lint.
 
 <details>
-<summary><b>Process skills (21)</b> — the spine: how to think and build</summary>
+<summary><b>Process skills (22)</b> — the spine: how to think and build</summary>
 
 | Skill | One line |
 |---|---|
 | [`grill-me`](skills/grill-me/SKILL.md) | Relentless requirements interview until a shared design concept exists |
 | [`ubiquitous-language`](skills/ubiquitous-language/SKILL.md) | Glossary + module map; boundaries are part of the language |
 | [`write-prd`](skills/write-prd/SKILL.md) | PRDs explicit about modules, interfaces, tests, and acceptance criteria |
+| [`prior-art`](skills/prior-art/SKILL.md) | Does it already exist? buy/adopt/build judged on fit not stars, priced at three horizons |
 | [`divergent-ideation`](skills/divergent-ideation/SKILL.md) | Generate a wide candidate set for an open decision before choosing — the generative counterpart to design-critique |
 | [`design-critique`](skills/design-critique/SKILL.md) | Pressure-test a design/PRD through several expert lenses before building |
 | [`functional-core-imperative-shell`](skills/functional-core-imperative-shell/SKILL.md) | Pure decisions separated from I/O — the foundation of testability |
@@ -415,7 +416,7 @@ devmode/
 ├── MANUAL-PT-BR.md              # the full usage manual (Portuguese)
 ├── ATTRIBUTION.md               # per-artifact third-party credits
 ├── LICENSE                      # MIT
-├── skills/                      # 42 skills (each: SKILL.md + optional assets/)
+├── skills/                      # 43 skills (each: SKILL.md + optional assets/)
 ├── .agents/                     # 8 subagent definitions + Codex repo-skill exposure
 ├── .claude/                     # mirrors (commands/agents) so /devmode works here too
 ├── .codex/                      # Codex config, custom-agent adapters, and hook adapter
@@ -493,12 +494,14 @@ projects. Full per-artifact mapping with licenses:
 | [microsoft/SkillOpt](https://github.com/microsoft/SkillOpt) | `authoring-skills` — editing is not just adding (re-run a scenario the skill already handled; try an unseen case) + consolidate, don't just patch | MIT |
 | [clawnify/greybeard](https://github.com/clawnify/greybeard) | 9 senior-judgment maxims across `source-of-truth`, `impact-analysis`, `ubiquitous-language`, `grill-me` (disagree out loud), `minimal-code` (the surgical rule), `confidence-check`, `verification-before-completion`, `context-engineering`, `systematic-debugging` | MIT |
 | [UditAkhourii/adhd](https://github.com/UditAkhourii/adhd) | the **`divergent-ideation`** skill — generate a wide candidate set for an open decision before choosing (concept only; none of its library/CLI or 0–10 scoring) | MIT |
+| [AaravKashyap12/advise-project-approach](https://github.com/AaravKashyap12/advise-project-approach) | the **`prior-art`** skill — does it already exist? (buy/adopt/build), fit-over-stars comparable bias controls, cost at three horizons, and the "when this becomes wrong" trade-off (also sharpened `design-critique` + `minimal-code`) | MIT |
+| [UditAkhourii/neuroarxiv](https://github.com/UditAkhourii/neuroarxiv) | `prior-art`'s escalation rung — when nothing shipped exists, read the research literature: a 3-question cost gate, one isolated reader per paper, converge on ONE path with citations | MIT |
 
 devmode and [mattpocock/skills](https://github.com/mattpocock/skills) are
 **siblings**: both were distilled from the thesis in Matt Pocock's *"Claude Code
 for real engineers"* talk — that AI is a brilliant tactician with no strategy, so
 *you* must supply it. devmode generalized that thesis into a tool-agnostic process
-(42 skills, agents, enforced gates, scorecard/dashboard) combined with the
+(43 skills, agents, enforced gates, scorecard/dashboard) combined with the
 reading list above.
 
 ## Author

@@ -60,7 +60,11 @@ design — pick the ones that matter and say why the others don't.
 4. **Let the human decide the trade-offs.** Present the tensions as choices, with
    the consequence of each side. Trade-off resolution is the human's call.
 5. **Produce a short verdict:** proceed / proceed-with-changes / rethink, plus the
-   2–3 concrete changes or open questions that matter most.
+   2–3 concrete changes or open questions that matter most — and for the decision
+   you're endorsing, **name the condition that would make it wrong** (a user
+   count, a price tier, a compliance need, a latency budget). A verdict with no
+   stated invalidation condition can never be revisited on evidence; it just
+   quietly ages.
 
 ## Keep it honest
 

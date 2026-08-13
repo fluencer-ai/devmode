@@ -31,6 +31,9 @@ Stop at the first rung that holds — it's a reflex, not a research project:
 2. **Does this repo already do it?** *Search first* — grep for an existing helper,
    pattern, or utility before writing a new one. Reuse the codebase's own solution;
    don't re-solve a solved problem (and don't fork a second way to do one thing).
+   For anything load-bearing, point the same question *outward* before designing
+   it: does a product or an open-source project already do this?
+   ([`prior-art`](../prior-art/SKILL.md) — the ladder's outermost rung.)
 3. **Stdlib does it?** Use it.
 4. **Native platform feature covers it?** `<input type="date">` over a picker lib,
    CSS over JS, a DB constraint over app code.

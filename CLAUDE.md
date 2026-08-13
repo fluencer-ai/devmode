@@ -49,6 +49,7 @@ the affected phases for the delta. Record the re-entry as its own scored phase
 |-------|-------|-------------------|
 | 1. Align | [`grill-me`](skills/grill-me/SKILL.md) | A shared design concept, reached by relentless interview before any asset exists |
 | 2. Language | [`ubiquitous-language`](skills/ubiquitous-language/SKILL.md) | A glossary of domain terms shared by you, the AI, and the code |
+| 3. Specify | [`prior-art`](skills/prior-art/SKILL.md) | Whether it already exists — buy / adopt / build, judged on fit and cost, *before* the PRD |
 | 3. Specify | [`write-prd`](skills/write-prd/SKILL.md) | A PRD that is explicit about which modules and interfaces change |
 | 3. Specify | [`divergent-ideation`](skills/divergent-ideation/SKILL.md) | A wide candidate set for an open, hard-to-reverse decision — generated *before* choosing |
 | 3. Specify | [`design-critique`](skills/design-critique/SKILL.md) | Pressure-test the design/PRD through several expert lenses before building |
