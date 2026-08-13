@@ -23,6 +23,22 @@ a **confidence tag** so the human knows what's solid vs. assumed.
 🟡 **inferred** (likely, from naming/structure), 🔴 **gap** (unknown — needs the
 human). The 🔴s become the targets for the [`grill-me`](../grill-me/SKILL.md) gate.
 
+## Reading a repo is not permission to run it
+
+Discovery is **read-only by default** — and this matters most exactly where it's
+used: pointed at somebody else's codebase. "Review this repo" authorises reading
+files, listing the tree, and reading existing CI results. It does **not**
+authorise installing dependencies or executing the project's tests, builds,
+linters, benchmarks, migrations, generators, or scripts. Running an unfamiliar
+repo's own commands executes *its* code on your machine — a postinstall hook and
+a test fixture are arbitrary code — so **ask before running any of it**, even
+when the command looks routine.
+
+Two more boundaries while you read: never print or summarise the contents of
+secret files (`.env*`, keys, `credentials.*`, token stores, prod dumps) — report
+only that they exist and flag the handling; and prefer discovery commands that
+skip dependency folders, build output, and VCS metadata.
+
 ## The four passes
 
 ### 1. Scout — the surface
@@ -72,6 +88,12 @@ Write a concise discovery doc:
   **never a 0–100 score** (devmode rejects gameable metrics; the tags carry the
   honesty a number would launder away).
 - **Risks & gaps** — tech debt, the 🔴 unknowns, and anything surprising.
+- **Inspection scope note** — how much of the repo this reading actually covered:
+  what you **mapped**, what you **read deeply**, what you only **sampled**, and
+  what you **deliberately skipped**. On a large repo a discovery is always
+  partial; saying which parts are partial is the difference between a map and a
+  map that lies. Skipping something on purpose is fine — skipping it silently
+  turns "not observed" into "absent" for whoever reads this next.
 
 ## How it feeds devmode
 
