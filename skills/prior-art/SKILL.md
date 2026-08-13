@@ -126,6 +126,15 @@ your running conversation or your leaning, so they can't echo each other
 failure modes the literature already documents. A pile of summaries is not an
 answer.
 
+**Harvest the rejected options before you drop them.** A candidate you didn't
+pick still tells you two things worth keeping: the **failure mode it documents**
+(a pitfall named by an option you rejected will still bite you on the path you
+chose — collect the warnings from *all* of them, not just the winner's), and
+**why it lost** — one honest sentence per runner-up on the trade-off that
+decided it. That sentence is what lets someone switch paths later on purpose
+instead of re-running the whole search. Rejecting an option is not the same as
+learning nothing from it.
+
 ## 6. Recommend — build, adopt, or buy
 
 End with a single recommendation and the trade-off stated bluntly:
