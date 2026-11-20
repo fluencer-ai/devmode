@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# devmode global installer. See scripts/devmode_setup.py for flags, or run ./setup --help.
+set -euo pipefail
+exec python3 "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/scripts/devmode_setup.py" "$@"
