@@ -39,7 +39,7 @@ Review the pending change against these questions:
 
 - **Do the tests pin behavior at a stable boundary?** Or are they bound to
   internals (brittle), over-mocked (green over broken code), or missing the
-  edges and invariants? Apply skills/testing-principles.
+  edges and invariants? Apply skills/tdd/testing-principles.md.
 
 - **Is there entropy debris?** Dead code, compatibility shims, commented-out
   husks, premature abstraction, or features built for hypothetical futures.

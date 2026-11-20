@@ -25,7 +25,7 @@ Repeat one behavior at a time so any failure is trivial to localize. Never emit
 a large batch of untested code and verify later — that's outrunning your
 headlights.
 
-Make good testing decisions (skills/testing-principles):
+Make good testing decisions (skills/tdd/testing-principles.md):
 
 - Test at the **deepest stable interface**, not every private helper. Assert
   observable behavior, not implementation.

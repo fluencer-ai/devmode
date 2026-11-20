@@ -128,7 +128,7 @@ plus your global `memories.jsonl`) and links devmode into each host it finds:
 | Mode | Claude Code (`~/.claude/`) | Codex · Antigravity · Cursor |
 |---|---|---|
 | **lean** (default) | `/devmode` command + `devmode-orchestrator` agent + every leaf skill, hidden | the `devmode` router skill only |
-| **full** (`--full`) | lean + the 7 role agents | every skill linked |
+| **full** (`--full`) | lean + the 8 role agents | every skill linked |
 
 It only ever creates links into the repo, never overwrites a file or a link that
 is not its own, and remembers the mode per host. `--dry-run` shows the plan,
