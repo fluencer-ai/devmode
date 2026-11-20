@@ -11,7 +11,8 @@
 #                    .claude/skills + agents, .agents/skills, .codex/agents,
 #                    references, UBIQUITOUS_LANGUAGE.md
 #   LAYER (conductor): conductor/ context + per-track templates + workflow adapter
-#   MEMORY (beads):  optional `bd init`
+#   MEMORY (beads):  optional `bd init`; .beads/memories.jsonl is always created
+#                    (the orchestrator's durable memory, see .devmode/memory.py)
 #
 # Idempotent: existing files are left alone unless you pass --force.
 #
@@ -21,6 +22,10 @@
 # Options:
 #   --no-skills          Don't copy devmode skills/agents/references (rely on a
 #                        global devmode install). The base CLAUDE.md is still written.
+#   --codex-full         Also link every devmode skill into .agents/skills/ for
+#                        Codex. Default is lean: Codex lists only the devmode
+#                        launcher, which reads each skill by path when a phase
+#                        needs it (Codex lists every linked description per turn).
 #   --with-conductor     Clone upstream Conductor-Beads and copy its slash commands
 #                        + conductor/beads skills (skip if installed globally).
 #   --with-guardrails    Install the deterministic PreToolUse guardrail hook and
@@ -51,11 +56,12 @@ usage() { awk 'NR>1 && /^set -euo pipefail$/{exit} NR>1{sub(/^# ?/, ""); print}'
 
 # --- parse args --------------------------------------------------------------
 PROJECT_DIR=""
-WITH_SKILLS=1; WITH_CONDUCTOR=0; BEADS=0; BEADS_STEALTH=0; FORCE=0; GUARDRAILS=0
+WITH_SKILLS=1; CODEX_FULL=0; WITH_CONDUCTOR=0; BEADS=0; BEADS_STEALTH=0; FORCE=0; GUARDRAILS=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --no-skills)      WITH_SKILLS=0 ;;
     --with-conductor) WITH_CONDUCTOR=1 ;;
+    --codex-full)     CODEX_FULL=1 ;;
     --with-guardrails) GUARDRAILS=1 ;;
     --beads)          BEADS=1 ;;
     --beads-stealth)  BEADS_STEALTH=1 ;;
@@ -279,10 +285,19 @@ copy_template "$TEMPLATES_DIR/UBIQUITOUS_LANGUAGE.md" "$PROJECT_DIR/UBIQUITOUS_L
 
 # 1b2. devmode tooling the project runs itself: scorecard + dashboard (→ .devmode/)
 mkdir -p "$PROJECT_DIR/.devmode"
-for script in scorecard.py dashboard.py goal_brief.py beads_doctor.py; do
+for script in scorecard.py dashboard.py goal_brief.py beads_doctor.py memory.py; do
   copy_template "$DEVMODE_ROOT/scripts/$script" "$PROJECT_DIR/.devmode/$script"
 done
 ok "installed devmode tooling → .devmode/"
+# The orchestrator's durable memory: append-only, always present with the layer.
+python3 "$PROJECT_DIR/.devmode/memory.py" init --root "$PROJECT_DIR" >/dev/null
+ok "memory ready → .beads/memories.jsonl (global: ~/.devmode/memories.jsonl)"
+# Codex skill mode survives updates: lean unless --codex-full was ever chosen.
+if [ "$CODEX_FULL" -eq 1 ]; then
+  printf 'full\n' > "$PROJECT_DIR/.devmode/codex-skills"
+elif grep -qx full "$PROJECT_DIR/.devmode/codex-skills" 2>/dev/null; then
+  CODEX_FULL=1
+fi
 
 # 1c. devmode skills + agents + references (the base process itself).
 if [ "$WITH_SKILLS" -eq 1 ]; then
@@ -292,10 +307,14 @@ if [ "$WITH_SKILLS" -eq 1 ]; then
   for skill_dir in "$DEVMODE_ROOT"/skills/*; do
     [ -d "$skill_dir" ] || continue
     copy_tree "$skill_dir" "$PROJECT_DIR/.claude/skills/$(basename "$skill_dir")"
-    link_codex_skill "$(basename "$skill_dir")"
+    if [ "$CODEX_FULL" -eq 1 ]; then link_codex_skill "$(basename "$skill_dir")"; fi
   done
   ok "installed $(find "$DEVMODE_ROOT/skills" -name SKILL.md | wc -l | tr -d ' ') devmode skills → .claude/skills/"
-  ok "linked base skills into .agents/skills/ (single physical copy)"
+  if [ "$CODEX_FULL" -eq 1 ]; then
+    ok "linked base skills into .agents/skills/ (single physical copy)"
+  else
+    ok "Codex stays lean: only the devmode launcher is listed (pass --codex-full to link every skill)"
+  fi
   # The agents are load-bearing (review panel + orchestrator). A silent copy
   # failure would leave a project that looks installed but can delegate nothing.
   for agent in "$DEVMODE_ROOT"/.agents/*.md; do
@@ -372,8 +391,10 @@ if [ "$WITH_CONDUCTOR" -eq 1 ]; then
       [ -d "$tmp/cb/.claude/skills/$skill_name" ] || continue
       copy_tree "$tmp/cb/.claude/skills/$skill_name" "$PROJECT_DIR/.claude/skills/$skill_name"
     done
-    link_codex_skill "conductor"
-    link_codex_skill "beads"
+    if [ "$CODEX_FULL" -eq 1 ]; then
+      link_codex_skill "conductor"
+      link_codex_skill "beads"
+    fi
     ok "installed Conductor commands + conductor/beads skills without replacing host assets"
     warn "keep OUR conductor/workflow.md (the devmode-base adapter), not upstream's."
   else

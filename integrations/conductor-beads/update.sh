@@ -3,8 +3,9 @@
 # devmode update — refresh the devmode-MANAGED files in an existing project to the
 # current base, WITHOUT touching anything the project owns.
 #
-# Overwrites (devmode-owned, versioned in the base): .claude/skills/,
-# .agents/skills/ base skills, the role agents + the orchestrator, Codex agent
+# Overwrites (devmode-owned, versioned in the base): .claude/skills/ (and removes
+# managed copies of skills v2 fused away), the .agents/skills/ launcher (plus
+# every skill link only when .devmode/codex-skills says full), the role agents + the orchestrator, Codex agent
 # adapters, the /devmode command, the hooks, the .devmode scripts
 # (scorecard/dashboard/goal_brief), the references, the conductor workflow
 # adapter + INTEGRATION.md + per-track templates, and CLAUDE.devmode.md /
@@ -14,7 +15,8 @@
 #
 # NEVER touches (project-owned): CLAUDE.md, UBIQUITOUS_LANGUAGE.md, conductor
 # product/tech-stack/tracks/patterns/beads.json, your tracks/specs/code,
-# .devmode/scorecard.json + gates.json, devmode-dashboard.html, user-added skills.
+# .devmode/scorecard.json + gates.json, .beads/memories.jsonl, devmode-dashboard.html,
+# user-added skills.
 #
 # Usage:  ./update.sh <project-dir>
 #
@@ -222,6 +224,22 @@ replace_codex_skill_link() {
   mark_managed "$rel"
 }
 
+# Lean Codex lists only the launcher. Drop what devmode itself put in
+# .agents/skills (our link, or an exact legacy copy); keep anything else.
+drop_codex_skill_link() {
+  local skill_name="$1"
+  local source="$P/.claude/skills/$skill_name"
+  local destination="$P/.agents/skills/$skill_name"
+
+  if [ -L "$destination" ]; then
+    [ "$(readlink "$destination")" = "../../.claude/skills/$skill_name" ] && rm -f -- "$destination"
+  elif [ -d "$destination" ] && [ -d "$source" ] && \
+       diff -qr "$source" "$destination" >/dev/null 2>&1; then
+    rm -rf -- "$destination"
+  fi
+  return 0
+}
+
 usage() {
   cat <<'USAGE'
 Usage: update.sh <project-dir>
@@ -372,26 +390,56 @@ if [ "$WITH_SKILLS" -eq 1 ]; then
 else
   ok "skills → global-install profile preserved (--no-skills)"
 fi
+# v2 fused these skills into others (their rules live on as sibling files). A
+# managed copy is removed; a project-owned same-name skill is kept.
+for retired in architecture-boundaries divergent-ideation testing-principles confidence-check \
+               browser-testing delegate-to-cli ux-design accessibility ci-cd-automation \
+               doc-contracts source-of-truth; do
+  if [ -L "$P/.agents/skills/$retired" ] && \
+     [ "$(readlink "$P/.agents/skills/$retired")" = "../../.claude/skills/$retired" ]; then
+    rm -f -- "$P/.agents/skills/$retired"
+  fi
+  [ -d "$P/.claude/skills/$retired" ] || continue
+  if is_managed ".claude/skills/$retired/"; then
+    rm -rf -- "$P/.claude/skills/$retired"
+    ok "retired skill removed: $retired (fused into another skill in v2)"
+  else
+    warn "kept project-owned .claude/skills/$retired/ (devmode v2 no longer ships it)"
+  fi
+done
+# Codex lists every linked skill description on every turn, so the default is
+# lean: only the devmode launcher, which reads each skill by path. A project that
+# chose --codex-full keeps every link.
+CODEX_FULL=0
+grep -qx full "$P/.devmode/codex-skills" 2>/dev/null && CODEX_FULL=1
 mkdir -p "$P/.agents/skills"
+codex_targets=""
 if [ "$WITH_SKILLS" -eq 1 ]; then
   for skill_dir in "$DEVMODE_ROOT"/skills/*; do
-    [ -d "$skill_dir" ] || continue
-    replace_codex_skill_link "$(basename "$skill_dir")" || true
+    [ -d "$skill_dir" ] && codex_targets="$codex_targets $(basename "$skill_dir")"
   done
 fi
 # The `--with-conductor` skills are cloned from upstream into .claude/skills/,
-# not carried in the base's skills/ — so the loop above can never reach them.
-# Without this, a project whose links predate the symlink scheme loses Codex
-# access to conductor + beads permanently while Claude keeps both.
+# not carried in the base's skills/ — so the loop over skills/ can never reach them.
 for upstream_skill in conductor beads; do
-  [ -d "$P/.claude/skills/$upstream_skill" ] || continue
-  replace_codex_skill_link "$upstream_skill" || true
+  [ -d "$P/.claude/skills/$upstream_skill" ] && codex_targets="$codex_targets $upstream_skill"
+done
+for skill_name in $codex_targets; do
+  if [ "$CODEX_FULL" -eq 1 ]; then
+    replace_codex_skill_link "$skill_name" || true
+  else
+    drop_codex_skill_link "$skill_name"
+  fi
 done
 mkdir -p "$P/.agents/skills/devmode"
 refresh_file "$DEVMODE_ROOT/.agents/skills/devmode/SKILL.md" "$P/.agents/skills/devmode/SKILL.md" || true
 refresh_file "$DEVMODE_ROOT/.agents/skills/devmode/agents/openai.yaml" \
   "$P/.agents/skills/devmode/agents/openai.yaml" || true
-ok "Codex skills refreshed as links → .agents/skills/ (single physical copy)"
+if [ "$CODEX_FULL" -eq 1 ]; then
+  ok "Codex skills refreshed as links → .agents/skills/ (single physical copy)"
+else
+  ok "Codex stays lean: only the devmode launcher is listed (echo full > .devmode/codex-skills for every skill)"
+fi
 
 # 2. agents (role agents) + the orchestrator
 mkdir -p "$P/.claude/agents" "$P/.agents" "$P/.codex/agents"
@@ -462,10 +510,14 @@ fi
 
 # 5. .devmode scripts — NEVER the data (scorecard.json / gates.json)
 mkdir -p "$P/.devmode"
-for script in scorecard.py dashboard.py goal_brief.py beads_doctor.py; do
+for script in scorecard.py dashboard.py goal_brief.py beads_doctor.py memory.py; do
   refresh_file "$DEVMODE_ROOT/scripts/$script" "$P/.devmode/$script" || true
 done
-ok "scorecard.py + dashboard.py + goal_brief.py + beads_doctor.py refreshed (scorecard.json untouched)"
+ok "scorecard.py + dashboard.py + goal_brief.py + beads_doctor.py + memory.py refreshed (scorecard.json untouched)"
+# Memory is project data: created when missing, never rewritten.
+if [ -f "$P/.devmode/memory.py" ] && [ -d "$P/conductor" ]; then
+  python3 "$P/.devmode/memory.py" init --root "$P" >/dev/null && ok "memory → .beads/memories.jsonl present (never rewritten)"
+fi
 
 # 6. Hooks are opt-in. The preflight above detected and validated ownership
 # before any write; a generic host hooks directory/config is not evidence.

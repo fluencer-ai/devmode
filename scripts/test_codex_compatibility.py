@@ -31,25 +31,50 @@ class CodexCompatibilityTests(unittest.TestCase):
 
         self.assertEqual([], occurrences, "use /devmode everywhere: " + ", ".join(occurrences))
 
-    def test_repo_codex_skill_view_is_links_plus_launcher(self) -> None:
-        skill_names = sorted(path.name for path in (ROOT / "skills").iterdir() if path.is_dir())
+    def test_repo_codex_skill_view_is_the_launcher_only(self) -> None:
+        """Lean: Codex lists one skill. The launcher reads the rest by path."""
         codex_skills = ROOT / ".agents/skills"
-        for name in skill_names:
-            link = codex_skills / name
-            self.assertTrue(link.is_symlink(), f"{link} must point at the canonical skill")
-            self.assertEqual(Path("../../skills") / name, Path(os.readlink(link)))
-            self.assertTrue((link / "SKILL.md").is_file())
-        self.assertTrue((codex_skills / "devmode/SKILL.md").is_file())
+        self.assertEqual(["devmode"], sorted(path.name for path in codex_skills.iterdir()))
+        launcher = (codex_skills / "devmode/SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("references/skill-index.md", launcher)
         metadata = codex_skills / "devmode/agents/openai.yaml"
         self.assertTrue(metadata.is_file())
         self.assertIn('display_name: "devmode"', metadata.read_text(encoding="utf-8"))
 
-    def test_install_and_update_share_skills_without_copying_them_twice(self) -> None:
+    def test_lean_install_gives_codex_the_launcher_and_update_prunes_old_links(self) -> None:
+        skill_names = sorted(path.name for path in (ROOT / "skills").iterdir() if path.is_dir())
+
+        with tempfile.TemporaryDirectory(prefix="devmode-codex-lean-") as temporary_dir:
+            project = Path(temporary_dir)
+            subprocess.run([str(INSTALL), str(project)], cwd=ROOT, check=True, capture_output=True, text=True)
+            self.assertEqual(["devmode"], sorted(p.name for p in (project / ".agents/skills").iterdir()))
+            self.assertTrue((project / ".beads/memories.jsonl").is_file(), "memory file not created")
+            for name in skill_names:
+                self.assertTrue((project / ".claude/skills" / name / "SKILL.md").is_file())
+
+            # A project from v1 had every leaf linked, plus exact copies; one
+            # same-name skill is the project's own and must survive.
+            for name in skill_names[:3]:
+                (project / ".agents/skills" / name).symlink_to(Path("../../.claude/skills") / name)
+            shutil.copytree(project / ".claude/skills" / skill_names[3], project / ".agents/skills" / skill_names[3])
+            own = project / ".agents/skills" / skill_names[4]
+            own.mkdir()
+            (own / "SKILL.md").write_text("project-owned skill\n", encoding="utf-8")
+
+            subprocess.run([str(UPDATE), str(project)], cwd=ROOT, check=True, capture_output=True, text=True)
+            self.assertEqual(
+                sorted(["devmode", skill_names[4]]),
+                sorted(p.name for p in (project / ".agents/skills").iterdir()),
+            )
+            self.assertEqual("project-owned skill\n", (own / "SKILL.md").read_text(encoding="utf-8"))
+
+    def test_full_install_and_update_share_skills_without_copying_them_twice(self) -> None:
         skill_names = sorted(path.name for path in (ROOT / "skills").iterdir() if path.is_dir())
 
         with tempfile.TemporaryDirectory(prefix="devmode-codex-") as temporary_dir:
             project = Path(temporary_dir)
-            subprocess.run([str(INSTALL), str(project)], cwd=ROOT, check=True, capture_output=True, text=True)
+            subprocess.run([str(INSTALL), str(project), "--codex-full"], cwd=ROOT, check=True,
+                           capture_output=True, text=True)
             self.assert_shared_skill_layout(project, skill_names)
 
             # Simulate the duplicated layout written by older versions.
@@ -65,7 +90,8 @@ class CodexCompatibilityTests(unittest.TestCase):
     def test_update_collapses_exact_legacy_codex_skill_copies_without_manifest(self) -> None:
         with tempfile.TemporaryDirectory(prefix="devmode-codex-legacy-copy-") as temporary_dir:
             project = Path(temporary_dir)
-            subprocess.run([str(INSTALL), str(project)], cwd=ROOT, check=True, capture_output=True, text=True)
+            subprocess.run([str(INSTALL), str(project), "--codex-full"], cwd=ROOT, check=True,
+                           capture_output=True, text=True)
             skill_name = "tdd"
             codex_skill = project / ".agents/skills" / skill_name
             codex_skill.unlink()
@@ -196,7 +222,7 @@ class CodexCompatibilityTests(unittest.TestCase):
             env = dict(os.environ, CONDUCTOR_BEADS_REPO=str(source))
 
             subprocess.run(
-                [str(INSTALL), str(target), "--no-skills", "--with-conductor"],
+                [str(INSTALL), str(target), "--no-skills", "--with-conductor", "--codex-full"],
                 cwd=ROOT,
                 check=True,
                 capture_output=True,
@@ -730,7 +756,7 @@ class UpdateParityTests(unittest.TestCase):
         update loop over that directory can never reach them."""
         with tempfile.TemporaryDirectory(prefix="devmode-update-cb-") as temporary_dir:
             project = Path(temporary_dir)
-            self.install(project)
+            self.install(project, "--codex-full")
             for name in ("conductor", "beads"):
                 skill = project / ".claude/skills" / name
                 skill.mkdir(parents=True, exist_ok=True)
@@ -760,9 +786,9 @@ class UpdateParityTests(unittest.TestCase):
 class AuditCoverageTests(unittest.TestCase):
     """`.codex/agents/` is audited; the Codex *skill* surface must be too.
 
-    A skill added to `skills/` without its `.agents/skills/` link is invisible to
-    Codex while the audit still exits 0 — the Claude side cannot desync from
-    itself, so only Codex needs the check.
+    Lean Codex lists only the launcher, so a missing leaf link is fine. What
+    must fail is a link that points nowhere or elsewhere, or a second copy of a
+    skill that will drift from the canonical one.
     """
 
     @staticmethod
@@ -796,15 +822,27 @@ class AuditCoverageTests(unittest.TestCase):
             self.build_tree(root, ("tdd", "grill-me"))
             self.assertEqual([], audit.audit_codex_skills(str(root)))
 
-    def test_a_skill_without_its_codex_link_fails_the_audit(self) -> None:
+    def test_a_lean_view_with_only_the_launcher_passes(self) -> None:
         audit = self.audit_module()
-        with tempfile.TemporaryDirectory(prefix="devmode-audit-missing-") as temporary_dir:
+        with tempfile.TemporaryDirectory(prefix="devmode-audit-lean-") as temporary_dir:
             root = Path(temporary_dir)
             self.build_tree(root, ("tdd", "grill-me"))
+            for name in ("tdd", "grill-me"):
+                (root / ".agents/skills" / name).unlink()
+            self.assertEqual([], audit.audit_codex_skills(str(root)))
+
+    def test_a_stale_or_misdirected_codex_link_fails_the_audit(self) -> None:
+        audit = self.audit_module()
+        with tempfile.TemporaryDirectory(prefix="devmode-audit-stale-") as temporary_dir:
+            root = Path(temporary_dir)
+            self.build_tree(root, ("tdd",))
+            (root / ".agents/skills/retired").symlink_to(Path("../../skills/retired"))
             (root / ".agents/skills/tdd").unlink()
+            (root / ".agents/skills/tdd").symlink_to(Path("../../elsewhere/tdd"))
             errors = audit.audit_codex_skills(str(root))
-            self.assertEqual(1, len(errors), errors)
-            self.assertIn("tdd", errors[0])
+            self.assertEqual(2, len(errors), errors)
+            self.assertTrue(any("retired" in e for e in errors), errors)
+            self.assertTrue(any("tdd" in e for e in errors), errors)
 
     def test_a_broken_or_copied_codex_link_fails_the_audit(self) -> None:
         audit = self.audit_module()

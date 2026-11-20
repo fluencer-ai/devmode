@@ -37,7 +37,12 @@ Codex adaptations:
    them into a Codex variant. If the project was installed without them, run the
    same phase directly from `conductor/workflow.md` and
    `conductor/.templates/track/`; a missing command file must not block the flow.
-6. Preserve project-owned instructions and the Claude Code setup. Add Codex
+6. Codex lists only this launcher, so devmode costs one description per turn.
+   Every other devmode skill is read by path when a phase needs it:
+   `.claude/skills/<name>/SKILL.md` (project), else `skills/<name>/SKILL.md`
+   (devmode base), else `~/.devmode/skills/<name>/SKILL.md` (global install).
+   `references/skill-index.md` lists them in one line each.
+7. Preserve project-owned instructions and the Claude Code setup. Add Codex
    adapters; do not remove or weaken `.claude/`, `CLAUDE.md`, or existing hooks.
 
 When a source instruction names a Claude-specific mechanism, map only the
