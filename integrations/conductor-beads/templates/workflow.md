@@ -6,7 +6,7 @@
 > done. When this file and a devmode skill seem to disagree, the skill wins; this
 > file only adapts the devmode craft into Conductor's lifecycle.
 >
-> The devmode skills referenced below (`tdd`, `testing-principles`,
+> The devmode skills referenced below (`tdd`, `testing-principles.md` in `tdd`,
 > `functional-core-imperative-shell`, `design-interface-delegate-implementation`,
 > `feedback-loops`, `improve-codebase-architecture`) are invoked **by name** —
 > they work wherever they're installed (project `.claude/skills/` or global).
@@ -56,7 +56,7 @@ codebase deep and testable (skill: `functional-core-imperative-shell`,
 
 Follow this for every task. One behavior at a time.
 
-0. **Pre-flight (skill: `confidence-check`).** Before coding, confirm you know
+0. **Pre-flight (skill: `confidence-check.md` in `verification-before-completion`).** Before coding, confirm you know
    the goal, the interface, the constraints/edges, and *how you'll verify
    success*. If a gap remains, close it (`grill-me` / `/conductor-revise`) instead
    of guessing.
@@ -69,7 +69,7 @@ Follow this for every task. One behavior at a time.
    missing, not a typo). A test you never saw fail is a test you don't trust.
    - Test at the **deepest stable interface** — for a core/shell feature, that's
      the pure core, tested with plain values and **no mocks** (skill:
-     `testing-principles`).
+     `testing-principles.md` in `tdd`).
 
 3. **Green — make it pass simply.** Least code that turns the test green. Don't
    build ahead of the test.
@@ -113,7 +113,7 @@ Follow this for every task. One behavior at a time.
 
 devmode rejects a blanket coverage percentage as a quality gate, because chasing
 a number pushes you to test implementation details and over-mock — producing
-brittle tests and green-over-broken-code. Instead (skill: `testing-principles`):
+brittle tests and green-over-broken-code. Instead (skill: `testing-principles.md` in `tdd`):
 
 - **Test observable behavior at a stable boundary**, not private helpers. A good
   test fails only when behavior a caller depends on breaks.

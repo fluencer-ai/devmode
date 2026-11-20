@@ -1,14 +1,11 @@
 ---
 name: design-patterns
 description: >-
-  Pick and apply the right Gang of Four design pattern from a code smell or a
-  goal — but only when the pattern makes a module deeper and simpler, never as
-  decoration. Use when you see an if/else or switch on type/state, telescoping
-  constructors, subclass explosion, `new ConcreteClass()` scattered everywhere,
-  a subsystem leaking complexity into callers, or manual state propagation; or
-  when the user mentions "strategy", "factory", "observer", "decorator",
-  "adapter", "state pattern", "refactor to a pattern". Pairs with deep modules
-  and architecture-boundaries.
+  Design patterns: pick a Gang of Four pattern from a code smell or a goal, and
+  only when it makes a module deeper. Use when you see a switch on type or state,
+  a subclass explosion, scattered constructors, or a subsystem leaking into
+  callers, or when the user names a pattern.
+disable-model-invocation: true
 ---
 
 # Design patterns (Gang of Four)
@@ -66,11 +63,10 @@ pattern when a *real* smell appears, not preemptively.
 2. **Confirm the pattern removes complexity.** Will callers see a *simpler*
    interface afterward? Will the module be deeper? If not, don't apply it.
 3. **Apply test-first.** Patterns change structure; pin behavior with tests at
-   the interface before refactoring ([`tdd`](../tdd/SKILL.md),
-   [`testing-principles`](../testing-principles/SKILL.md)).
+   the interface before refactoring (`tdd` and its `testing-principles.md`).
 4. **Keep the seam pure where you can.** A Strategy/State often *is* a functional
    core decision — combine with
-   [`functional-core-imperative-shell`](../functional-core-imperative-shell/SKILL.md).
+   `functional-core-imperative-shell`.
 5. **Name it in the ubiquitous language** so the pattern's role is shared
    vocabulary, not hidden cleverness.
 

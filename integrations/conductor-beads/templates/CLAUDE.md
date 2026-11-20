@@ -43,7 +43,7 @@ decision:
 
 Skills: `grill-me`, `ubiquitous-language`, `write-prd`,
 `functional-core-imperative-shell`, `design-interface-delegate-implementation`,
-`feedback-loops`, `tdd`, `testing-principles`, `improve-codebase-architecture`.
+`feedback-loops`, `tdd`, `testing-principles.md` in `tdd`, `improve-codebase-architecture`.
 Agents: `design-architect`, `requirements-planner`, `tdd-implementer`,
 `architecture-refactorer`, `complexity-reviewer`.
 
@@ -67,7 +67,7 @@ the base; it does not override it.
 Stock Conductor defaults that conflict with devmode are already overridden in
 `conductor/workflow.md`:
 
-- No blind ">80% coverage" gate → use `testing-principles`.
+- No blind ">80% coverage" gate → use `testing-principles.md` in `tdd`.
 - No eager asset creation → run `grill-me` before `/conductor-newtrack`.
 - No structure-blind TDD → deep modules + functional-core/imperative-shell + gray
   boxes.

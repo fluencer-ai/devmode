@@ -1,13 +1,11 @@
 ---
 name: migration
 description: >-
-  Change or replace existing systems safely — strangler-fig, adapter/anti-
-  corruption layers, feature flags, expand-contract schema changes, and clean
-  deprecation with a window. Use when replacing a module/service/library,
-  migrating a database schema, deprecating an API, or doing a large rename; when
-  the user says "migrate", "deprecate", "replace X with Y", "rewrite this",
-  "upgrade the framework". The goal: never a risky big-bang cutover — incremental,
-  reversible, with the old and new coexisting until the switch is safe.
+  Migration: replace or change a live system incrementally and reversibly
+  (strangler fig, adapters, flags, expand-contract). Use when replacing a module,
+  service, or library, changing a schema, deprecating an API, or doing a large
+  rename.
+disable-model-invocation: true
 ---
 
 # Deprecation & migration
@@ -15,7 +13,7 @@ description: >-
 The riskiest change is the big-bang replacement: rewrite everything, flip the
 switch, pray. Safe migration is the opposite — the old and new **coexist**, you
 move traffic/usage incrementally, and every step is reversible. Before touching
-anything, know the blast radius ([`impact-analysis`](../impact-analysis/SKILL.md)).
+anything, know the blast radius (`impact-analysis`).
 
 ## Patterns
 
@@ -25,7 +23,7 @@ anything, know the blast radius ([`impact-analysis`](../impact-analysis/SKILL.md
 - **Adapter / anti-corruption layer** — a thin boundary that translates between
   old and new models so the new design isn't polluted by the old one's quirks
   (and callers don't change yet). Pairs with
-  [`architecture-boundaries`](../architecture-boundaries/SKILL.md).
+  `system-boundaries.md` in `functional-core-imperative-shell`.
 - **Feature flags** — ship the new path dark, flip per-cohort, and **roll back by
   flipping the flag** instead of deploying. Decouples deploy from release.
 - **Expand–contract (parallel change) for data/contracts** — (1) *expand*: add
@@ -36,8 +34,8 @@ anything, know the blast radius ([`impact-analysis`](../impact-analysis/SKILL.md
 ## Deprecation with a window
 
 - **Announce, don't yank.** Mark deprecated, keep it working, log/warn on use,
-  give consumers a migration path and a date ([`documentation`](../documentation/SKILL.md),
-  [`api-design`](../api-design/SKILL.md)).
+  give consumers a migration path and a date (`documentation`,
+  `api-design`).
 - **Track real usage** before removing — "not observed" ≠ "unused"; confirm with
   data, then remove.
 - **Then delete** — finish the job; a half-done migration leaves *two* systems to
@@ -56,11 +54,11 @@ anything, know the blast radius ([`impact-analysis`](../impact-analysis/SKILL.md
 - **Ratchet the retired form out.** After deleting it, add a check that fails if
   it reappears — a lint rule, a CI grep, or a test — so a later agent can't
   silently reintroduce it (the ratchet spirit of
-  [`feedback-loops`](../feedback-loops/SKILL.md), aimed at the deprecated
+  `feedback-loops`, aimed at the deprecated
   pattern). Enable the rule, repair every violation, and lock it in the same change.
 - Watch the **churn rule:** if a file/area is being rewritten repeatedly, that's
   a signal the design is wrong — stop and reconsider
-  ([`improve-codebase-architecture`](../improve-codebase-architecture/SKILL.md)),
+  (`improve-codebase-architecture`),
   don't migrate it again.
 
 ## Process

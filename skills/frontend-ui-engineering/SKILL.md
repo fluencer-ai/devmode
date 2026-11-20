@@ -1,13 +1,11 @@
 ---
 name: frontend-ui-engineering
 description: >-
-  Build production-quality UI — component architecture, the state-management
-  decision ladder, responsive layout, and escaping the generic "AI aesthetic."
-  Use when building or reviewing front-end components, choosing where state
-  lives, when a UI "looks AI-generated" (purple gradients, everything rounded),
-  when the user mentions "build the UI", "this component", "React/Vue/Svelte",
-  "make it look good", "responsive", "design system". Pair with ux-design (visual
-  decisions) and accessibility (a11y is not optional).
+  Front-end UI craft: component architecture, state placement, visual and UX
+  design, and WCAG 2.1 AA accessibility. Use when building or reviewing UI,
+  designing a screen or token set, choosing where state lives, or when a UI looks
+  AI-generated.
+disable-model-invocation: true
 ---
 
 # Front-end UI engineering
@@ -16,6 +14,13 @@ Front-end is where "works" and "is good" diverge most: a component can pass its
 tests and still be unusable, inaccessible, or instantly recognizable as
 AI-slop. This skill is the production bar. It's framework-shaped (React/Vue/
 Svelte/etc.) but the decisions below are framework-agnostic.
+
+- Designing the look and feel (tokens, hierarchy, states, interface copy)? Read
+  `ux-design.md` in this folder.
+- Building or reviewing any UI, or about to ship it? Read `accessibility.md` in
+  this folder for the WCAG 2.1 AA checklist and how to verify it.
+
+Absorbed: `ux-design` and `accessibility` now live here as those two sibling files.
 
 ## Escape the "AI aesthetic"
 
@@ -35,7 +40,7 @@ generic. AI UIs have a *tell*; recognize and kill the defaults:
 | "John Doe" / "Acme" / filler verbs ("Elevate") / fake-precise numbers / `<div>` fake screenshots | Screams generated | Believable demo names/brands; never fabricate a stat/proof — real value, honest placeholder, or drop the slot |
 
 The fix isn't "more polish" — it's *intent*: every choice maps to a design
-decision (see [`ux-design`](../ux-design/SKILL.md)), not a library default.
+decision (see `ux-design.md`), not a library default.
 
 ### Tune deliberate dials, fight repetition
 
@@ -53,7 +58,7 @@ With the read declared, **tune three dials to it** instead of the safe middle:
 And **fight repetition**: if every section is the same hero-then-three-cards, you
 shipped the formula. Vary rhythm, alignment, and component shape down the page. For
 a non-trivial surface, **prototype the look first** — a mockup or two real variants
-([`prototyping`](../prototyping/SKILL.md), [`visual-explainers`](../visual-explainers/SKILL.md)) —
+(`prototyping`, `visual-explainers`) —
 then build the chosen one. Choosing between real options beats defending the first.
 
 ### Lock consistency, motivate motion, pre-flight the tells
@@ -68,7 +73,7 @@ then build the chosen one. Choosing between real options beats defending the fir
 - **Pre-flight the tells** — before "done", *mechanically* scan the output for the
   tells above (grep for em-dashes — a top LLM copy tell — for `John Doe`, for
   `text-purple`). A tell you can grep is a tell you must fix
-  ([`verification-before-completion`](../verification-before-completion/SKILL.md)).
+  (`verification-before-completion`).
 
 ### Redesigning existing UI
 
@@ -78,8 +83,8 @@ extract the brand tokens, the information architecture, and what works vs. what'
 filler. Modernize by the cheapest lever first (typography → spacing → color →
 motion → recompose). **Never silently change** URL/route slugs, nav labels, form
 field names, or accessibility wins — SEO and analytics downstream depend on them.
-It's a [`migration`](../migration/SKILL.md) with an
-[`impact-analysis`](../impact-analysis/SKILL.md), not a repaint.
+It's a `migration` with an
+`impact-analysis`, not a repaint.
 
 ## The state-management decision ladder
 
@@ -101,26 +106,26 @@ re-implements caching badly. Treat the server as the source of truth and cache i
 
 ## Component architecture
 
-- **Deep components, simple props** — the [`deep module`](../improve-codebase-architecture/SKILL.md)
-  idea applied to UI: a small, clear prop interface hiding internal complexity.
+- **Deep components, simple props** — the deep-module idea (`improve-codebase-architecture`)
+  applied to UI: a small, clear prop interface hiding internal complexity.
   Avoid prop-drilling and 15-prop "god components."
 - **Separate the functional core** — keep formatting/derivation/decision logic
   pure and testable, away from rendering and effects
-  ([`functional-core-imperative-shell`](../functional-core-imperative-shell/SKILL.md)).
+  (`functional-core-imperative-shell`).
 - **Composition over configuration** — prefer composable pieces to one component
   with a boolean for every variant.
-- **Name in the [`ubiquitous language`](../ubiquitous-language/SKILL.md).**
+- **Name things in the ubiquitous language (`ubiquitous-language`).**
 
 ## Non-negotiables
 
-- **Accessibility is part of "done", not a later pass** — semantic elements,
-  labels, keyboard operability, focus management. See
-  [`accessibility`](../accessibility/SKILL.md).
+- **WCAG 2.1 AA is the bar, always.** Accessibility is part of "done", not a later
+  pass: semantic elements, labels, keyboard operability, focus management,
+  contrast. Verify it with `accessibility.md`.
 - **Responsive by default** — design mobile-up; test the real breakpoints.
 - **Loading / empty / error states exist** — the happy path is a third of the UI;
   design the other two-thirds.
-- **Look at it run** — verify in a real browser ([`feedback-loops`](../feedback-loops/SKILL.md),
-  [`browser-testing`](../browser-testing/SKILL.md)); screenshots and the DOM are
+- **Look at it run** — verify in a real browser (`feedback-loops`,
+  `browser-testing.md` in `feedback-loops`); screenshots and the DOM are
   the feedback loop for UI.
 
 ## Red flags

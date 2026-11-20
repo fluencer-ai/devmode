@@ -1,14 +1,11 @@
 ---
 name: grill-me
 description: >-
-  Reach a shared design concept with the user by interviewing them
-  relentlessly BEFORE writing any plan, spec, or code. Use this whenever the
-  user describes a feature, change, or product idea and you sense any ambiguity
-  about what they actually want — especially at the start of a task, when the
-  user says "I want to build X", "help me design Y", "grill me", "interview
-  me", "let's plan this", or when a request is vague enough that jumping
-  straight to a plan would be guessing. Prefer this over eagerly producing a
-  plan document: align first, then write the asset.
+  Grill: relentless interview that reaches a shared design concept before any
+  plan, spec, or code exists. Use when the user describes a feature, change, or
+  product idea, when a request is too vague to plan without guessing, or when the
+  user asks to be grilled.
+disable-model-invocation: true
 ---
 
 # Grill me
@@ -93,12 +90,12 @@ is chosen to resolve the largest open branch of the design tree, not to fill a
 form. Explicitly check whether parts of the request *conflict* with each other —
 inconsistencies are the hardest gaps to spot and the costliest to discover late.
 
-**Offer structured choices when the axis is discrete.** When a decision has a
-small set of plausible options, don't ask open-endedly — present them as labeled
-choices (A / B / C / D), each with its trade-off in a phrase, plus an "other /
-none of these" escape. It's faster for the human to pick than to compose, and it
-forces *you* to have actually thought through the interpretations. Reserve
-open questions for genuinely open axes.
+**Offer A / B / C choices only for a truly discrete decision**, one with a small,
+closed set of options (which auth provider, which of three layouts). Label each
+with its trade-off in a phrase, add an "other / none of these" escape, and say in
+one line why the decision is discrete. Everything else gets **one open question
+with your recommended answer**: a menu on an open axis hides the option nobody
+listed.
 
 ## Ask in rounds — work the frontier, not a drip
 
@@ -106,7 +103,9 @@ Serial one-question-at-a-time is slow and makes the user wait on you. Batch by
 **frontier**: every decision whose prerequisites are *already settled* — the
 questions you can ask now without guessing at answers you haven't heard yet. Ask
 that whole frontier in one round: **number each question and give your recommended
-answer**, then stop and wait. A question whose answer depends on another question
+answer**, then stop and wait. Word each question so that "yes" accepts your
+recommendation ("Store sessions in Postgres, since it's already deployed?"), so a
+user who agrees answers a whole round in one word. A question whose answer depends on another question
 still open in this round belongs to the *next* round, not this one.
 
 Each round's answers reshape the design tree — settled decisions push the frontier
@@ -118,34 +117,11 @@ silently assumed.
 still finish a line of dependent decisions before opening an unrelated one — you
 just don't drip-feed questions that were all answerable at the same moment.)
 
-## Ground a knowledge gap before you guess (perspective-guided research)
+## Ground a knowledge gap before you guess
 
-Some gaps aren't in the *user's* head — they're shared ignorance: an unfamiliar
-library, protocol, or domain; "what are the known failure modes of approach X?".
-Quizzing a user who also doesn't know is useless, and guessing freezes a bad
-premise (a *premise* or *parameter* fault that's really ignorance). When that
-happens, **investigate before you grill** — a small grounded spike that writes
-from research, not priors:
-
-1. **Pick 3–5 distinct perspectives**, not one (e.g. a skeptic, an ops/SRE, a
-   security reviewer, a maintainer, the official docs). Diverse viewpoints surface
-   the *unknown unknowns* a single angle misses.
-2. **Dispatch one fresh subagent per perspective**
-   ([`subagent-driven-development`](../subagent-driven-development/SKILL.md)), each
-   given **only the question plus minimal context — never your running conversation
-   or your own stated leaning**. When you're also the one synthesizing, feeding a
-   voice your position makes it mirror that position back, destroying the very
-   independence you dispatched it for. Each is issued web search/fetch and told to
-   bring back **cited** findings — every claim carries a source or it doesn't count
-   ([`verification-before-completion`](../verification-before-completion/SKILL.md)).
-3. **Cross-examine**: where the perspectives disagree is where the real decision
-   lives — surface the contradiction, don't average it away.
-4. **Bring the cited findings back into the interview** to ground the next
-   questions (and later the PRD/ADR). Keep them in a short markdown findings note.
-
-This is a *technique inside the grill*, not a separate research mode — reach for
-it the moment a gap turns out to be ignorance, not preference. (Run it ad hoc via
-`/devmode do "research <question>"`.)
+When a gap is shared ignorance (an unfamiliar library, protocol, or domain), not
+the user's preference, investigate before you grill: read `research.md` in this
+folder for the perspective-guided research technique.
 
 ## Rules of engagement
 
@@ -168,13 +144,16 @@ it the moment a gap turns out to be ignorance, not preference. (Run it ad hoc vi
   their way, note the residual risk once, and don't relitigate. Correctness,
   security, and data-safety are the exception: never drop those to seem agreeable.
   Challenge, don't obstruct.
+- **"Wait, what?"** When the user is lost (a confused reply, "what do you mean?",
+  an answer to a question you didn't ask), stop the round. Re-pitch your last
+  point in three lines of plain words in the project's ubiquitous language: the
+  context they were missing, the point, the question. Then resume.
 - **Reflect back.** Periodically summarize the design concept as you understand
   it so far and ask the user to correct it. This is how you confirm the concept
   is actually shared.
 - **Don't write the asset yet.** Resist producing a plan, spec, or code until
   the user signals the concept is solid. When they do, hand the conversation to
-  [`write-prd`](../write-prd/SKILL.md) (large changes) or turn it directly into
-  issues (small ones).
+  `write-prd` (large changes) or turn it directly into issues (small ones).
 
 ## When you're done
 

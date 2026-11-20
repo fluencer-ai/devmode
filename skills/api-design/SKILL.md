@@ -1,13 +1,11 @@
 ---
 name: api-design
 description: >-
-  Design stable, hard-to-misuse APIs and interfaces — contracts, error
-  semantics, versioning, validation at the boundary, and types that make illegal
-  states unrepresentable. Use when designing a REST/GraphQL/RPC endpoint, a
-  library's public surface, a module contract, or a data schema; when the user
-  says "design the API", "the contract", "request/response shape", "versioning",
-  "breaking change". Complements design-interface-delegate-implementation
-  (module interfaces) with the HTTP/contract specifics.
+  API design: stable, hard-to-misuse contracts with clear error semantics,
+  versioning, validation at the boundary, and types that forbid illegal states.
+  Use when designing an endpoint, a library's public surface, or a data schema,
+  or when weighing a breaking change.
+disable-model-invocation: true
 ---
 
 # API & interface design
@@ -17,7 +15,7 @@ An API is a promise. Once something consumes it, you own that promise — and
 depended on by someone, whether you documented it or not. So design the surface
 deliberately and keep it small; the inside you can change, the contract you
 cannot (cheaply). This is the same instinct as
-[`design-interface-delegate-implementation`](../design-interface-delegate-implementation/SKILL.md),
+`design-interface-delegate-implementation`,
 made concrete for wire/library contracts.
 
 ## Principles
@@ -40,11 +38,11 @@ made concrete for wire/library contracts.
   consumer.
 - **Explicit error semantics.** Define the error shape once (code + message +
   machine-readable detail), use correct status codes, and never leak internals
-  or secrets in errors (see [`security-hardening`](../security-hardening/SKILL.md)).
+  or secrets in errors (see `security-hardening`).
 - **Validate at the boundary; trust inside.** All external input is untrusted —
   validate/parse it at the edge into typed domain values, so internal code can
   assume validity (the imperative shell validates; the functional core trusts —
-  [`functional-core-imperative-shell`](../functional-core-imperative-shell/SKILL.md)).
+  `functional-core-imperative-shell`).
 
 ## Make illegal states unrepresentable
 
@@ -63,7 +61,7 @@ Push correctness into types so misuse fails at compile time, not runtime:
   additively over a sprawl of versions. Additive changes (new optional field,
   new endpoint) are safe; removing/renaming/retyping is breaking.
 - **Breaking changes get a deliberate path** — version the surface, deprecate
-  with a window and migration notes (see [`migration`](../migration/SKILL.md)),
+  with a window and migration notes (see `migration`),
   never silently change a contract consumers rely on.
 - **Default to backward-compatible.** New fields optional; tolerant readers,
   precise writers.
@@ -72,9 +70,9 @@ Push correctness into types so misuse fails at compile time, not runtime:
 
 1. Name the consumers and what they need (grill if unclear).
 2. Draft the contract (schema/types) — happy path + error shape + edge cases.
-3. Pressure-test it ([`design-critique`](../design-critique/SKILL.md)): what's
+3. Pressure-test it (`design-critique`): what's
    hard to misuse? what's the blast radius of a future change
-   ([`impact-analysis`](../impact-analysis/SKILL.md))?
+   (`impact-analysis`)?
 4. Pin it with tests at the contract boundary, then delegate the implementation.
 
 ## Red flags

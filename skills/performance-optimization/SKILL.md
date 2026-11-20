@@ -1,12 +1,11 @@
 ---
 name: performance-optimization
 description: >-
-  Fix performance the disciplined way — measure first, find the real bottleneck,
-  optimize it, verify the win. Covers profiling, N+1 queries, Core Web Vitals,
-  bundle/image size, caching, and perf budgets. Use when something is slow, when
-  the user says "optimize", "it's slow", "performance", "speed this up", "reduce
-  bundle size", "the query is slow", or before shipping perf-sensitive work.
-  Never optimize on a hunch — measure, or you'll speed up the wrong thing.
+  Performance work, measure first: profile, fix the one real bottleneck,
+  verify the win, lock it with a budget. Use when something is slow (API,
+  query, page load, bundle size), when asked to optimize, or before shipping
+  perf-sensitive work.
+disable-model-invocation: true
 ---
 
 # Performance optimization
@@ -14,7 +13,7 @@ description: >-
 The cardinal rule: **measure before you optimize.** The slow thing is almost
 never where intuition says, and "optimizations" applied blind add complexity for
 no gain (often a regression). Profile, find the actual bottleneck, fix *that*,
-and verify the number moved. This is [`systematic-debugging`](../systematic-debugging/SKILL.md)
+and verify the number moved. This is `systematic-debugging`
 pointed at speed instead of correctness.
 
 ## The loop
@@ -58,7 +57,7 @@ stability). Measure on real/throttled conditions, not a fast dev machine.
 ## Perf budgets — keep the win
 
 Once you hit the target, encode it as a **budget** (bundle KB, p95 ms, query
-count) and check it in CI ([`ci-cd-automation`](../ci-cd-automation/SKILL.md)) so
+count) and check it in CI (`ci-cd.md` in `shipping`) so
 a future change can't silently regress it. A budget is a diagnostic gate, not a
 vanity number.
 
@@ -68,5 +67,5 @@ vanity number.
 - Micro-optimizing a path that isn't the bottleneck.
 - Adding a cache without an invalidation story (now you have a correctness bug).
 - Claiming "it's faster" without a before/after measurement
-  ([`verification-before-completion`](../verification-before-completion/SKILL.md)).
+  (`verification-before-completion`).
 - Trading readability for a speed-up that the profile says doesn't matter.

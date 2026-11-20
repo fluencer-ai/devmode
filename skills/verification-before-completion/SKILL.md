@@ -1,12 +1,11 @@
 ---
 name: verification-before-completion
 description: >-
-  Require fresh verification evidence before claiming any work is done, fixed,
-  passing, or correct — and before committing, opening a PR, or moving to the
-  next task. Use when you're about to say "done", "fixed", "it works",
-  "tests pass", "ready to merge", or express satisfaction ("great", "perfect").
-  Also use before trusting a subagent's "success" report. Claiming completion
-  without running the check is a correctness and trust failure, not efficiency.
+  Verification gate at both ends of a task: a readiness pre-flight before
+  starting, and fresh evidence before any done claim. Use when about to start a
+  non-trivial build, about to say done, fixed, or passing, or about to trust a
+  subagent's success report.
+disable-model-invocation: true
 ---
 
 # Verification before completion
@@ -17,11 +16,24 @@ especially prone to this: it changes code and reports success from confidence,
 not evidence. This skill is the gate that converts "should work" into "verified
 to work".
 
-This is distinct from [`feedback-loops`](../feedback-loops/SKILL.md): feedback
-loops are the checks you run *continuously while building*; this is the final
-**gate before you make a completion claim**. They reinforce each other. It is
-also the bookend to [`confidence-check`](../confidence-check/SKILL.md) — that
-gate confirms you're *ready to start*; this one confirms you're *actually done*.
+## One gate, two ends
+
+The same gate guards both ends of every task:
+
+- **Pre-flight, before you start.** Do I know the goal, the interface, the
+  constraints, the context, and the check that will prove success? Any "no" is a
+  stop signal. About to start a non-trivial build, or the task feels
+  underspecified? Read `confidence-check.md` in this folder.
+- **Fresh evidence, before you claim done.** The rest of this file.
+
+The verification step of the pre-flight names the command this end will run;
+if you could not name it at the start, you cannot claim done at the end.
+
+**Absorbed: `confidence-check`.** The pre-flight readiness check now lives in
+`confidence-check.md` as the start of this gate.
+
+This is distinct from `feedback-loops`: feedback loops are the checks you run
+*continuously while building*; this is the gate at the two edges of the work.
 
 ## The iron law
 
@@ -96,7 +108,7 @@ not evidence about it).
   skipped. When full output was requested, *partial output is not done*: count the
   deliverables up front, generate each fully, and if a real token limit looms, stop
   at a clean boundary with `[PAUSED — X of Y]` rather than compressing or faking it.
-  (This is distinct from [`minimal-code`](../minimal-code/SKILL.md): write the
+  (This is distinct from `minimal-code`: write the
   *minimum* code needed, but write *all* of the code you committed to.)
 - **The promised deliverables don't all exist** — the task said "add the tests,
   update the docs, and the migration"; you ran one green check but only wrote the
@@ -150,5 +162,5 @@ with the evidence-gated handoff the `tdd-implementer` returns.
 ## The bottom line
 
 Run the command. Read the output. *Then* make the claim. Pair this with
-[`systematic-debugging`](../systematic-debugging/SKILL.md) (verify the fix
-worked) and [`tdd`](../tdd/SKILL.md) (the red→green evidence for regressions).
+`systematic-debugging` (verify the fix worked) and `tdd` (the red→green
+evidence for regressions).

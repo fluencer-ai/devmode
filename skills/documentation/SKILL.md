@@ -1,12 +1,11 @@
 ---
 name: documentation
 description: >-
-  Write documentation that earns its keep — ADRs for decisions, READMEs that get
-  someone running, comments that explain *why* not *what*, and docs that live
-  next to the code. Use when documenting a decision, a module, an API, or a
-  project; when the user says "document this", "write an ADR", "README",
-  "add comments", "explain why". Good docs capture the rationale that the code
-  can't — and stale docs are worse than none, so write the kind that stays true.
+  Documentation that stays true: ADRs, READMEs, why-comments, and the AGENTS.md
+  tree of per-area doc contracts. Use when recording a decision, documenting a
+  module, API, or project, or when per-area rules differ and agents keep missing
+  local conventions.
+disable-model-invocation: true
 ---
 
 # Documentation & ADRs
@@ -16,13 +15,18 @@ next person (or the AI after compaction) most needs and most often lacks. The jo
 of documentation is to capture the durable rationale and the fast on-ramp, not to
 narrate the obvious. Stale docs mislead, so write the kinds that stay true.
 
+Areas with their own rules, or agents breaking local conventions? Read
+`doc-contracts.md` in this folder (the AGENTS.md tree; template in `assets/`).
+
+Absorbed: `doc-contracts` now lives here as `doc-contracts.md`.
+
 ## Comments: explain *why*, not *what*
 
 - **Bad:** `// increment i` — restates the code.
 - **Good:** `// retry 3x: the upstream rate-limiter returns 429 in bursts` —
   captures a reason the code can't.
 - Prefer making code self-explaining (good names in the
-  [`ubiquitous language`](../ubiquitous-language/SKILL.md)) over commenting it.
+  ubiquitous language, `ubiquitous-language`) over commenting it.
   Comment the surprising, the non-obvious constraint, the deliberate trade-off.
 - Delete comments that lie or have gone stale — a wrong comment is worse than none.
 
@@ -41,8 +45,10 @@ Alternatives considered: options rejected + reason
 Consequences: what this makes easy/hard later
 ```
 
-Write an ADR when a choice is hard to reverse, surprising, or the subject of a
-trade-off (often the ones surfaced by [`design-critique`](../design-critique/SKILL.md)).
+Write an ADR when a choice is **hard to reverse** and a future reader would ask
+"why this way?": it was surprising without context, or it was picked among real
+alternatives (often the trade-offs surfaced by `design-critique`). A choice that
+is cheap to reverse needs no ADR; the commit message is enough.
 This is the same `decisions.md` habit the Conductor integration captures during
 implementation — *status is recoverable from git; rationale is not, unless you
 write it down.*
@@ -60,7 +66,7 @@ history intact.
 - **README's job:** get a newcomer from clone to running in minutes — what it is,
   how to set up, how to run/test, where to look next. Lead with the on-ramp.
 - **Module/API docs:** the public contract and how to use it — point at
-  [`api-design`](../api-design/SKILL.md) for the contract itself.
+  `api-design` for the contract itself.
 - **Keep docs next to the code** and update them *in the same change* — docs in a
   separate, forgotten wiki rot fastest.
 

@@ -1,15 +1,11 @@
 ---
 name: feedback-loops
 description: >-
-  Set up and actively exploit the full stack of feedback loops an AI can use to
-  self-correct — static types, the compiler/linter, fast automated tests, and a
-  real browser or runtime — so the model catches its own mistakes instead of
-  drifting. Use this at the start of any implementation work, when setting up a
-  project or repo for AI-assisted development, when the AI keeps shipping code
-  that "looks right but doesn't work", when there's no type checking or the
-  frontend has no browser access, or when the user mentions "feedback loops",
-  "set up types", "give it browser access", "why does it keep breaking things".
-  The rate of feedback is the speed limit — widen it.
+  Feedback loops an AI uses to self-correct: types, compiler and linter, fast
+  tests, a real browser or runtime, and a verification gate ladder. Use when
+  starting implementation, setting up a repo for AI work, when code "looks right
+  but doesn't work", or when a UI change needs checking in a browser.
+disable-model-invocation: true
 ---
 
 # Feedback loops
@@ -23,9 +19,12 @@ batch of code and only afterward think "maybe I should type-check that." That's
 outrunning your headlights. The rate of feedback is your speed limit; this skill
 widens the limit and keeps the model inside it.
 
-This is the *infrastructure* skill that makes [`tdd`](../tdd/SKILL.md) and
-[`testing-principles`](../testing-principles/SKILL.md) effective. TDD is one loop
-among several; here you set up and stack all of them.
+This is the *infrastructure* skill that makes `tdd` (and its testing
+principles) effective. TDD is one loop among several; here you set up and stack
+all of them.
+
+**Absorbed: `browser-testing`.** A real browser is one of the loops; what to
+check there and how to treat page content now live in `browser-testing.md`.
 
 ## The loops, from fastest to slowest
 
@@ -41,14 +40,14 @@ of error the others miss.
    signal. A clean compile is a loop the model can close by itself.
 3. **Fast automated tests.** The behavioral safety net. Speed matters as much as
    coverage — a slow suite lowers your speed limit, so keep unit tests pure and
-   quick (push I/O behind a
-   [`functional core / imperative shell`](../functional-core-imperative-shell/SKILL.md)
-   seam). Drive new behavior test-first via [`tdd`](../tdd/SKILL.md).
+   quick (push I/O behind a `functional-core-imperative-shell` seam). Drive new
+   behavior test-first via `tdd`.
 4. **A real browser or runtime.** For anything with a UI, the AI *must* be able
    to look at the actual result — open the page, click, read the console and
    network. Unit tests don't tell you the button is invisible. For services,
    give it a way to hit the running endpoint and read the response. Without eyes
-   on real behavior, the model is guessing.
+   on real behavior, the model is guessing. Checking a UI change in a real
+   browser? Read `browser-testing.md` in this folder.
 
 ## Setting them up
 
@@ -79,8 +78,7 @@ often enough. Counter it:
   broken page is a stop sign, not a footnote to fix later.
 - **Feed results back in explicitly.** When delegating, tell the agent which
   commands to run and to paste/observe the output before continuing — verifying
-  a gray box from the outside (see
-  [`design-interface-delegate-implementation`](../design-interface-delegate-implementation/SKILL.md))
+  a gray box from the outside (`design-interface-delegate-implementation`)
   depends on these loops being live.
 
 ## A verification gate ladder
@@ -95,7 +93,7 @@ failure:
 | L1 | Types | type-checker: 0 errors |
 | L2 | Lint / format | linter: 0 errors |
 | L3 | Unit tests | suite: 0 failures |
-| L4 | Acceptance-criteria coverage | every AC has a passing test (see [`testing-principles`](../testing-principles/SKILL.md)) |
+| L4 | Acceptance-criteria coverage | every AC has a passing test (see `testing-principles.md` in `tdd`) |
 | L5 | Integration / runtime / browser-a11y | the real behavior verified, deterministically |
 
 The point of the ladder is **objective judgment**: each level is decided by an
@@ -125,7 +123,7 @@ A subtle failure mode: an agent under pressure adds a trivial passing test and
 declares the suite green. Prevent it with a **ratchet** — for the health gate,
 count the tests that existed *before* this change as the bar that must stay
 green, separately from new tests. New behavior still gets new tests (via
-[`tdd`](../tdd/SKILL.md)), but a fresh trivial test can't paper over a regression
+`tdd`), but a fresh trivial test can't paper over a regression
 in existing behavior. The code is the source of truth; if a test and the spec
 disagree, investigate rather than "fixing" the test to pass.
 
@@ -141,8 +139,7 @@ recovery:
 - **Escalation** — surfaces an unresolvable issue to the human for a decision.
 - **Abort** — stops to prevent damage/waste; preserves state, reports the reason.
 
-The final gate before any "done" claim is
-[`verification-before-completion`](../verification-before-completion/SKILL.md):
+The final gate before any "done" claim is `verification-before-completion`:
 fresh evidence, not confidence.
 
 ## Signal you've got it right

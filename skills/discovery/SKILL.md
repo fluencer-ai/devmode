@@ -1,14 +1,11 @@
 ---
 name: discovery
 description: >-
-  Reverse-engineer an existing codebase into devmode's starting artifacts —
-  walk the tree, detect stack/frameworks, map the modules, extract the domain
-  glossary, and synthesize a design concept + architecture overview, every claim
-  tagged by confidence (🟢 confirmed / 🟡 inferred / 🔴 gap). Use when adopting
-  devmode into an existing/legacy/unfamiliar project (`/devmode adopt`), when the
-  user says "understand this codebase", "discovery", "what is this project",
-  "onboard me to this repo", "map the architecture". Produces the seed the
-  orchestrator's grill phase then sharpens — it targets the 🔴 gaps.
+  Discovery: reverse-engineer an existing codebase into devmode's starting
+  artifacts (stack, module map, glossary, design concept), each claim tagged by
+  confidence. Use when adopting devmode into an existing project or onboarding to
+  an unfamiliar repo.
+disable-model-invocation: true
 ---
 
 # Discovery (codebase reverse-engineering)
@@ -21,7 +18,7 @@ a **confidence tag** so the human knows what's solid vs. assumed.
 
 **Confidence scale (tag every claim):** 🟢 **confirmed** (read it in the code),
 🟡 **inferred** (likely, from naming/structure), 🔴 **gap** (unknown — needs the
-human). The 🔴s become the targets for the [`grill-me`](../grill-me/SKILL.md) gate.
+human). The 🔴s become the targets for the `grill-me` gate.
 
 ## Reading a repo is not permission to run it
 
@@ -56,7 +53,7 @@ Output: a structured surface summary.
 ### 2. Map — the modules (→ UBIQUITOUS_LANGUAGE.md)
 From the surface, read the major modules and build the **module map**: each deep
 module, its responsibility, its public interface, what it depends on — exactly
-the table [`ubiquitous-language`](../ubiquitous-language/SKILL.md) wants. Read
+the table `ubiquitous-language` wants. Read
 one module per pass to preserve context; don't skim the whole repo at once.
 
 **Read the highest-fan-in module first** — the hub most others name in their
@@ -77,7 +74,7 @@ Write a concise discovery doc:
 - **Design concept (provisional)** — the agreed theory of the system, as best you
   can reconstruct it — the *starting point* for grilling, not the final word.
 - **Architecture** — components and how they fit (a simple diagram is fine),
-  policy-vs-detail boundaries ([`architecture-boundaries`](../architecture-boundaries/SKILL.md)),
+  policy-vs-detail boundaries (`system-boundaries.md` in `functional-core-imperative-shell`),
   data model, integrations.
 - **Readiness read** — *can this code be safely changed?* Two qualitative signals,
   each tagged 🟢/🟡/🔴: the **test safety-net** (is there coverage you can refactor
@@ -102,24 +99,24 @@ Discovery produces the inputs the rest of the process assumes existed:
 - `UBIQUITOUS_LANGUAGE.md` — seeded with the **terms + module map** (passes 2–3).
 - `DISCOVERY.md` — the architecture + provisional design concept + **readiness
   read** (pass 4).
-- A **🔴-gap list** → the orchestrator's [`grill-me`](../grill-me/SKILL.md) gate
+- A **🔴-gap list** → the orchestrator's `grill-me` gate
   resolves these *with the human* before any change. Discovery proposes; the
   human confirms — never treat 🟡/🔴 as fact.
 - The **readiness read + recommended first move** → the **ALIGN** gate plans the
   approach around the real risk surface: a 🔴 test safety-net means *write the net
   before you change the code* (characterization tests first), not "refactor and
-  hope" — exactly what [`tdd`](../tdd/SKILL.md) and
-  [`testing-principles`](../testing-principles/SKILL.md) need decided up front.
+  hope" — exactly what `tdd` and
+  `testing-principles.md` in `tdd` need decided up front.
 
 Then the normal flow continues: a change starts from a *real* design concept and
-a current module map, and [`impact-analysis`](../impact-analysis/SKILL.md) has a
+a current module map, and `impact-analysis` has a
 map to work from.
 
 ## Rules
 
 - **Read, don't guess** — a 🟢 claim means you read it; otherwise tag 🟡/🔴.
-  ("not observed" ≠ "absent" — see [`testing-principles`](../testing-principles/SKILL.md).)
-- **One module at a time** — preserve context ([`context-engineering`](../context-engineering/SKILL.md));
+  ("not observed" ≠ "absent" — see `testing-principles.md` in `tdd`.)
+- **One module at a time** — preserve context (`context-engineering`);
   don't try to hold the whole repo at once.
 - **Provisional, not authoritative** — discovery is the *starting* understanding;
   the human validates the inferences. Don't let the orchestrator skip the grill.

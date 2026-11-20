@@ -1,34 +1,53 @@
 ---
 name: shipping
 description: >-
-  Release safely — a pre-launch checklist, staged rollout with monitoring and
-  rollback thresholds, and the discipline that "PR-ready" is not "release-ready."
-  Use when preparing to ship/launch/deploy, cutting a release or tag, or when the
-  user says "ship it", "release", "go live", "launch checklist", "deploy to
-  prod". Shipping is its own gate beyond passing tests — what's verified locally
-  still has to survive contact with production.
+  Shipping: CI gate ladder, PR evidence, pre-launch checklist, staged rollout and
+  rollback. Use when setting up or fixing CI, writing a pull request, or preparing
+  to release, tag, or deploy to production.
+disable-model-invocation: true
 ---
 
-# Shipping & launch
+# Shipping and launch
 
 Passing tests means the code is *PR-ready*. Shipping asks a different question:
 will it survive contact with production, and can you undo it if not? "Works on my
 machine / in CI" and "safe in front of users" are two different bars; this skill
 is the second one.
 
+Setting up or fixing the CI pipeline that gates every change? Read `ci-cd.md` in
+this folder.
+
+Absorbed: `ci-cd-automation` now lives here as `ci-cd.md`.
+
+## The pull request
+
+A PR body proves the change, it doesn't narrate it. Keep prose brief and use the
+project's ubiquitous language.
+
+- **Summary:** the smallest view that makes the point: a diff-sketch, call tree,
+  file tree, or diagram, placed next to the line it supports.
+- **Evidence, before and after:** show the state before the change and after it.
+  A screenshot pair is best for a visual change; otherwise the exact test or
+  command output that failed before and passes now.
+- **Door:** call every change a **one-way door** (destructive or hard to reverse:
+  a data migration, a deleted API, a published contract) or a **two-way door**
+  (cheap to roll back). A one-way door gets the full checklist below and a named
+  rollback or recovery path.
+- **Blast radius:** what else this can break (consumers, layout, mobile, data).
+
 ## Pre-launch checklist
 
 Before releasing, confirm (with evidence, not assumption —
-[`verification-before-completion`](../verification-before-completion/SKILL.md)):
+`verification-before-completion`):
 
-- **The gate passed** — build/types/lint/tests green in CI
-  ([`ci-cd-automation`](../ci-cd-automation/SKILL.md)); acceptance criteria met.
-- **Reviewed** — the [`code-review`](../code-review/SKILL.md) panel signed off;
-  critical paths (auth/money/security) reviewed in full.
+- **The gate passed** — build/types/lint/tests green in CI (`ci-cd.md`);
+  acceptance criteria met.
+- **Reviewed** — the `code-review` panel signed off; critical paths
+  (auth/money/security) reviewed in full.
 - **Config & secrets** — prod config set, secrets present and *not* in the
-  bundle/logs ([`security-hardening`](../security-hardening/SKILL.md)).
+  bundle/logs (`security-hardening`).
 - **Migrations ready** — schema changes are expand-contract and reversible
-  ([`migration`](../migration/SKILL.md)); backups exist.
+  (`migration`); backups exist.
 - **Observability** — logs, metrics, and alerts for the new path are in place, or
   you're flying blind.
 - **Rollback plan** — you know *exactly* how to undo this (flag flip, redeploy
@@ -49,13 +68,15 @@ Don't expose 100% of users at once:
 ## After launch
 
 - **Verify in prod** — exercise the real path; confirm the metrics, don't assume.
-- **Tag + CHANGELOG** the release ([`git-workflow`](../git-workflow/SKILL.md)).
-- **Capture learnings** — what surprised you? Feed it back (a quick retro / ADR).
+- **Tag + CHANGELOG** the release (`git-workflow`).
+- **Capture learnings** — what surprised you? Feed it back (the `self-scorecard`
+  retro, or an ADR).
 
 ## Red flags
 
 - Shipping straight to 100% with no canary/flag and no rollback.
 - "Tests pass, so ship" — skipping the prod-readiness checklist.
+- A PR with no before/after evidence, or a one-way door not called out as one.
 - No monitoring/alerts on the new path (can't tell if it's failing).
 - Rollback thresholds invented *during* the incident.
 - A breaking schema/contract change shipped without expand-contract + backup.

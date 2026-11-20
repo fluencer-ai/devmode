@@ -1,26 +1,37 @@
 ---
 name: design-critique
 description: >-
-  Pressure-test a design, spec, or PRD by reviewing it through several expert
-  lenses (and surfacing where they disagree) before any code is written. Use
-  after a design concept or PRD exists but before implementation, when a decision
-  is high-stakes or hard to reverse, or when the user says "review this design",
-  "critique this plan", "poke holes in this", "what are we missing?". Catches
-  weak designs while they're still cheap to change — on paper, not in code.
+  Design critique: widen the candidate set for an open decision, then
+  pressure-test the chosen design, spec, or PRD through several expert lenses
+  before code. Use when a hard-to-reverse decision has only one candidate, when a
+  design or PRD is ready for review, or when the stakes are high.
+disable-model-invocation: true
 ---
 
 # Design critique
 
-The cheapest place to fix a design is before it's code. A single reviewer (even a
-careful one) reviews from one angle; a strong design survives *several*. This
-skill reviews a design/spec/PRD through multiple expert lenses and — crucially —
-surfaces where those lenses **disagree**, because the disagreements are where the
-real risk and the real decisions live. It runs *before* implementation; the
-post-build code review is the `complexity-reviewer` + the review-panel agents.
+The cheapest place to fix a design is before it's code. This skill runs in two
+passes, in order: **widen the candidate set, then pressure-test it.**
 
-Use it on a [`write-prd`](../write-prd/SKILL.md) output or a design reached via
-[`grill-me`](../grill-me/SKILL.md), before
-[`subagent-driven-development`](../subagent-driven-development/SKILL.md) executes it.
+1. **Widen** (only when the decision is still open and hard to reverse: an
+   architecture fork, an API/CLI/SDK surface, a naming scheme, a migration
+   approach, a bug with no known root cause). A critique can tell you the chosen
+   thing is weak, but it can't invent the alternative you never generated.
+   Generating options? Read `divergent-ideation.md` in this folder.
+2. **Pressure-test** the chosen design through the lenses below. A single
+   reviewer (even a careful one) reviews from one angle; a strong design survives
+   *several*. Surface where the lenses **disagree**, because the disagreements
+   are where the real risk and the real decisions live.
+
+Skip pass 1 when the design is already settled and only needs review.
+
+Absorbed: `divergent-ideation`. Its generate-before-judge discipline is pass 1,
+in `divergent-ideation.md` here.
+
+This runs *before* implementation; the post-build code review is the
+`complexity-reviewer` + the review-panel agents. Use it on a `write-prd` output
+or a design reached via `grill-me`, before `subagent-driven-development`
+executes it.
 
 ## The lenses
 
@@ -32,11 +43,10 @@ design — pick the ones that matter and say why the others don't.
 - **Change (Beck):** what's likely to change, and is the design easy to change
   there? Or is it rigid where the future will push?
 - **Domain (Evans):** does it match the real domain model and the
-  [`ubiquitous language`](../ubiquitous-language/SKILL.md)? Any concept forced or
-  missing?
+  `ubiquitous-language` glossary? Any concept forced or missing?
 - **Boundaries (Clean Arch):** are policy and detail separated? Does anything
-  couple business rules to infrastructure
-  ([`architecture-boundaries`](../architecture-boundaries/SKILL.md))?
+  couple business rules to infrastructure (see `system-boundaries.md` in
+  `functional-core-imperative-shell`)?
 - **Failure & security:** what happens on bad input, partial failure, abuse?
   What's the worst case, and is it handled?
 - **User/stakeholder:** does it actually solve the user's problem, or an adjacent
@@ -53,7 +63,7 @@ design — pick the ones that matter and say why the others don't.
    leans on an external fact (a library's real behavior, a protocol's guarantees,
    a known failure mode), **ground it with a cited web check** rather than opining
    from priors — a perspective-expert with a source beats one with a hunch (the
-   same grounding technique as [`grill-me`](../grill-me/SKILL.md)).
+   same grounding technique as `grill-me`).
 3. **Surface the disagreements.** Where two lenses pull in opposite directions
    (simplicity vs. flexibility, speed vs. security, scope vs. cost), name the
    tension explicitly — don't average it away.
@@ -74,3 +84,5 @@ design — pick the ones that matter and say why the others don't.
   concern or an explicit "no concern here, because…".
 - This is *review*, not redesign — surface problems and trade-offs; let the
   `design-architect` and the human decide the fix.
+- A hard-to-reverse decision reviewed with no alternative ever on the table:
+  go back to pass 1.

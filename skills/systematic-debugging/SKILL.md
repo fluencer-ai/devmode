@@ -1,13 +1,11 @@
 ---
 name: systematic-debugging
 description: >-
-  Find the root cause before proposing any fix, when facing a bug, test
-  failure, build error, flaky test, performance problem, or any unexpected
-  behavior. Use this the moment something doesn't work — especially under time
-  pressure, when a "quick fix" looks obvious, or when a previous fix didn't
-  stick — and when the user says "this is broken", "debug this", "the test
-  fails", "why doesn't this work", "it crashes". Random fixes mask the real
-  problem and create new bugs; this enforces root-cause-first discipline.
+  Root-cause-first debugging: a red-capable repro loop, ranked falsifiable
+  hypotheses, then one fix with a regression test. Use when something is broken
+  or failing, when a quick fix looks obvious or a previous fix didn't stick, or
+  when a flaky test or performance regression needs diagnosis.
+disable-model-invocation: true
 ---
 
 # Systematic debugging
@@ -24,6 +22,15 @@ root-cause-first path.
 is happening and *why*, you are not ready to change code. Proposing solutions
 before tracing the cause is the failure mode this skill exists to prevent.
 
+## Redact
+
+Debugging means showing commands, outputs, and captured artifacts. **Redact
+every secret first**: write `<REDACTED>` in its place. Build repro loops against
+env vars so the credential stays in the environment, not in what you show.
+Captured artifacts (HAR files, request logs) carry auth headers: quote only the
+lines that carry the signal. If the redacted output is not enough to diagnose
+the bug, say so and ask the user.
+
 ## The four phases — complete each before the next
 
 ### Phase 1 — Root-cause investigation
@@ -35,7 +42,7 @@ before tracing the cause is the failure mode this skill exists to prevent.
   intermittent? Can't reproduce → raise the reproduction rate (loop the trigger,
   add stress) or gather more data — don't guess. **No hypothesis until that red
   command exists.** (Loop mechanics live in
-  [`feedback-loops`](../feedback-loops/SKILL.md).)
+  `feedback-loops`.)
 - **Minimise the repro.** Once it's red, shrink to the smallest scenario that
   still goes red — cut inputs, callers, config, and steps *one at a time*,
   re-running after each. Fewer moving parts shrink the hypothesis space, and the
@@ -72,33 +79,41 @@ before tracing the cause is the failure mode this skill exists to prevent.
 - **List every difference** between working and broken, however small. "That
   can't matter" is how bugs hide.
 
-### Phase 3 — Hypothesis and minimal test
-- **State one hypothesis:** "I think X is the cause because Y." Be specific.
-- **Test it with the smallest possible change.** One variable at a time.
-- **Verify before continuing.** Worked → Phase 4. Didn't → form a *new*
-  hypothesis; do **not** stack another fix on top.
+### Phase 3 — Hypotheses and minimal test
+- **Generate 3–5 ranked hypotheses before testing any.** A single hypothesis
+  anchors on the first plausible idea.
+- **Make each falsifiable** by stating its prediction: "If X is the cause, then
+  changing Y makes the bug disappear (or changing Z makes it worse)." A
+  hypothesis with no prediction is a vibe: sharpen it or drop it.
+- **Show the ranked list to the user before testing.** They often re-rank it
+  instantly ("we just changed #3") or have already ruled one out. Don't block on
+  it: if the user is away, proceed with your ranking.
+- **Test the top one with the smallest possible change.** One variable at a
+  time; each probe maps to one prediction.
+- **Verify before continuing.** Confirmed → Phase 4. Refuted → move to the next
+  ranked hypothesis; do **not** stack another fix on top.
 - **When you don't know, say so** and investigate more. Don't pretend.
 
 ### Phase 4 — Fix the root cause
-- **Write a failing test first** that reproduces the bug (lean on
-  [`tdd`](../tdd/SKILL.md) and [`testing-principles`](../testing-principles/SKILL.md)).
+- **Write a failing test first** that reproduces the bug (lean on `tdd`).
+  If you forced the red by mutating code or a fixture, `diff` against a pristine
+  copy to prove the mutation actually landed before you trust that red.
   **If no correct seam exists** — the only test you can write is too shallow to
   exercise the real bug pattern at its call site — that itself is the finding: the
   architecture is preventing the bug from being locked down. Note it and hand off
-  to [`improve-codebase-architecture`](../improve-codebase-architecture/SKILL.md)
-  rather than shipping a false-confidence test.
+  to `improve-codebase-architecture` rather than shipping a false-confidence test.
 - **One fix, addressing the root cause.** No "while I'm here" extras.
-- **Verify with evidence** (see
-  [`verification-before-completion`](../verification-before-completion/SKILL.md)):
-  test passes, nothing else broke, the original symptom is gone, and all
-  `[DEBUG-…]` instrumentation is removed (grep the prefix).
+- **Verify with evidence** (`verification-before-completion`): test passes,
+  nothing else broke, the original symptom is gone, and all `[DEBUG-…]`
+  instrumentation is removed (grep the prefix).
+- **Record the confirmed hypothesis** in the commit or PR message, so the next
+  debugger learns what the cause was, not just what changed.
 
 ### The 3-fix rule — question the architecture
 If three fixes have failed — each revealing a new problem elsewhere, or each
 needing "massive refactoring" — **stop**. This is not a failed hypothesis; it's
 a wrong architecture. Surface it to your human partner and consider
-[`improve-codebase-architecture`](../improve-codebase-architecture/SKILL.md)
-instead of attempting fix #4.
+`improve-codebase-architecture` instead of attempting fix #4.
 
 ## Fix the class, not just the line
 
@@ -118,9 +133,8 @@ whole class needs closing.**
   This is the *reverse* of Phase 2's "find working examples".
 - **Close it both ways — as its own change, not smuggled into the bug fix**
   (Phase 4 stays one fix): *forward*, prevent the class; *backward*, migrate the
-  existing population incrementally if it's large
-  ([`migration`](../migration/SKILL.md)), scoped with
-  [`impact-analysis`](../impact-analysis/SKILL.md) so the sweep stays bounded.
+  existing population incrementally if it's large (`migration`), scoped with
+  `impact-analysis` so the sweep stays bounded.
 - **Install a ratchet** — a lint rule or a test that fails on the *pattern*, not
   just this input. The regression test guards the incident; the ratchet guards the
   class.
@@ -130,6 +144,7 @@ whole class needs closing.**
 - Naming the culprit subsystem before searching the whole repo for the symptom
 - "Quick fix now, investigate later" · "just try changing X" · "it's probably X"
 - Proposing fixes before tracing data flow
+- Testing a single hypothesis without ranking the alternatives
 - Changing multiple things at once
 - "One more fix attempt" after 2+ failures
 - "I don't fully understand but this might work"

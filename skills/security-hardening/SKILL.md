@@ -1,12 +1,11 @@
 ---
 name: security-hardening
 description: >-
-  Build security in — input validation, authn/authz, secrets handling, the OWASP
-  Top 10, dependency triage, and safe defaults. Use when handling user input,
-  auth, money, secrets, file/network I/O, or external data; when adding
-  dependencies; when the user says "is this secure?", "harden this", "auth",
-  "secrets", "OWASP", "vulnerability". This is the proactive *how-to-build-safely*
-  skill; the `security-scanner` agent is the reactive *review* of a diff.
+  Security built in: input validation, authn/authz, secrets, OWASP Top 10,
+  adversarial controls, and dependency triage. Use when code handles user
+  input, auth, money, secrets, or external data, when adding a dependency, or
+  when asked whether something is secure.
+disable-model-invocation: true
 ---
 
 # Security hardening
@@ -43,7 +42,7 @@ Classify every security-relevant action:
 ## A control must defend its own invariant
 
 The usual rule is "validate at the boundary, trust internal code"
-([`functional-core-imperative-shell`](../functional-core-imperative-shell/SKILL.md)) —
+(`functional-core-imperative-shell`) —
 but a **security control** (rate limiter, auth check, quota, validator) is the
 exception: its *pure core* must defend its invariant even against *internal* and
 *stored* values, because a control that trusts its inputs isn't a control. Reject
@@ -52,8 +51,8 @@ floor/clamp against a corrupt persisted value — including a *secondary* field 
 indirectly resets the protected one (a corrupt or **future-dated** period/timestamp
 that forces a counter reset is as much a bypass as a tampered count) — and never
 let an invariant like `0 <= tokens <= capacity` break under hostile or buggy input. Then test it under
-adversarial input, not just the happy path (see
-[`testing-principles`](../testing-principles/SKILL.md)). This is a real class of
+adversarial input, not just the happy path (see `testing-principles.md` in
+`tdd`). This is a real class of
 bug the review panel catches: the limit *looks* enforced on the nominal path and
 is bypassable off it.
 
@@ -87,7 +86,7 @@ tends to survive review with no findings):
 7. **Don't be born broken** — a freshly issued artifact must not land in a state
    that's already revoked/expired/over-limit.
 
-Pin each as an adversarial test ([`testing-principles`](../testing-principles/SKILL.md)),
+Pin each as an adversarial test (`testing-principles.md` in `tdd`),
 and have the `security-scanner` review the diff anyway — the list shrinks findings,
 it doesn't replace the second pair of eyes.
 
@@ -132,12 +131,12 @@ never let a failed install auto-substitute a similarly-named one.
 ## Process
 
 1. **Threat-model the change** — what's the trust boundary, what's the worst
-   case, who's the attacker? (Do this at [`design-critique`](../design-critique/SKILL.md).)
+   case, who's the attacker? (Do this at `design-critique`.)
 2. **Apply the Always-do list** for the relevant sinks.
 3. **Record security decisions as ADRs** (e.g. "constant-time compare because…").
 4. **Verify** — and have the `security-scanner` agent review the diff; for crypto/
    timing invariants that aren't unit-observable, pin a proxy + review lane (see
-   [`testing-principles`](../testing-principles/SKILL.md)).
+   `testing-principles.md` in `tdd`).
 
 ## Red flags
 

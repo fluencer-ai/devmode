@@ -1,14 +1,11 @@
 ---
 name: prior-art
 description: >-
-  Before building anything non-trivial, find out whether it already exists —
-  as a product you can buy, an open-source project you can adopt, or (when
-  nothing has shipped) a published technique you can implement. Judge fit over
-  popularity, price it at three horizons, and only then recommend build / adopt
-  / buy. Use at SPECIFY before write-prd, when the user says "let's build X",
-  "how should I implement X", "has anyone solved this", "what's the state of the
-  art", or whenever a component is about to anchor the architecture. Skip for
-  glue code, CRUD, and anything the user has already decided.
+  Prior art: check whether it already exists as a product, open-source project, or
+  published technique, then recommend build, adopt, or buy. Use at Specify before
+  write-prd, or when a component is about to anchor the architecture. Skip for
+  glue code and CRUD.
+disable-model-invocation: true
 ---
 
 # Prior art — is this already solved?
@@ -19,7 +16,7 @@ today, and is maintained by people whose whole job it is. That question is worth
 more than any amount of clever implementation, and it has to be asked *before*
 the PRD, because the answer can delete the PRD.
 
-This is [`minimal-code`](../minimal-code/SKILL.md)'s reuse ladder pointed
+This is `minimal-code`'s reuse ladder pointed
 **outward**: that one asks "does this repo already do it?", this one asks "does
 the world already do it?" — and it runs early enough to change what gets built.
 
@@ -44,7 +41,7 @@ State the frame in one line, because it changes the whole answer:
 If the request is too vague for the answer to be stable — you don't know the
 user, the must-have workflow, the scale, or whether paid tools are allowed —
 **ask before searching**, in one batch (see
-[`grill-me`](../grill-me/SKILL.md)'s round discipline). Whatever they don't
+`grill-me`'s round discipline). Whatever they don't
 answer becomes a **written assumption**, visible in the output, never a silent
 guess.
 
@@ -121,7 +118,7 @@ cost for a CRUD answer):
 When you do escalate, read in **isolation, then converge**: one fresh subagent
 per paper or source, each given only the problem and its own document — never
 your running conversation or your leaning, so they can't echo each other
-([`grill-me`](../grill-me/SKILL.md)'s anti-anchoring rule). Then *you* commit to
+(`grill-me`'s anti-anchoring rule). Then *you* commit to
 **one** recommended path, with citations, the first concrete step, and the
 failure modes the literature already documents. A pile of summaries is not an
 answer.
@@ -146,11 +143,11 @@ End with a single recommendation and the trade-off stated bluntly:
   tier, a compliance need) that should trigger revisiting it. A recommendation
   without its invalidation condition is a guess with good posture.
 
-Then hand off: the chosen direction feeds [`write-prd`](../write-prd/SKILL.md),
+Then hand off: the chosen direction feeds `write-prd`,
 the alternatives you rejected feed
-[`divergent-ideation`](../divergent-ideation/SKILL.md) if the decision is still
+`divergent-ideation.md` in `design-critique` if the decision is still
 open, and the winner gets pressure-tested by
-[`design-critique`](../design-critique/SKILL.md).
+`design-critique`.
 
 ## Red flags
 

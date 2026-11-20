@@ -1,14 +1,11 @@
 ---
 name: minimal-code
 description: >-
-  Write only the code the task needs — climb a decision ladder before coding
-  (does it need to exist? stdlib? native platform feature? installed dep? one
-  line?) and stop at the first rung that holds, but NEVER cut validation, error
-  handling, security, or accessibility. Use when implementing anything, when the
-  user says "minimal", "simplest", "lazy", "YAGNI", "do less", "don't
-  over-engineer", "shortest path", or complains about bloat, boilerplate,
-  needless dependencies, or over-abstraction; and to audit/review existing code
-  for over-engineering. The lazy senior dev: efficient, not careless.
+  Minimal code: climb a decision ladder and write only the code the task needs,
+  never cutting validation, errors, security, or accessibility. Use when
+  implementing anything, when the user asks for the simplest version, or when
+  auditing code for bloat.
+disable-model-invocation: true
 ---
 
 # Minimal code (the lazy senior dev)
@@ -18,7 +15,7 @@ over-engineered codebase and been paged at 3am for one: before writing anything,
 climb the ladder and **stop at the first rung that holds.** The result is small
 because it's *necessary*, not golfed — and it stays small *with every safety guard
 intact*. This is the tactical counterpart to
-[`improve-codebase-architecture`](../improve-codebase-architecture/SKILL.md):
+`improve-codebase-architecture`:
 that one consolidates shallow modules *after* the fact; this one stops the bloat
 *before* it's written.
 
@@ -33,7 +30,7 @@ Stop at the first rung that holds — it's a reflex, not a research project:
    don't re-solve a solved problem (and don't fork a second way to do one thing).
    For anything load-bearing, point the same question *outward* before designing
    it: does a product or an open-source project already do this?
-   ([`prior-art`](../prior-art/SKILL.md) — the ladder's outermost rung.)
+   (`prior-art` — the ladder's outermost rung.)
 3. **Stdlib does it?** Use it.
 4. **Native platform feature covers it?** `<input type="date">` over a picker lib,
    CSS over JS, a DB constraint over app code.
@@ -52,7 +49,7 @@ that prevents data loss, security measures, accessibility basics, or correctness
 on edge cases. "Lazy" means writing *less* code, never the *flimsier* algorithm —
 two stdlib options the same size, take the one that's right on the edges. A
 security/money/auth control is the *last* place to cut (see
-[`security-hardening`](../security-hardening/SKILL.md)'s control checklist).
+`security-hardening`'s control checklist).
 
 ## Rules
 
@@ -86,7 +83,7 @@ clean up only the mess your own change made.**
   imports/vars/functions *your* change left unused — but pre-existing dead code
   stays unless the user asked for it. Notice it, *mention* it, don't quietly cut it
   (map the blast radius via
-  [`impact-analysis`](../impact-analysis/SKILL.md) before any removal).
+  `impact-analysis` before any removal).
 - **The test:** every changed line traces directly to the request. A line you can't
   tie back to it is scope creep — revert it.
 
@@ -130,9 +127,9 @@ The same ladder is a lens on code that *already exists*:
 - **Audit (a whole area/repo):** rank what to **delete, simplify, or replace with
   stdlib/native** — reinvented stdlib, needless deps, speculative abstractions,
   dead "for later" scaffolding. Pairs with
-  [`improve-codebase-architecture`](../improve-codebase-architecture/SKILL.md).
+  `improve-codebase-architecture`.
 - **Review (a diff):** one line per finding — location, what to cut, the leaner
-  form. This is a standing lens of the [`code-review`](../code-review/SKILL.md)
+  form. This is a standing lens of the `code-review`
   panel, not just a one-off.
 
 ## Why it's worth it
@@ -143,8 +140,8 @@ picker into a component instead of reaching for a native `<input>`) — cheaper 
 faster — **while keeping 100% of the safety guards.** Small-because-necessary,
 not small-because-golfed. It is the direct embodiment of devmode's thesis: *code
 is not cheap; the cheapest code is the line you didn't write.* Pairs with
-[`tdd`](../tdd/SKILL.md) (write the minimum that passes the test) and
-[`prototyping`](../prototyping/SKILL.md) (a spike answers the question with even
+`tdd` (write the minimum that passes the test) and
+`prototyping` (a spike answers the question with even
 less).
 
 ## Red flags

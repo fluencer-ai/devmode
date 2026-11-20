@@ -1,12 +1,10 @@
 ---
 name: git-workflow
 description: >-
-  Use git as a clean, reviewable history — atomic commits, good messages,
-  trunk-based branching, worktrees for parallel work, and safe operations. Use
-  when committing, branching, structuring a PR, resolving conflicts, or when the
-  user says "commit this", "branching strategy", "clean up history", "worktree",
-  "how should I structure this PR". A readable history is a debugging tool and a
-  review aid — and dangerous git ops are exactly what the guardrails block.
+  Git workflow: atomic commits, clear messages, trunk-based branches, worktrees,
+  and safe operations. Use when committing, branching, structuring a pull request,
+  resolving conflicts, or cleaning up history.
+disable-model-invocation: true
 ---
 
 # Git workflow & versioning
@@ -30,9 +28,9 @@ surgical. A messy history hides the very information you'll need under pressure.
   accumulate painful conflicts.
 - **Worktrees for parallel work** — `git worktree` gives an isolated checkout per
   task without stashing/switching, which pairs perfectly with
-  [`subagent-driven-development`](../subagent-driven-development/SKILL.md)
+  `subagent-driven-development`
   (each worker on its own files/worktree, no collisions).
-- Keep trunk releasable; gate merges on CI ([`ci-cd-automation`](../ci-cd-automation/SKILL.md)).
+- Keep trunk releasable; gate merges on CI (`shipping`, its `ci-cd.md`).
 
 ## Resolving conflicts
 
@@ -63,7 +61,7 @@ escape**. Work it hunk by hunk:
 ## Reviewable PRs
 
 - Keep PRs small and single-purpose — easier to review well (see
-  [`code-review`](../code-review/SKILL.md)).
+  `code-review`).
 - Summarize **what changed AND what you deliberately did NOT touch** — the
   "didn't touch" line tells the reviewer where to *not* spend attention and
   surfaces scope creep.
@@ -72,9 +70,9 @@ escape**. Work it hunk by hunk:
 ## Versioning
 
 - Semantic-ish versioning: breaking / feature / fix. Tie a release to a tag +
-  CHANGELOG; pair with [`shipping`](../shipping/SKILL.md).
-- Breaking changes follow [`api-design`](../api-design/SKILL.md) + a deprecation
-  window ([`migration`](../migration/SKILL.md)).
+  CHANGELOG; pair with `shipping`.
+- Breaking changes follow `api-design` + a deprecation
+  window (`migration`).
 
 ## Red flags
 

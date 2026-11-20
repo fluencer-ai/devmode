@@ -1,15 +1,11 @@
 ---
 name: design-interface-delegate-implementation
 description: >-
-  Split work between strategy and tactics — design module interfaces carefully
-  yourself, then delegate the implementation behind them to the AI as a gray
-  box verified from the outside. Use this when planning how to build a feature
-  with an AI agent, when deciding what to review closely versus delegate, when
-  the user says "design the interface", "delegate this", "I don't want to
-  review every line", "treat this as a black box", or when a feature is large
-  enough that reviewing every implementation line would exhaust you. The
-  interface plus its tests pin the behavior, so the implementation can be
-  delegated safely.
+  Interface-first delegation: design module interfaces and seams yourself, then
+  delegate the implementation to the AI as a gray box verified from outside. Use
+  when planning how an agent builds a feature, deciding what to review versus
+  delegate, or placing a seam and choosing how to test across it.
+disable-model-invocation: true
 ---
 
 # Design the interface, delegate the implementation
@@ -29,14 +25,21 @@ largely to the AI: you don't read every line, you verify the box from the
 *outside* through its interface and tests. Gray, not black, because you can open
 it when you need to — but you usually don't need to.
 
+**Speak the fixed vocabulary.** Module, interface, implementation, depth, seam,
+adapter, leverage, locality: use these exactly, in design talk, briefs, and
+reviews, and never drift into the rejected terms. Need the definitions, the
+rejected terms, or the deletion test? Read `deep-module-vocabulary.md` in this
+folder.
+
 ## What to design carefully vs. delegate
 
 **Design carefully (this is strategy — keep it in your head):**
 
-- The **public interface**: signatures, types, return/error shapes, events,
-  endpoints. Name things in the
-  [`ubiquitous language`](../ubiquitous-language/SKILL.md).
-- The **boundary**: what data crosses in and out, and what stays hidden inside.
+- The **interface**: everything a caller must know: signatures, types,
+  return/error shapes, events, endpoints, plus invariants, ordering, and
+  performance. Name things in the `ubiquitous-language` glossary.
+- The **seam**: where the interface lives, what data crosses in and out, and
+  what stays hidden inside.
 - The **invariants and contract**: what's always true, what errors are possible,
   what the caller may assume.
 - Which modules are **critical** (money, auth, data integrity, security) — these
@@ -48,29 +51,50 @@ it when you need to — but you usually don't need to.
   tests are fixed.
 - Routine wiring, boilerplate, and mechanical transformations.
 
+## Seams and dependencies
+
+**One adapter means a hypothetical seam. Two adapters means a real one.** Don't
+introduce a port unless something actually varies across it (typically
+production + test). A single-adapter seam is just indirection. A deep module may
+also have **internal seams** for its own tests; don't expose them through the
+interface just because tests use them.
+
+Classify each dependency behind the seam; the category decides how the module is
+tested across it:
+
+1. **In-process**: pure computation, in-memory state, no I/O. Test through the
+   interface directly. No adapter needed.
+2. **Local-substitutable**: has a local stand-in (an in-process Postgres, an
+   in-memory filesystem). Run the stand-in in the test suite. The seam stays
+   internal; no port at the external interface.
+3. **Remote but owned**: your own service across a network. Define a port at the
+   seam; the deep module owns the logic, the transport is injected as an adapter
+   (HTTP/gRPC/queue in production, in-memory in tests).
+4. **True external**: a third party you don't control (payments, SMS). Take it
+   as an injected port; tests provide a mock adapter. This is the only category
+   where a mock is the default (see `testing-principles.md` in `tdd`).
+
 ## How to delegate safely
 
 This skill is the *strategy*; the *mechanism* lives in
-[`subagent-driven-development`](../subagent-driven-development/SKILL.md) (dispatch
-a fresh subagent per task with two-stage review) and
-[`delegate-to-cli`](../delegate-to-cli/SKILL.md) (offload to an external model
-CLI). Both enforce the same gray-box contract below.
+`subagent-driven-development` (dispatch a fresh subagent per task with two-stage
+review, or an external model CLI as the worker). It enforces
+the same gray-box contract below.
 
 A gray box is only safe if the outside is locked down. Before you delegate the
 inside:
 
 1. **Fix the interface.** Write the signatures and types. This is the contract;
    it should not change just because the implementation was inconvenient.
-2. **Write the tests against the interface first.** The tests are what let you
-   *not* read every line — they pin behavior from the outside. Lean on
-   [`tdd`](../tdd/SKILL.md) and
-   [`testing-principles`](../testing-principles/SKILL.md) for where the boundary
-   sits and what to assert. A pure
-   [`functional core`](../functional-core-imperative-shell/SKILL.md) makes this
-   boundary especially clean.
+2. **Write the tests against the interface first.** The interface is the test
+   surface: callers and tests cross the same seam. The tests are what let you
+   *not* read every line; they pin behavior from the outside. Lean on `tdd` and
+   its `testing-principles.md` for where the seam sits and what to assert. A pure
+   functional core (`functional-core-imperative-shell`) makes this seam
+   especially clean.
 3. **State the constraints, not the steps.** Tell the agent the invariants,
-   performance budget, and data shapes — then let it choose how. Prescribing
-   implementation steps throws away the AI's tactical strength.
+   performance budget, dependency category, and data shapes, then let it choose
+   how. Prescribing implementation steps throws away the AI's tactical strength.
 4. **Verify from the outside.** Run the tests, types, linter, and (for UI) a
    real browser. If the box passes its interface tests, accept it without
    line-by-line review — that's the whole point. Open the box only if a test
@@ -91,15 +115,16 @@ Spending attention on the interface doesn't mean polishing your first idea — y
 first idea is rarely the best. When an interface is high-stakes or hard to
 reverse, sketch **2–3 radically different shapes** before committing, each under a
 different forcing constraint (minimise the surface to 1–3 entry points / maximise
-flexibility / optimise the most common caller), and for each note its signatures +
-invariants, one usage example, what it hides, and its trade-offs. Then commit to
-the shape that is **deepest** (most behavior per unit of interface) and puts the
-seam in the right place — or to a hybrid. Reserve this for interfaces that earn
-it; routine ones don't need a bake-off.
-[`prototyping`](../prototyping/SKILL.md) covers making those alternatives
-*runnable* when paper isn't enough, and
-[`subagent-driven-development`](../subagent-driven-development/SKILL.md) lets you
-generate the competing shapes in parallel.
+flexibility / optimise the most common caller / ports and adapters for the
+cross-seam dependencies), and for each note its signatures + invariants, one
+usage example, what it hides, its dependency strategy, and its trade-offs. Compare
+on **depth** (leverage at the interface), **locality** (where change
+concentrates), and **seam placement**, then commit to the strongest shape or a
+hybrid, and say which you recommend. Reserve this for interfaces that earn it;
+routine ones don't need a bake-off. `prototyping` covers making those
+alternatives *runnable* when paper isn't enough, and
+`subagent-driven-development` lets you generate the competing shapes in parallel
+(put the vocabulary and the glossary terms in each brief).
 
 ## Guardrails
 
@@ -107,10 +132,11 @@ generate the competing shapes in parallel.
   under-tested, you don't yet have the right to stop reading it.
 - Critical modules (finance, auth, security, irreversible side effects) are
   never gray boxes — review them fully regardless of test coverage.
+- If you have to test *past* the interface, the module is probably the wrong
+  shape. Fix the shape, not the test.
 - If the AI keeps wanting to change the interface to make the implementation
   easier, that's a design signal: either the interface is wrong (fix it
   deliberately) or the implementation is fighting a missing
-  [`functional-core/imperative-shell`](../functional-core-imperative-shell/SKILL.md)
-  split.
+  functional-core/imperative-shell split (`functional-core-imperative-shell`).
 - The interface is expensive to change and cheap to get right up front. Spend
   your attention there.

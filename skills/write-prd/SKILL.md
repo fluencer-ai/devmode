@@ -1,14 +1,11 @@
 ---
 name: write-prd
 description: >-
-  Turn an aligned design concept into a Product Requirements Document that is
-  explicit about which modules and interfaces change and how. Use this after
-  reaching shared understanding (e.g. via grill-me) and before implementation,
-  whenever the user says "write a PRD", "write up the spec", "document this
-  feature", "create a plan for this", or when a change is large enough that
-  jumping straight to code would lose the design. The PRD must name module
-  boundaries and interface changes, not just user-facing behavior — investing
-  in the design of the system is the whole point.
+  PRD writing: turn an aligned design concept into a spec that names which
+  modules and interfaces change, and where the tests will sit. Use after
+  alignment and before implementation, when the user asks for a PRD or spec, or
+  when a change is too large to go straight to code without losing the design.
+disable-model-invocation: true
 ---
 
 # Write a PRD
@@ -18,18 +15,31 @@ design of the system** (Kent Beck: do this every day). "Specs-to-code" fails
 because it divests from design — it describes behavior and lets the compiler
 invent the structure, which decays a little more every run. A good PRD does the
 opposite: it commits to *what behavior is needed* and *how the system's
-structure changes to support it*, so implementation has a spine to follow.
+structure changes to support it*, so implementation has a spine to follow. The
+PRD must name module seams and interface changes, not just user-facing behavior.
 
-Write the PRD only after the design concept is shared (see
-[`grill-me`](../grill-me/SKILL.md)), and write it in the project's
-[`ubiquitous language`](../ubiquitous-language/SKILL.md) so the terms mean the
-same thing here as in the code.
+Write the PRD only after the design concept is shared (see `grill-me`), and write
+it in the project's `ubiquitous-language` glossary so the terms mean the same
+thing here as in the code. Respect the existing ADRs in the area.
+
+## Sketch the test seams first
+
+Before writing, decide where the feature will be tested from the outside:
+
+- **Prefer existing seams** to new ones.
+- **Use the highest seam possible.** If a new seam is needed, propose it as high
+  as you can.
+- **Fewer seams is better; the ideal is one.** Each extra seam is another
+  interface to keep stable and another place behavior can hide.
+
+Check with the user that the seams match their expectations, then write the PRD
+around them. The seams become the Testing strategy section and the interfaces
+the `tdd` loop drives.
 
 ## Structure
 
-Use this template (a ready-to-copy version lives at
-[`assets/prd-template.md`](assets/prd-template.md)). Keep each section tight — a
-PRD earns its length by being specific, not long.
+Use this template (a ready-to-copy version lives at `assets/prd-template.md`).
+Keep each section tight — a PRD earns its length by being specific, not long.
 
 ```markdown
 # PRD: <feature name>
@@ -52,21 +62,21 @@ The observable behavior, written as concrete scenarios:
 - Errors: what the user/system sees when things go wrong
 
 ## Module & interface changes   <-- the heart of the PRD
-For each affected module:
+For each affected module (named by module, never by file path):
 - **<Module>** — purpose of the change. New or modified?
   - Interface: the public surface that changes (signatures, types, events,
     endpoints). Design this carefully — it's the contract you'll test against.
   - Implementation notes: only what constrains the design (invariants,
     performance, data shape). Leave routine implementation to the builder.
-  - Boundary: what crosses in and out, and what stays hidden inside.
+  - Seam: what crosses in and out, and what stays hidden inside.
 
 ## Data
 Shapes, sources of truth, migrations, state transitions.
 
 ## Testing strategy
-Where the test boundaries sit (which interfaces get verified from the
-outside), what to mock, and what "done and correct" means. See
-testing-principles.
+The test seams agreed above (ideally one, as high as possible), which
+interfaces get verified from the outside, what to mock, and what "done and
+correct" means. See `testing-principles.md` in `tdd`.
 
 ## Open questions / risks
 Anything still unresolved, and what would resolve it.
@@ -79,15 +89,22 @@ describes user-facing behavior, the AI invents the structure — and it tends
 toward shallow modules and entropy. By naming the modules that change and
 designing their **interfaces** here, you set the strategy and let the AI fill
 the implementation. This is the same idea as
-[`design-interface-delegate-implementation`](../design-interface-delegate-implementation/SKILL.md):
-the interface is yours, the implementation can be delegated, because the
-interface plus tests pin the behavior from the outside.
+`design-interface-delegate-implementation`: the interface is yours, the
+implementation can be delegated, because the interface plus tests pin the
+behavior from the outside.
 
 Be concrete about interfaces: real signatures, real types, real endpoint shapes
 or event names. "Add a service to handle billing" is not a design; it's a
 restatement of the feature. "`BillingGateway.charge(seatId, amount): Result<Receipt, ChargeError>`,
 called only by the imperative shell, pure-validated by the functional core" is
 a design.
+
+**Name modules and interfaces, not file paths.** Paths go stale within days;
+module names and contracts don't. Interface signatures belong; implementation
+code doesn't. The one exception: when a prototype produced a snippet that states
+a decision more precisely than prose (a state machine, a reducer, a schema, a
+type shape), inline it in the relevant decision, trimmed to the decision-rich
+part, and note that it came from a prototype.
 
 ## Working style
 
@@ -103,9 +120,9 @@ a design.
   done when it's *recorded* — it's done when the behavior or module/interface
   section actually reflects it. Before approving, confirm each decision is
   referenced somewhere downstream, not stranded in a log (the decision-coverage
-  check in [`feedback-loops`](../feedback-loops/SKILL.md)).
-- Before approving a high-stakes PRD, pressure-test it with
-  [`design-critique`](../design-critique/SKILL.md) — review it through several
-  expert lenses and surface the trade-offs while it's still cheap (on paper).
+  check in `feedback-loops`).
+- Before approving a high-stakes PRD, pressure-test it with `design-critique` —
+  review it through several expert lenses and surface the trade-offs while it's
+  still cheap (on paper).
 - When the PRD is approved, it becomes the brief for implementation — typically
-  handed to [`tdd`](../tdd/SKILL.md) and the `tdd-implementer` agent.
+  handed to `tdd` and the `tdd-implementer` agent.

@@ -1,13 +1,10 @@
 ---
 name: goal-brief
 description: >-
-  Turn a devmode spec into a ready-to-run `/goal` (or `/plan`)
-  command — a compact launch brief (≤3800 chars) that references the spec file in
-  detail (step-by-step + tests + acceptance criteria) and is guaranteed to fit
-  the limit. Use ONLY when the user explicitly asks for it (e.g. `/devmode goal`,
-  "make me a /goal", "generate the goal prompt", "I want to run this as a /goal").
-  Do NOT wire `/goal` into the normal phase flow — it's opt-in. By contract,
-  devmode emits the command for the user to run each iteration.
+  Goal brief: turn a devmode spec into a ready-to-run /goal or /plan command under
+  3800 characters. Use only when the user explicitly asks for a /goal or /plan
+  brief; it is opt-in and never part of the normal phase flow.
+disable-model-invocation: true
 ---
 
 # goal-brief
@@ -48,8 +45,8 @@ user explicitly wants a `/goal` (or `/plan`) — typically via `/devmode goal
 ## How to produce a brief
 
 1. **Ensure the objective doc exists.** Reuse the track's `spec.md` (+`plan.md`).
-   If there's no spec yet, produce one first ([`write-prd`](../write-prd/SKILL.md),
-   after [`grill-me`](../grill-me/SKILL.md)) — it must carry the **step-by-step,
+   If there's no spec yet, produce one first (`write-prd`,
+   after `grill-me`) — it must carry the **step-by-step,
    the testing strategy, and the acceptance criteria**, because the brief points
    at it for the detail.
 2. **Scaffold the brief** from the spec:
@@ -92,6 +89,6 @@ user explicitly wants a `/goal` (or `/plan`) — typically via `/devmode goal
 - Wiring `/goal` into the default flow (it's opt-in — only on explicit request).
 - Pretending devmode started `/goal`; this mode's explicit contract is to emit it.
 
-> devmode-original. `/goal` and `/plan` are cross-host commands (referenced, not
+> `/goal` and `/plan` are cross-host commands (referenced, not
 > vendored). The budget guard is `scripts/goal_brief.py` (installed to
 > `.devmode/goal_brief.py`).

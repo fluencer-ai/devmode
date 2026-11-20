@@ -7,6 +7,10 @@ in skills/authoring-skills/SKILL.md):
   - every skills/<name>/SKILL.md has YAML-ish frontmatter with `name` + `description`
   - frontmatter `name` matches its folder name
   - SKILL.md body stays under the line budget (progressive disclosure)
+  - every leaf skill is hidden from the per-turn listing
+    (`disable-model-invocation: true`) and its description fits 300 chars
+  - references/skill-index.md is fresh (scripts/build_skill_index.py --check)
+  - the Codex view is lean: the devmode launcher, plus only valid skill links
   - every .agents/<name>.md has frontmatter with `name` (matching the file) + `description`
   - every written "N skills"/"N agents" total in tracked markdown matches the
     real directory counts (so a stale "38 skills" can't ship to the README/About)
@@ -26,6 +30,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SKILLS_DIR = os.path.join(ROOT, "skills")
 LINE_BUDGET = 500
+DESC_BUDGET = 300  # the orchestrator routes from the index; descriptions stay one tight line
 LINK_RE = re.compile(r"\]\(([^)]+)\)")
 
 GREEN, RED, YELLOW, DIM, OFF = "\033[32m", "\033[31m", "\033[33m", "\033[2m", "\033[0m"
@@ -73,7 +78,12 @@ def audit_skills() -> list[str]:
             errors.append(f"{rel}: frontmatter missing `name`")
         elif fm["name"] != name:
             errors.append(f"{rel}: name '{fm['name']}' != folder '{name}'")
-        desc = fm.get("description", "")
+        desc = re.sub(r"^[>|]-?\s*", "", fm.get("description", ""))
+        if fm.get("disable-model-invocation", "").lower() != "true":
+            errors.append(f"{rel}: leaf skills must set `disable-model-invocation: true` "
+                          f"(the /devmode router is the only listed entry)")
+        if len(desc) > DESC_BUDGET:
+            errors.append(f"{rel}: description is {len(desc)} chars (budget {DESC_BUDGET})")
         if not desc:
             errors.append(f"{rel}: frontmatter missing `description`")
         elif not re.search(r"\b(use when|when |trigger)", desc, re.I):
@@ -172,40 +182,61 @@ def audit_codex_agents() -> list[str]:
 
 
 def audit_codex_skills(root: str = ROOT) -> list[str]:
-    """Every skill must be *reachable from Codex*, not just present.
-
-    `audit_codex_agents` guards the Codex agent surface; the Codex **skill**
-    surface had no guard at all. A skill added to `skills/` without its
-    `.agents/skills/` link is invisible to Codex while the audit still exits 0.
-    The Claude side cannot desync from itself (`skills/` is its own discovery
-    root), so the asymmetry is real and one-directional.
+    """The Codex skill view is lean: Codex lists every linked description on every
+    turn, so the base exposes only the `devmode` launcher, which reads each skill
+    by path. Any extra link must still resolve to a real skill (a link left behind
+    by a renamed or fused skill fails), and the launcher must be complete.
     """
     errors: list[str] = []
     skills_dir = os.path.join(root, "skills")
     codex_dir = os.path.join(root, ".agents", "skills")
     if not os.path.isdir(skills_dir):
         return []
-    names = sorted(n for n in os.listdir(skills_dir)
-                   if os.path.isdir(os.path.join(skills_dir, n)))
-    print(f"{DIM}Checking Codex skill view ({len(names)} links + launcher)…{OFF}")
-    for name in names:
-        rel = f".agents/skills/{name}"
-        link = os.path.join(codex_dir, name)
-        expected = os.path.join("../../skills", name)
-        if not os.path.islink(link):
-            errors.append(f"{rel}: missing link — '{name}' is invisible to Codex")
+    entries = sorted(os.listdir(codex_dir)) if os.path.isdir(codex_dir) else []
+    print(f"{DIM}Checking the Codex skill view ({len(entries)} entries)…{OFF}")
+    for name in entries:
+        if name == "devmode":
             continue
-        actual = os.readlink(link)
-        if actual != expected:
-            errors.append(f"{rel}: links to '{actual}', expected '{expected}'")
+        rel, link = f".agents/skills/{name}", os.path.join(codex_dir, name)
+        if not os.path.islink(link):
+            errors.append(f"{rel}: a copy, not a link — Codex must not get a second physical skill")
+        elif os.readlink(link) != os.path.join("../../skills", name):
+            errors.append(f"{rel}: links to '{os.readlink(link)}', expected '../../skills/{name}'")
         elif not os.path.isfile(os.path.join(link, "SKILL.md")):
-            errors.append(f"{rel}: link resolves to no SKILL.md")
+            errors.append(f"{rel}: stale link, no skills/{name}/SKILL.md (remove it)")
     for extra in ("SKILL.md", "agents/openai.yaml"):
         if not os.path.isfile(os.path.join(codex_dir, "devmode", *extra.split("/"))):
             errors.append(f".agents/skills/devmode/{extra}: launcher file missing")
     flag = f"{RED}✗{OFF}" if errors else f"{GREEN}✓{OFF}"
-    print(f"  {flag} {len(names)} skills reachable from Codex, {len(errors)} problem(s)")
+    print(f"  {flag} launcher + {len(entries) - ('devmode' in entries)} extra link(s), {len(errors)} problem(s)")
     return errors
+
+
+def audit_index(root: str = ROOT) -> list[str]:
+    """The orchestrator routes from references/skill-index.md; a stale index
+    would send it to a fused or renamed skill."""
+    import subprocess
+    p = subprocess.run([sys.executable, os.path.join(root, "scripts", "build_skill_index.py"), "--check"],
+                       capture_output=True, text=True)
+    ok = p.returncode == 0
+    print(f"  {GREEN+'✓'+OFF if ok else RED+'✗'+OFF} references/skill-index.md is "
+          f"{'fresh' if ok else 'stale'}")
+    return [] if ok else [p.stdout.strip() or "references/skill-index.md is stale"]
+
+
+def audit_clashes(other: str | None = None) -> list[str]:
+    """Soft check: a devmode skill with the same name as one in the user's other
+    pack (fstack, linked at ~/.fstack) would shadow it in ~/.claude/skills."""
+    other = other or os.environ.get("FSTACK_DIR") or os.path.expanduser("~/.fstack")
+    theirs = os.path.join(other, "skills")
+    if not os.path.isdir(theirs) or not os.path.isdir(SKILLS_DIR):
+        return []
+    clash = sorted(set(os.listdir(SKILLS_DIR)) & set(os.listdir(theirs)))
+    if clash:
+        print(f"  {YELLOW}~{OFF} name clash with {theirs}: {', '.join(clash)}")
+    else:
+        print(f"  {GREEN}✓{OFF} no skill-name clash with {theirs}")
+    return []  # informational: the installer already refuses to overwrite a foreign link
 
 
 # The skill/agent totals are hand-written as prose in ~10 tracked files (README
@@ -285,6 +316,10 @@ def count_drift(rel: str, text: str, real_skills: int, real_agents: int) -> list
     return errors
 
 
+# A changelog records past totals on purpose ("43 → 32 skills"); it is history, not drift.
+HISTORY_FILES = {"CHANGELOG.md"}
+
+
 def audit_counts() -> list[str]:
     """Fail if any prose skill/agent total drifted from the real directory counts."""
     real_skills = (sum(1 for d in os.listdir(SKILLS_DIR)
@@ -304,7 +339,7 @@ def audit_counts() -> list[str]:
             if "/workspaces" in dp:
                 continue
         for f in fns:
-            if not f.endswith(".md"):
+            if not f.endswith(".md") or f in HISTORY_FILES:
                 continue
             mf = os.path.join(dp, f)
             scanned += 1
@@ -479,6 +514,9 @@ def main() -> int:
     print()
     codex_skill_errors = audit_codex_skills()
     print()
+    index_errors = audit_index()
+    audit_clashes()
+    print()
     count_errors = audit_counts()
     print()
     mirror_errors = audit_mirrors()
@@ -488,7 +526,7 @@ def main() -> int:
     audit_overlap()
     print()
     link_errors = audit_links()
-    errors = (skill_errors + agent_errors + codex_agent_errors + codex_skill_errors
+    errors = (skill_errors + agent_errors + codex_agent_errors + codex_skill_errors + index_errors
               + count_errors + mirror_errors + prov_errors + link_errors)
     print()
     if errors:

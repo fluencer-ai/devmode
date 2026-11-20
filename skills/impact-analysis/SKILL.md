@@ -1,13 +1,11 @@
 ---
 name: impact-analysis
 description: >-
-  Map the blast radius before changing code — who depends on the thing you're
-  about to touch, what breaks if its behavior or signature changes, and whether
-  there are cycles or orphans. Use before any non-trivial refactor, interface
-  change, rename, or deletion; when the user asks "what breaks if I change
-  this?", "what depends on X?", "is this safe to remove?", "what's the impact
-  of this change?"; or when a small change keeps breaking distant code. Turns a
-  scary refactor into a bounded, evidence-backed one.
+  Impact analysis: map the blast radius before a change (who depends on it,
+  what breaks, any cycles or orphans). Use before a non-trivial refactor,
+  interface change, rename, or deletion, or when a small change keeps breaking
+  distant code.
+disable-model-invocation: true
 ---
 
 # Impact analysis
@@ -16,8 +14,9 @@ A change is only as safe as your knowledge of what depends on it. The AI's
 failure mode is to edit a function and discover the fallout later, in distant
 broken code. This skill front-loads that discovery: before you touch something,
 trace *who depends on it* and decide deliberately. It's the missing input to a
-safe [`improve-codebase-architecture`](../improve-codebase-architecture/SKILL.md)
-refactor and a sharper [`architecture-boundaries`](../architecture-boundaries/SKILL.md).
+safe `improve-codebase-architecture`
+refactor and sharper system boundaries
+(`system-boundaries.md` in `functional-core-imperative-shell`).
 
 ## The four questions
 
@@ -56,14 +55,13 @@ devmode is tool-agnostic — use the cheapest reliable source of reverse edges:
 - **Small radius, no cycles** → refactor freely (test-first).
 - **Large radius** → keep the interface stable and change behavior behind it (a
   gray-box-friendly move, see
-  [`design-interface-delegate-implementation`](../design-interface-delegate-implementation/SKILL.md)),
+  `design-interface-delegate-implementation`),
   or stage the change with a deprecation path.
 - **Cycle found** → break it before refactoring, not during.
 - **Orphan** → delete it; entropy removed is the best refactor.
 - **Pin the radius with tests** at the affected boundaries *before* you change,
   so the blast radius is verified, not assumed
-  ([`testing-principles`](../testing-principles/SKILL.md),
-  [`tdd`](../tdd/SKILL.md)).
+  (`tdd` and its `testing-principles.md`).
 
 ## Renames: the radius includes tests, and search hits substrings
 
@@ -72,7 +70,7 @@ A rename is the most under-estimated change. Its blast radius includes the
 **substrings** — replacing `_period(` silently mangles `within_period(` too. So:
 scope the rename precisely (whole-symbol, not substring), include tests in the
 sweep, and **re-run the full suite right after** — a rename isn't done until green
-(this is exactly what [`verification-before-completion`](../verification-before-completion/SKILL.md)
+(this is exactly what `verification-before-completion`
 catches: a broken import that "looks" like a clean rename).
 
 ## Reusing a state value inherits every behavior keyed on it
@@ -98,7 +96,7 @@ and discovered the rest one bug at a time.
 ## Record the "why" on dependencies
 
 When a dependency is non-obvious (this module calls that one *because*…), capture
-the reason next to the [`module map`](../ubiquitous-language/SKILL.md), or in the
+the reason next to the module map (see `ubiquitous-language`), or in the
 decision log. A reverse edge with a recorded *why* is what lets a future session
 (or the AI after compaction) judge whether the dependency is essential or
 accidental.

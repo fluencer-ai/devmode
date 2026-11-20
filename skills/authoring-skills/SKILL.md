@@ -1,13 +1,11 @@
 ---
 name: authoring-skills
 description: >-
-  Write, edit, and audit devmode skills (SKILL.md files) so they actually change
-  behavior and stay consistent. Use when creating a new skill, editing an
-  existing one, reviewing the skill pack for quality/duplication/broken links,
-  or when the user says "write a skill", "improve this skill", "audit the
-  skills", "is this skill good?", "the skill doesn't trigger". A skill is a
-  knowledge-delta tool, not a tutorial — this skill keeps the pack sharp and
-  internally consistent.
+  Skill authoring: write, edit, and audit devmode SKILL.md files so they change
+  behavior and stay consistent. Use when creating or editing a skill, agent, or
+  steering file, when auditing the pack for drift or duplication, or when a skill
+  is not followed.
+disable-model-invocation: true
 ---
 
 # Authoring skills
@@ -15,8 +13,12 @@ description: >-
 devmode *is* a skill pack, so maintaining the skills well is part of the work.
 A skill is not a tutorial and not a story about how you once solved something —
 it is a **knowledge-externalization mechanism**: edit a markdown file, and the
-model's behavior changes on the next invocation, at zero training cost. This
-skill keeps that mechanism effective and the pack consistent.
+model's behavior changes on the next invocation, at zero training cost. The same
+writing rules hold for every document an agent consumes: a skill, an agent
+definition, `CLAUDE.md` / `AGENTS.md`, a doc reached by a pointer.
+
+Writing the body itself (where each piece sits, splitting, leading words,
+pruning)? Read `writing-for-agents.md` in this folder.
 
 ## The value test: knowledge delta
 
@@ -30,7 +32,7 @@ is "nothing", don't write it.
 
 ## Write skills test-first (TDD for documentation)
 
-Writing a skill is [`tdd`](../tdd/SKILL.md) applied to process docs:
+Writing a skill is `tdd` applied to process docs:
 
 1. **RED — watch it fail first.** Run a realistic pressure scenario *without* the
    skill and record the exact wrong behavior and the rationalizations the agent
@@ -47,63 +49,81 @@ handled to confirm you didn't break it, and try one *different*, unseen case in
 the same class so the fix generalizes instead of overfitting the single scenario
 you watched fail.
 
-This is why the strongest skills (see
-[`systematic-debugging`](../systematic-debugging/SKILL.md),
-[`verification-before-completion`](../verification-before-completion/SKILL.md))
-carry rationalization tables and red-flag lists — those are the plugged loopholes.
+This is why the strongest skills (`systematic-debugging`,
+`verification-before-completion`) carry rationalization tables and red-flag
+lists — those are the plugged loopholes.
+
+## The two loads
+
+Every document and pointer you add spends one of two budgets:
+
+- **Context load:** always-loaded material (a `CLAUDE.md` line, a visible skill's
+  description) costs tokens and attention on every turn, whether it fires or not.
+- **Cognitive load:** the human is the index of what exists and when to reach for
+  it. Spend it where human judgement matters; remove it where it does not.
+
+## Invocation: user-invoked vs model-invoked
+
+- **Model-invoked** skills keep their description in the model's context so the
+  agent can fire them on its own. That is permanent context load, paid for
+  discoverability.
+- **User-invoked** skills set `disable-model-invocation: true`. Only a human typing
+  `/<name>`, or an agent told to read the file by path, reaches them. Zero context
+  load.
+
+**In devmode every leaf skill is user-invoked** (`disable-model-invocation: true`,
+no exceptions). Only the `/devmode` router is visible; it names the leaves and the
+orchestrator reads `skills/<name>/SKILL.md` by path. A new skill must not become
+model-invoked: route to it from the router instead.
 
 ## Anatomy of a devmode skill
 
-- **Frontmatter:** `name` (matches the directory) and a **pushy `description`**
-  that states *what it does AND when to trigger* — concrete user phrasings and
-  contexts. Under-triggering is the common failure; make the description specific
-  and a little insistent.
-- **Body (imperative, <500 lines):** lead with the *why* (the problem and the
-  principle), then the steps/decision rules, then anti-patterns/red flags.
+- **Frontmatter:** `name` (matches the folder), `description`, and
+  `disable-model-invocation: true`. Keep any other existing keys.
+- **Description is a context pointer.** The router and the human read it to
+  decide when to open the skill, so its wording decides whether it gets reached.
+  Shape: what it is in one clause, then "Use when <case>, <case>, or <case>." At
+  most **300 characters** after whitespace collapses. Front-load the leading
+  keyword. One trigger per distinct case; collapse synonyms into one. No example
+  quote lists, no "pairs with" prose (that belongs in the body).
+- **Body (imperative, target ~180 lines):** lead with the *why* (the problem and
+  the principle), then the steps/decision rules, then anti-patterns/red flags.
   Explain reasoning rather than barking MUSTs — the model has good theory of mind
   and follows understood rules better than rote ones. **Steer by the positive.** A
   prohibition drags the forbidden behavior into context and makes it *more*
-  available (say "don't think of an elephant" and the elephant is all there is), so
-  state the target — "write one-line comments", not "never write verbose
-  comments". Keep a bare "don't" only as a guardrail you genuinely can't phrase
-  positively, and even then pair it with what to do instead.
-- **Cross-references:** link sibling skills by relative path; reference them by
-  *name* in templates that get copied into other projects.
-- **Bundled resources** (`assets/`, `references/`, `scripts/`) only when they pull
-  their weight; keep SKILL.md scannable.
-
-## Leading words
-
-The cheapest way to steer behavior is to **recruit a concept the model already
-holds**. A *leading word* is a compact term already in the model's pretraining —
-`lesson`, `fog of war`, `tracer bullets`, `tight`, `red` — that the agent thinks
-*with* while running the skill. Used as a repeated token (never restated as a
-sentence), it accumulates meaning across the skill and anchors a whole region of
-behavior for almost no tokens, because the priors come free.
-
-It pays twice: in the body it anchors *execution* (the agent reaches for the same
-behavior every time the word appears — the consistency a skill exists to buy); in
-the description, and wherever the same word lives in your prompts, PRDs, and code,
-it anchors *invocation*. devmode already runs on this (`grill`, `ratchet`,
-`headlights`) — name the concept, don't paraphrase it. Coin your own word only if
-you then *define* it: a made-up term recruits no priors, so you pay in definition
-tokens what a pretrained word gives free. And a word too weak to beat the default
-(`be thorough` when the agent already is) is a **no-op** — the fix is a stronger
-word (`relentless`), not more prose.
+  available, so state the target — "write one-line comments", not "never write
+  verbose comments". Keep a bare "don't" only as a guardrail you genuinely can't
+  phrase positively, and even then pair it with what to do instead.
+- **Completion criteria.** Every step ends on a checkable condition ("the
+  frontier is empty", "every modified model accounted for"). A vague bound
+  ("understanding reached") invites **premature completion**; the fix ladder is in
+  `writing-for-agents.md`.
+- **Sibling files for reference.** Material only some cases need goes into a
+  sibling `.md` in the same folder, behind a one-line pointer that says *when* to
+  read it ("Deciding mock boundaries? Read `testing-principles.md` in this
+  folder."). Inline what every case needs. Bundled `assets/` and `scripts/` only
+  when they pull their weight.
+- **Cross-references:** name another skill as its bare name in backticks
+  (`tdd`); the reader opens it by path. No relative `../x/SKILL.md` links. A
+  sibling file is named relative to the skill folder.
+- **Fusing skills:** when skill B folds into A, B's body moves to `A/<b-name>.md`
+  with every rule kept, A gets a one-line "Absorbed: B" note, and B's folder is
+  removed.
 
 ## Audit checklist
 
 Run this when reviewing the pack (the script below automates the mechanical parts):
 
-- **Frontmatter present & valid** — `name` matches the folder; `description`
-  states what + when.
+- **Frontmatter present & valid** — `name` matches the folder; the flag is set;
+  `description` states what + when within 300 characters.
 - **Knowledge delta is real** — not restating what the model already knows; apply
-  the same test line by line (a line the model already obeys is a no-op), and
+  the same test line by line (a line the model already obeys is a **no-op**), and
   settle no-op disputes by running the skill, not by debating the default.
 - **Right altitude** — concrete enough to act on, general enough to reuse; not
   overfit to one example.
-- **Progressive disclosure** — SKILL.md under ~500 lines; detail pushed to
-  references with clear pointers.
+- **No sprawl, co-located** — a SKILL.md can be too long even when every line is
+  live; move reference down to sibling files, and keep each concept under one
+  heading (`writing-for-agents.md`).
 - **No contradiction or duplication** — it doesn't fight another skill's advice
   or duplicate it (e.g. coverage targets vs. testing-principles; patterns-as-
   decoration vs. deep modules). Overlapping skills must scope against each other
@@ -112,8 +132,8 @@ Run this when reviewing the pack (the script below automates the mechanical part
   first-class skill edits, not only addition. When a skill has been patched
   repeatedly and reads as accreted (stale, redundant, or conflicting rules),
   prefer a wholesale rewrite for coherence over one more append. This is
-  [`improve-codebase-architecture`](../improve-codebase-architecture/SKILL.md)'s
-  shallow→deep instinct applied to the skill *document*.
+  `improve-codebase-architecture`'s shallow→deep instinct applied to the skill
+  *document*.
 - **Links resolve** — every relative link points at a real file.
 - **No provenance inside the skill** — a skill carries only what it *does*. Where
   a rule came from (an upstream repo, its license, a URL) is metadata the agent
@@ -128,8 +148,8 @@ Run this when reviewing the pack (the script below automates the mechanical part
 
 `scripts/audit_skills.py` checks the mechanical invariants across the whole pack
 — skills *and* agents (frontmatter, name↔folder/file match, line budget,
-resolvable internal links) — and prints a report. Run it after any skill or agent
-change:
+resolvable internal links, provenance) — and prints a report. Run it after any
+skill or agent change:
 
 ```bash
 python3 scripts/audit_skills.py

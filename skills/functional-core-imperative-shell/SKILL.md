@@ -1,18 +1,28 @@
 ---
 name: functional-core-imperative-shell
 description: >-
-  Architect a module or feature by separating pure decision-making logic (the
-  functional core) from side effects and I/O (the imperative shell), so the
-  core is trivially testable and the shell stays thin. Use this when designing
-  or refactoring a feature, when logic is tangled with database/network/file
-  calls, when tests require heavy mocking, when the user mentions "functional
-  core", "imperative shell", "pure functions", "separate logic from I/O",
-  "hard to test", or when deciding how to structure new code. Pairs directly
-  with testing-principles: this skill makes code testable, those principles say
-  where to test it.
+  Functional core, imperative shell: keep pure decisions apart from I/O in a
+  module, and policy apart from infrastructure across a system. Use when
+  structuring or refactoring a feature, when logic is tangled with DB, network,
+  or framework calls, or when tests need heavy mocking.
+disable-model-invocation: true
 ---
 
 # Functional core, imperative shell
+
+One instinct, two scales: **keep policy (decisions) independent of detail
+(effects, I/O, frameworks).** Inside a module that is the functional core and
+the imperative shell, covered below. Across a system it is the dependency rule:
+layers, ports, and dependencies pointing inward, covered in `system-boundaries.md`.
+
+Drawing system-level boundaries (layer direction, ports and adapters, parsing
+input once at the edge, splitting modules by actor)? Read `system-boundaries.md`
+in this folder.
+
+Absorbed: `architecture-boundaries`. Its system-scale rules now live in
+`system-boundaries.md` here.
+
+## The module scale
 
 Most code that's painful to test is painful because *decisions* and *effects*
 are braided together: business logic interleaved with database reads, network
@@ -34,10 +44,9 @@ It splits a feature into two layers with a clear seam between them:
 The shape: the shell **gathers** → the core **decides** → the shell **acts**.
 
 This is the structural foundation that makes the rest of this process work. It's
-why [`testing-principles`](../testing-principles/SKILL.md) and
-[`tdd`](../tdd/SKILL.md) become easy rather than a mocking slog — and the two
-support each other: this skill gives you a pure core to test, and good testing
-principles tell you exactly where to put the boundary.
+why `tdd` and its testing principles (`testing-principles.md` in `tdd`) become easy rather than a mocking slog, and
+the two support each other: this skill gives you a pure core to test, and good
+testing principles tell you exactly where to put the seam.
 
 ## How to apply it
 
@@ -102,12 +111,10 @@ a couple of integration tests to confirm the wiring.
 A core/shell feature is a textbook **deep module**: a lot of decision logic
 hidden behind a simple, pure interface (`decideRenewal(sub, time) -> Decision`).
 Callers — and tests — use that interface without caring how the decision is
-made. That's exactly the boundary you want to design carefully and then test
-from the outside (see
-[`design-interface-delegate-implementation`](../design-interface-delegate-implementation/SKILL.md)).
-You can confidently delegate the *implementation* of the core to an AI, because
-its pure interface plus exhaustive value-based tests pin the behavior with no
-ambiguity.
+made. That's exactly the interface you want to design carefully and then test
+from the outside (see `design-interface-delegate-implementation`). You can
+confidently delegate the *implementation* of the core to an AI, because its pure
+interface plus exhaustive value-based tests pin the behavior with no ambiguity.
 
 ## Signals you've got it right
 
@@ -119,11 +126,5 @@ ambiguity.
 
 If those aren't true, logic is leaking into the shell or effects are leaking
 into the core; rebalance until the seam is clean. For an existing tangled
-codebase, drive this with
-[`improve-codebase-architecture`](../improve-codebase-architecture/SKILL.md).
-
-This is the **module-scale** version of the same instinct that
-[`architecture-boundaries`](../architecture-boundaries/SKILL.md) applies at the
-**system scale**: keep policy (decisions) independent of detail (I/O,
-frameworks). Use both together — pure cores inside, dependencies pointing inward
-outside.
+codebase, drive this with `improve-codebase-architecture`. Use both scales
+together: pure cores inside, dependencies pointing inward outside.

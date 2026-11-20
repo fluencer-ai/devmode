@@ -1,14 +1,11 @@
 ---
 name: self-scorecard
 description: >-
-  Verify, validate, and judge your own work with numbers — at each phase give a
-  short overview of what was done and a 0–10 score across 5 criteria
-  (Correctness, Design, Testing, Safety, Clarity), tracked with deltas so
-  progress is visible; at the end, recommend how to strengthen each criterion.
-  Use during a multi-step build (especially driven by /devmode), at every phase
-  boundary, or when the user asks "how's it going?", "score this", "what's the
-  quality?", "where can we improve?". Self-judgment, but grounded in evidence —
-  not vibes.
+  Self-scorecard: an evidence-backed 0-10 score on five criteria at each phase,
+  tracked with deltas, plus a closing retro on the environment. Use at every
+  phase boundary of a multi-step build, at the final gate, or when the user asks
+  how the work is going.
+disable-model-invocation: true
 ---
 
 # Self-scorecard
@@ -20,9 +17,8 @@ plus a 0–10 score on five criteria, with the delta from the last phase, so you
 can watch the agent's own judgment of the work rise (or fall) as it goes.
 
 It is *self-assessment, grounded in evidence* — the score on Correctness must be
-backed by an actual test run (see
-[`verification-before-completion`](../verification-before-completion/SKILL.md)),
-not a feeling. Honesty is the whole point: a dishonest 9 is worse than an honest 5.
+backed by an actual test run (see `verification-before-completion`), not a
+feeling. Honesty is the whole point: a dishonest 9 is worse than an honest 5.
 
 ## The five criteria (0–10 each)
 
@@ -30,7 +26,7 @@ not a feeling. Honesty is the whole point: a dishonest 9 is worse than an honest
 |-----------|-------------------|-----------|
 | **Correctness** | it works: tests pass, ACs met, fresh verification evidence | the actual test/build output |
 | **Design** | deep modules, FCIS split, low complexity, easy to change | `functional-core-imperative-shell`, `improve-codebase-architecture` |
-| **Testing** | behavior at stable boundaries, edges+invariants, no over-mock, ratchet | `testing-principles`, `tdd` |
+| **Testing** | behavior at stable boundaries, edges+invariants, no over-mock, ratchet | `testing-principles.md` in `tdd`, `tdd` |
 | **Safety** | no secrets, input validated, guardrails respected, critical modules reviewed | `security-hardening`, the guardrails hook, `code-review` |
 | **Clarity** | ubiquitous language, comments explain *why*, ADRs, readable | `ubiquitous-language`, `documentation` |
 
@@ -77,6 +73,33 @@ python3 scripts/scorecard.py --final     # trend + recommendations
 Recommendations are *judgment* (the script renders them; you author them). Aim
 each at moving a specific criterion up a band, and point at the skill that does it.
 
+## At the final gate: a short retro
+
+The recommendations improve *this* work. The retro improves the **environment**
+the next build starts from. Run it in the session it looks back on, before any
+clear, reading the session itself (primary source), not your memory of it. List
+only real candidates, most severe first, each with the one change it proposes:
+
+- **Navigation:** where did finding a file or fact take too long? Propose a
+  pointer (a `CLAUDE.md` line, a doc-contract index entry).
+- **Checks:** which mistake could an automated check have caught? Look at the
+  repo's existing check command and CI first: an unwired or broken check is the
+  finding, not a new one.
+- **Standards:** what did review miss, or flag that no rule covered?
+- **Steering files:** what in `CLAUDE.md` / `AGENTS.md` should move into a check,
+  a standard, or a skill?
+- **Tool cost:** which tool calls were expensive or repeated for no new
+  information?
+- **No-ops:** which steering instructions changed nothing the agent would not do
+  by default? Propose deleting them.
+
+Classify each fault before proposing a fix. A **mechanical** fault (a fixed
+pattern, a banned API, a file-location rule) becomes a **deterministic check**: a
+lint rule, a hook, or a CI job, whichever the repo makes cheapest. A **judgement
+call** (cross-file consistency, matching local style) becomes a written
+**standard** for the reviewer. Default to the check. Proposals go to the user;
+apply none without a yes.
+
 ## Honesty rules
 
 - **Every 8+ needs evidence you actually saw this phase.** No optimistic scores.
@@ -85,6 +108,3 @@ each at moving a specific criterion up a band, and point at the skill that does 
   the signal that makes the scorecard worth anything.
 - A criterion you can't yet assess (e.g. Correctness before any code) gets a low,
   honest score with the note "no code yet", not a placeholder high one.
-
-> devmode-original. The renderer is `scripts/scorecard.py`; this skill is the
-> rubric + the discipline of honest, evidence-backed self-judgment.

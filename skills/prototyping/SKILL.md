@@ -1,27 +1,26 @@
 ---
 name: prototyping
 description: >-
-  Build throwaway code that answers ONE question, then delete it — a spike to
-  validate a design decision before committing production work. Use when you're
-  unsure how a state machine behaves at the edges, which of several UI/API shapes
-  is right, whether a library can do the thing, or how data really looks; when
-  the user says "spike", "prototype", "throwaway", "let's just try it", "proof of
-  concept", "explore before we build". The opposite of production code: no tests,
-  no abstractions, no persistence — just an answer.
+  Prototyping: throwaway code that answers ONE design question, kept on a
+  prototype branch as evidence. Use when an edge-case state machine needs
+  checking, when several UI or API shapes compete, or when it is unclear whether a
+  library or data source can do the job.
+disable-model-invocation: true
 ---
 
 # Prototyping (the spike)
 
 A prototype is **throwaway code that answers a question.** Its only job is to turn
 an unknown into a known cheaply, so the *real* design decision is made on evidence
-instead of speculation. The question decides the shape; once it's answered, the
-prototype is deleted (its learning captured) — keeping it is how a spike rots into
-unowned production code.
+instead of speculation. The question decides the shape. Once it's answered, the
+answer folds into the real code and the prototype leaves `main` for its own
+`prototype/<name>` branch, kept as a primary source. Leaving it on `main` is how a
+spike rots into unowned production code.
 
 This is the deliberate, bounded version of "let's just try it". It belongs
-*before* the [`write-prd`](../write-prd/SKILL.md)/[`tdd`](../tdd/SKILL.md) commit
-when an assumption is load-bearing and unverified — a cheap input to a confident
-[`design-critique`](../design-critique/SKILL.md), not a substitute for it.
+*before* the `write-prd`/`tdd` commit when an assumption is load-bearing and
+unverified — a cheap input to a confident `design-critique`, not a substitute for
+it.
 
 ## Identify the question first
 
@@ -51,22 +50,28 @@ logic harness for backend modules and a shape comparison for surfaces.
   handling, no abstractions, no persistence — *unless persistence itself is the
   question* (then a scratch db/file is fine).
 
-## Capture the answer, then kill it
+## Capture the answer, then move it off main
 
-The deliverable of a spike is the **answer, not the code.** Write what it revealed
-where the decision lives — a commit message, an ADR
-([`documentation`](../documentation/SKILL.md)), an issue, or a `NOTES.md` — then
-**delete the prototype** or fold the validated decision into production via
-[`tdd`](../tdd/SKILL.md) (re-derived test-first, not pasted). A migration-style
-rule applies: a spike isn't done until it's deleted or promoted, never left to rot
-([`migration`](../migration/SKILL.md): kill zombie code).
+The deliverable of a spike is the **answer, not the code.** Write the verdict and
+the question it settled where the decision lives — an ADR (`documentation`), the
+issue, or a commit message. Fold the validated decision into production via `tdd`
+(re-derived test-first, not pasted). Then:
+
+1. Commit the prototype to a `prototype/<name>` branch cut from `main`.
+2. Remove it from the working branch, so `main` keeps only the validated decision.
+3. Leave a pointer to that branch on the issue or ADR, so the evidence behind the
+   decision stays one checkout away.
+
+A migration-style rule applies: a spike isn't done until it's promoted or moved to
+its branch, never left to rot on `main` (`migration`: kill zombie code).
 
 ## Red flags
 
 - A prototype with no written question (you'll learn nothing specific).
 - A spike growing tests, abstractions, or a second feature — it's becoming
   production; stop and start it properly.
-- "We'll just keep the prototype" — now you have untested, unowned production code.
+- "We'll just keep the prototype on main" — now you have untested, unowned production code.
+- A prototype branch with no pointer from the issue or ADR (the evidence is lost).
 - Pasting spike code straight into the codebase instead of re-deriving it test-first.
-- Spiking what you could answer by reading the docs/source
-  ([`source-of-truth`](../source-of-truth/SKILL.md)) — don't prototype a known.
+- Spiking what you could answer by reading the docs/source (`context-engineering`,
+  source of truth) — don't prototype a known.
