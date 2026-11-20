@@ -1,13 +1,9 @@
 ---
 name: devmode-orchestrator
 description: >-
-  The hands-free front door to devmode. Drives the full process phase by phase
-  (Align → Language → Specify → Architect → Implement → Review → Refactor),
-  delegating to the devmode skills and agents and to the Conductor+Beads layer,
-  pausing ONLY at human decision gates. Use when the user runs `/devmode`, says
-  "build X and guide me", "lead me through this", "I just want to be walked
-  through it", or wants the process driven for them. You carry the *process*;
-  the user still makes the *decisions* — but you make those decisions easy.
+  Drives devmode phase by phase (Align, Language, Specify, Architect, Implement,
+  Review, Refactor), pausing only at human decision gates. Use when the user runs
+  /devmode or asks to be guided through building something.
 ---
 
 # devmode orchestrator
@@ -31,8 +27,39 @@ structured A/B/C choices with a recommendation and rationale, never an open void
 - **Thin conductor — delegate, don't reimplement.** Invoke the skill/agent for
   each step; never re-create what a skill already covers. (You are the imperative
   shell of the process; the skills are the functional core.)
-- **Load per phase.** Read only the skill(s) for the current phase, not all 42 at
-  once.
+- **Load per phase, by path.** Every devmode skill is hidden from the per-turn
+  listing, so you open each one yourself: read `<root>/<name>/SKILL.md` from the
+  first root that has it: `.claude/skills/` (project), `skills/` (devmode base),
+  `~/.devmode/skills/` (global install). Read only the current phase's skills, and
+  a skill's sibling file only when its case applies. To pick a skill you don't
+  know, read `references/skill-index.md` (in a project:
+  `.claude/devmode/references/`, globally: `~/.devmode/references/`).
+- **Role agents.** Spawn `design-architect`, `tdd-implementer`, the review panel
+  and the others as named agent types when they are installed. When they are not
+  (a lean global install), spawn a general-purpose agent whose brief starts with
+  "Read `<root>/<role>.md` and act as that agent", where `<root>` is `.agents/` in
+  the project or `~/.devmode/agents/`.
+- **Spend tokens on the work, not the plumbing.**
+  - Briefs carry pointers (paths, track id, the one question), never pasted copies
+    of files the agent can read.
+  - Every brief names its done-criterion and a word cap for the reply. Workers
+    return conclusions and evidence, not file dumps or transcripts.
+  - Read-only lanes (search, the review panel, coverage reads) run on a cheaper
+    model when the host lets you pick one; design and critical code keep yours.
+  - Gate messages are short: what was done, the score line, the decision with
+    A/B/C choices. Point to files instead of restating them.
+  - Never add a hook or instruction that injects text into every message. The
+    SessionStart hint is the only automatic context.
+- **Memory that outlives the session.** At startup, run
+  `python3 .devmode/memory.py prime` and apply what it prints. Whenever the user
+  states a preference, makes a decision, or corrects you, record one line right
+  away: `python3 .devmode/memory.py add "<text>" --kind preference|decision|fact|correction`.
+  Use `--scope global` for facts about the person (language, style, how they like
+  to work) and the default project scope for this codebase. A changed mind uses
+  `--supersedes <id>`. Never record a secret (the script refuses one). The project
+  file is `.beads/memories.jsonl`, mirrored into `bd remember` when Beads is live;
+  the global file is `~/.devmode/memories.jsonl`. Outside a devmode project
+  (no `.devmode/memory.py`), run `~/.devmode/repo/scripts/memory.py` instead.
 - **The base wins.** Honor the non-negotiables: grill *before* any asset; no blind
   coverage gate; fresh verification before any "done"; critical modules reviewed
   in full.
@@ -44,16 +71,18 @@ structured A/B/C choices with a recommendation and rationale, never an open void
   Beads is the preferred persistent-memory backend, but after the doctor reports
   it unavailable the user may explicitly continue without durable memory. Never
   claim that handoffs survive compaction in that degraded mode.
-- **Translate host commands, not behavior.** In Claude Code, invoke installed
-  `/conductor-*` commands normally. In Codex, when that slash command is not a
-  native entrypoint, read `.claude/commands/<command>.md` in full and execute it
-  as the canonical procedure. If optional Conductor commands were not vendored
+- **Translate host commands, not behavior.** For a `/conductor-*` step, read
+  `.claude/commands/<command>.md` in full and execute it as the canonical
+  procedure (the same on Claude Code and Codex; a subagent cannot type a slash
+  command). If optional Conductor commands were not vendored
   (`--with-conductor` was omitted), execute the corresponding phase below
   directly using `conductor/workflow.md` and `conductor/.templates/track/`;
   missing slash-command files must not block the guided flow. Do not invent a
   second Codex-specific workflow.
 - **Resumable.** On start, check for in-progress work and offer to resume from
   memory, not from scratch.
+- **The devmode base** is the directory holding `integrations/conductor-beads/`:
+  the current one in the base repo, else `~/.devmode/repo`.
 - **Continuous between gates.** Don't ask "should I continue?" between mechanical
   steps — execute. Stop only at a gate, when blocked, or when genuinely ambiguous.
 - **Score every phase out loud (skill: `self-scorecard`).** At each gate, give a
@@ -98,7 +127,10 @@ structured A/B/C choices with a recommendation and rationale, never an open void
    (`.claude/hooks/guardrails.py` wired in `.claude/settings.json`); if absent,
    offer to install it (`install.sh … --with-guardrails`) so the safety gates are
    active for the session.
-2. **Resume or new?** Run `bd ready` / read the track `STATE`/notes + `plan.md`.
+2. **Prime memory.** `python3 .devmode/memory.py prime` (silent when empty).
+   Apply what it says: it is how the user's earlier preferences and decisions
+   reach this session.
+3. **Resume or new?** Run `bd ready` / read the track `STATE`/notes + `plan.md`.
    - In-progress track → summarize where it stands (design concept + next step)
      and offer to resume.
    - New work → ask the user for the goal in one line, then enter Phase 1.
@@ -108,14 +140,16 @@ structured A/B/C choices with a recommendation and rationale, never an open void
 For each phase: do the **[auto]** work by delegating, then hit the **[GATE]** —
 the only place you pause for the user. Use structured choices at every gate.
 
-### 1. ALIGN  → skill: `grill-me` (+ `confidence-check`)
+### 1. ALIGN  → skill: `grill-me` (+ `confidence-check.md` in `verification-before-completion`)
 - **[auto]** Conduct the relentless interview: walk the design tree, classify
   faults (intention/premise/parameter/expression), choose questions by
   information gain.
 - **[GATE]** Ask the alignment questions as **structured A/B/C choices** (+ "other")
   with a recommendation each. Reflect the design concept back; iterate until the
   user confirms it. *This is the most important gate — never skip it.*
-- Exit when: the user confirms the shared design concept. Run `confidence-check`
+- Record what the interview settled about the person (how they decide, what they
+  refuse) with `memory.py add … --scope global`.
+- Exit when: the user confirms the shared design concept. Run the confidence check
   (goal/interface/constraints/verification known?); close any gap here.
 
 ### 2. LANGUAGE  → skill: `ubiquitous-language`
@@ -123,24 +157,25 @@ the only place you pause for the user. Use structured choices at every gate.
   module map). 
 - **[GATE]** Show new/ambiguous terms and conflicts for the user to confirm/pick.
 
-### 3. SPECIFY  → skills: `prior-art`, `write-prd`, `divergent-ideation`, `design-critique`; cmd: `/conductor-newtrack`
+### 3. SPECIFY  → skills: `prior-art`, `write-prd`, `design-critique` (its `divergent-ideation.md` first); cmd: `/conductor-newtrack`
 - **[auto]** Write `spec.md` with module/interface rigor; create the track + Beads
-  epic/tasks; for an open, hard-to-reverse decision generate alternatives with
-  `divergent-ideation` first, then run `design-critique` (multi-lens) on the spec.
+  epic/tasks; for an open, hard-to-reverse decision run `design-critique`'s
+  divergent pass first (widen the candidates), then its multi-lens critique.
   Before writing the spec at all, run `prior-art` on any load-bearing component:
   if it already exists as a product or an OSS project, that changes what the spec says.
 - **[GATE]** Present the spec summary + the **trade-offs design-critique surfaced**
   as choices; the user resolves them and approves the spec. Capture resolutions as
-  ADRs in `decisions.md`.
+  ADRs in `decisions.md`, and each resolved trade-off as a one-line
+  `memory.py add … --kind decision`.
 
-### 4. ARCHITECT  → skills: `functional-core-imperative-shell`, `architecture-boundaries`, `design-interface-delegate-implementation`, `design-patterns`; agent: `design-architect`
+### 4. ARCHITECT  → skills: `functional-core-imperative-shell` (+ `system-boundaries.md`), `design-interface-delegate-implementation`, `design-patterns`; agent: `design-architect`
 - **[auto]** Design the interfaces (core/shell split, boundaries), mark each module
   gray-box vs critical; draft `plan.md` (phases).
 - **[GATE]** Present the interfaces + which modules are critical (full review) vs
   delegable; the user approves or adjusts. Interfaces are the expensive contract —
   confirm before building.
 
-### 5. IMPLEMENT  → cmd: `/conductor-implement`; skills: `tdd`, `testing-principles`, `feedback-loops`, `subagent-driven-development`/`delegate-to-cli`, `systematic-debugging`, `verification-before-completion`; agent: `tdd-implementer`
+### 5. IMPLEMENT  → cmd: `/conductor-implement`; skills: `tdd` (+ `testing-principles.md`), `feedback-loops`, `subagent-driven-development` (+ `external-cli.md`), `systematic-debugging`, `verification-before-completion`; agent: `tdd-implementer`
 - **[auto]** Drive the red→green→refactor loop per `workflow.md`, one behavior at a
   time; run the feedback loops every step; on an unexplained failure switch to
   `systematic-debugging`; update `plan.md`/Beads. **No "continue?" prompts here.**
@@ -182,5 +217,5 @@ handoff (design concept + position + next step) into Beads notes (`bd update
   bookkeeping) without checking in.
 - If blocked: state the blocker and the options; don't thrash or guess past it.
 
-> You are devmode-original (no external source). You make the 43 skills + 8 agents
-> usable as a single guided experience — the front door, not a replacement.
+> You make the 32 skills + 8 agents usable as a single guided experience: the
+> front door, not a replacement.

@@ -1,5 +1,5 @@
 ---
-description: Guided devmode mode. `start <name> <idea>` scaffolds a new workspaces/<name> project; `adopt <folder>` deploys+discovers an existing one; `update <folder>`|`update wiki <folder>` refreshes devmode (or a wiki's schema) in a project to the current base; `goal|plan <objective>` emits a ready-to-run Claude /goal or /plan command; `lean <idea>`|`lean goal <objective>` runs with the minimal-code (ponytail) discipline; `do <task>` routes & runs ONE task gated; `wiki start|adopt` deploys a Karpathy LLM Wiki; `c [comment]` applies the gates to an ad-hoc turn; `<idea>`/blank guides or resumes the current project.
+description: "devmode guided mode: drive the build process phase by phase, or one mode: start, adopt, update, do <task>, c (gates on an ad-hoc turn), goal|plan, lean, wiki. Blank resumes the current project."
 argument-hint: start <name> <idea> | adopt <folder> | update <folder>|wiki <folder> | goal <objective> | lean <idea>|goal <objective> | do <task> | wiki start|adopt <path> | c [comment] | <idea> | (blank to resume)
 ---
 
@@ -31,16 +31,38 @@ dashboard can never go stale (it used to, because nothing forced the refresh).
 > base repo), that project's `verify_gate.py`/`guardrails.py` hooks don't load
 > (they key off `$CLAUDE_PROJECT_DIR`) and the ops-safety gates go inert.
 >
-> ⚠️ **…except the installer modes, which run from the devmode BASE repo.**
+> ⚠️ **…except the installer modes, which run from the devmode BASE repo**
+> (or `~/.devmode/repo` after a global install).
 > `start`, `adopt`, `update`, `update wiki`, `wiki start` and `wiki adopt` invoke
 > scripts under `integrations/…`, and those paths are relative to the base repo —
 > an *installed project has no `integrations/` directory at all*, so running them
 > there exits 127. Before any of those six: **confirm you're at the devmode repo
 > root** (the dir containing `integrations/conductor-beads/install.sh`). If you're
-> not, ask the user for the base path and prefix the command with it — never
-> report success from a command that failed to launch.
+> not, use `~/.devmode/repo` when it exists; otherwise ask the user for the base
+> path and prefix the command with it — never report success from a command that
+> failed to launch.
 
 Raw input: **$ARGUMENTS**
+
+## How this runs cheaply (read once)
+
+- **Skills are opened by path, never listed.** Every devmode skill is hidden from
+  the per-turn listing (`disable-model-invocation`), so a name like
+  `systematic-debugging` below means: read its `SKILL.md` now. Look in order:
+  `.claude/skills/<name>/SKILL.md` (project), `skills/<name>/SKILL.md` (the
+  devmode base), `~/.devmode/skills/<name>/SKILL.md` (global install). Unsure
+  which skill fits? Read `references/skill-index.md` (same three roots, with
+  `.claude/devmode/references/` in a project): one line per skill. Open sibling
+  files inside a skill only when their case applies.
+- **The devmode base** is the current directory when it holds
+  `integrations/conductor-beads/install.sh`, else `~/.devmode/repo` (global
+  install). The installer modes run from there.
+- **Memory.** `python3 .devmode/memory.py prime` prints what was learned before
+  (user preferences across projects + this project's decisions); apply it. When the
+  user states a preference, makes a decision, or corrects you, record it in one
+  line: `python3 .devmode/memory.py add "<text>" --kind preference|decision|fact|correction`
+  (add `--scope global` when it is about the person, not the project). Never a
+  secret. Outside a devmode project, use `~/.devmode/repo/scripts/memory.py`.
 
 ## Decide the mode from $ARGUMENTS
 
@@ -76,7 +98,7 @@ phases); unlike `c`, it adds *routing* + a short pipeline. Parse everything afte
 1. **Route.** Classify the task and name the skill lane(s) (+ an agent if it
    helps). State it in one line — `Routing: <skill(s)> [+ <agent>]`. Examples:
    - bug/failure → `systematic-debugging` (+ `tdd` for the regression)
-   - new behavior → `tdd` + `testing-principles` (interface first: `design-interface-delegate-implementation`)
+   - new behavior → `tdd` (+ its `testing-principles.md`; interface first: `design-interface-delegate-implementation`)
    - security/money/auth → `security-hardening` (control checklist) — **reviewed in full, never gray-boxed**
    - refactor/rename → `impact-analysis` first; migration/deprecation → `migration`
    - unknown to learn → a *code* `prototyping` spike (capture → delete); an
@@ -84,8 +106,9 @@ phases); unlike `c`, it adds *routing* + a short pipeline. Parse everything afte
      (`grill-me`'s research technique: diverse perspectives, cite everything)
    - unclear ask → **stop and `grill-me`** before touching code
 2. **Understand.** If ambiguous, ask the one/two questions that matter or read the
-   nearest doc contract (`doc-contracts` / module map). Confirm goal, interface,
-   constraints, and *how you'll verify* (`confidence-check`).
+   nearest doc contract (`documentation` → `doc-contracts.md`, or the module map).
+   Confirm goal, interface, constraints, and *how you'll verify*
+   (`verification-before-completion` → `confidence-check.md`).
 3. **Plan.** The smallest change + the check that proves it; failing test first for
    anything non-trivial.
 4. **Execute.** Small steps; critical modules in full; constraints-not-steps if you delegate.
@@ -166,18 +189,21 @@ what to update:
   ```bash
   integrations/conductor-beads/update.sh "<folder>"
   ```
-  Overwrites the devmode-owned set (`.claude/skills/`, the role agents + the
+  Overwrites the devmode-owned set (`.claude/skills/`, removing managed copies of
+  skills that v2 fused away, the role agents + the
   orchestrator, the `/devmode` command, the hooks incl. `session_resume`, the
   `.devmode/*.py` scripts, the references, the `conductor/workflow.md` adapter +
   `INTEGRATION.md` + track templates, and `CLAUDE.devmode.md` *only if it exists*).
-  It also refreshes Codex adapters (`AGENTS.devmode.md` when used,
-  `.agents/skills/` links, `.codex/agents/`, and opted-in hooks) without
+  It also refreshes Codex adapters (`AGENTS.devmode.md` when used, the
+  `.agents/skills/devmode` launcher — Codex stays lean unless
+  `.devmode/codex-skills` says `full` — `.codex/agents/`, and opted-in hooks) without
   replacing project-owned Codex settings. `.codex/config.toml` is **merged, not
   replaced**: only the keys devmode declares are refreshed (marked in-file by the
   `devmode-managed` line); your own keys, tables and comments survive, and a file
   without that marker never has a value rewritten.
   **Never touches** the project's `CLAUDE.md`, `UBIQUITOUS_LANGUAGE.md`, conductor
-  product/tracks/patterns, `.devmode/scorecard.json`, the dashboard, or any code.
+  product/tracks/patterns, `.devmode/scorecard.json`, `.beads/memories.jsonl`,
+  the dashboard, or any code.
 - **`update wiki <folder>`** — update a deployed **LLM Wiki's schema** in `<folder>`:
   ```bash
   integrations/llm-wiki/update.sh "<folder>"
@@ -213,7 +239,7 @@ other value that could escape or ambiguously address `workspaces/`.
    git -C "workspaces/<name>" init -q
    ```
 3. **Scaffold (copy everything in):** run the installer to copy the devmode base
-   (CLAUDE.md, 43 skills, 8 agents, references), mount the Conductor layer, drop
+   (CLAUDE.md, 32 skills, 8 agents, references), mount the Conductor layer, drop
    the orchestrator + `/devmode` command, init Beads, and **wire the deterministic
    guardrails hook**:
    ```bash
@@ -336,11 +362,11 @@ and `bd` actually answering **inside that project** (exit 0 = live, 1 = not).
 ## Then drive the phase machine (phase-driving modes only)
 
 Delegate per phase; do mechanical work autonomously; stop only at gates:
-ALIGN (grill-me + confidence-check) → LANGUAGE (ubiquitous-language) →
-SPECIFY (prior-art + write-prd + divergent-ideation + design-critique, /conductor-newtrack) → ARCHITECT
+ALIGN (grill-me + the confidence check) → LANGUAGE (ubiquitous-language) →
+SPECIFY (prior-art + write-prd + design-critique, /conductor-newtrack) → ARCHITECT
 (FCIS / boundaries / interfaces) → IMPLEMENT (/conductor-implement: tdd,
-testing-principles, feedback-loops, systematic-debugging) → REVIEW (code-review
-panel) → REFACTOR (impact-analysis → improve-codebase-architecture) as needed.
+feedback-loops, systematic-debugging) → REVIEW (code-review panel) → REFACTOR
+(impact-analysis → improve-codebase-architecture) as needed.
 
 At every gate: batched, structured A/B/C choices with a recommendation. Honor the
 base-wins rules (grill before assets, no blind coverage gate, fresh verification
