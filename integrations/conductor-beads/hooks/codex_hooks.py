@@ -430,8 +430,21 @@ def _warm_resume(root: str) -> str:
     return "\n".join(lines)
 
 
+def _memory_prime(root: str) -> str:
+    """`.devmode/memory.py prime`, capped; "" when absent. Once per session, never per turn."""
+    script = os.path.join(root, ".devmode", "memory.py")
+    if not os.path.isfile(script):
+        return ""
+    try:
+        proc = subprocess.run([sys.executable, script, "prime", "--root", root, "--limit", "8"],
+                              capture_output=True, text=True, timeout=5)
+    except Exception:
+        return ""
+    return proc.stdout.strip() if proc.returncode == 0 else ""
+
+
 def _session_start(root: str) -> int:
-    text = _warm_resume(root)
+    text = "\n".join(t for t in (_warm_resume(root), _memory_prime(root)) if t)
     if text:
         print(text)
     return _allow()

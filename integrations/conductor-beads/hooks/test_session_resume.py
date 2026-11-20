@@ -128,5 +128,47 @@ class SessionResumeTest(unittest.TestCase):
         self.assertSilent(self.run_hook())
 
 
+
+class MemoryPrimeTest(unittest.TestCase):
+    """The hook also prints the memory block when .devmode/memory.py is present."""
+
+    def setUp(self):
+        self.root = tempfile.mkdtemp()
+        self.home = tempfile.mkdtemp()
+        d = os.path.join(self.root, ".devmode")
+        os.makedirs(d)
+        src = os.path.join(HERE, "..", "..", "..", "scripts", "memory.py")
+        shutil.copy(src, os.path.join(d, "memory.py"))
+        self.env = dict(os.environ, CLAUDE_PROJECT_DIR=self.root, DEVMODE_HOME=self.home,
+                        DEVMODE_MEMORY_NO_BD="1")
+
+    def tearDown(self):
+        shutil.rmtree(self.root, ignore_errors=True)
+        shutil.rmtree(self.home, ignore_errors=True)
+
+    def hook(self):
+        return subprocess.run([sys.executable, HOOK], input="", capture_output=True,
+                              text=True, env=self.env)
+
+    def test_prints_memory_without_a_scorecard(self):
+        subprocess.run([sys.executable, os.path.join(self.root, ".devmode", "memory.py"), "add",
+                        "Reply in PT-BR", "--kind", "preference", "--scope", "global",
+                        "--root", self.root], env=self.env, check=True, capture_output=True)
+        out = self.hook()
+        self.assertEqual(out.returncode, 0)
+        self.assertIn("Reply in PT-BR", out.stdout)
+        self.assertNotIn("Warm resume", out.stdout)
+
+    def test_memory_is_capped(self):
+        for i in range(20):
+            subprocess.run([sys.executable, os.path.join(self.root, ".devmode", "memory.py"), "add",
+                            f"fact number {i}", "--root", self.root], env=self.env, check=True,
+                           capture_output=True)
+        items = [ln for ln in self.hook().stdout.splitlines() if ln.strip().startswith("- [")]
+        self.assertEqual(len(items), 8)
+
+    def test_silent_with_empty_memory(self):
+        self.assertEqual(self.hook().stdout, "")
+
 if __name__ == "__main__":
     unittest.main()

@@ -5,13 +5,19 @@ compaction; loop-engineering: maintain external state and resume from it).
 
 It reads the project's own durable state (`.devmode/scorecard.json` + the active
 conductor track) and prints a compact pointer to stdout, which Claude Code adds
-to the session's starting context. Pure read, fail-OPEN: any problem → print
-nothing, exit 0 (a resume hint must never block a session).
+to the session's starting context. It also prints the memory block from
+`.devmode/memory.py prime` (the user's preferences + this project's decisions),
+capped at a few lines. This runs once per session, never per message. Pure read,
+fail-OPEN: any problem → print nothing, exit 0 (a resume hint must never block a
+session).
 """
 import glob
 import json
 import os
+import subprocess
 import sys
+
+MEMORY_LIMIT = 8  # lines of memory per session start; the rest stays one `list` away
 
 CRITERIA = ["correctness", "design", "testing", "safety", "clarity"]
 
@@ -22,14 +28,28 @@ def _overall(entry):
     return round(sum(vals) / len(vals), 1) if vals else None
 
 
-def main():
-    root = os.environ.get("CLAUDE_PROJECT_DIR", ".")
+def memory_block(root):
+    """The `memory.py prime` output, or [] when there is no memory or no script."""
+    script = os.path.join(root, ".devmode", "memory.py")
+    if not os.path.isfile(script):
+        return []
     try:
-        hist = json.load(open(os.path.join(root, ".devmode", "scorecard.json")))
+        p = subprocess.run([sys.executable, script, "prime", "--root", root,
+                            "--limit", str(MEMORY_LIMIT)],
+                           capture_output=True, text=True, timeout=5)
     except Exception:
-        return 0  # no devmode state here — nothing to resume, stay silent
-    if not hist:
-        return 0
+        return []
+    return p.stdout.strip().splitlines() if p.returncode == 0 else []
+
+
+def resume_block(root):
+    try:
+        with open(os.path.join(root, ".devmode", "scorecard.json")) as fh:
+            hist = json.load(fh)
+    except Exception:
+        return []  # no devmode state here — nothing to resume
+    if not isinstance(hist, list) or not hist or not isinstance(hist[-1], dict):
+        return []
     last = hist[-1]
     lines = ["[devmode] Warm resume — pick up where the loop left off:"]
     o = _overall(last)
@@ -48,7 +68,17 @@ def main():
             lines.append(f"  • Next ({c}): {recs[c]}")
             break
     lines.append("  • Full picture: open devmode-dashboard.html (refresh: python3 .devmode/dashboard.py .)")
-    print("\n".join(lines))
+    return lines
+
+
+def main():
+    root = os.environ.get("CLAUDE_PROJECT_DIR", ".")
+    try:
+        lines = resume_block(root) + memory_block(root)
+    except Exception:
+        return 0
+    if lines:
+        print("\n".join(lines))
     return 0
 
 
