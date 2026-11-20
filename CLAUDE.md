@@ -51,18 +51,18 @@ the affected phases for the delta. Record the re-entry as its own scored phase
 | 2. Language | [`ubiquitous-language`](skills/ubiquitous-language/SKILL.md) | A glossary of domain terms shared by you, the AI, and the code |
 | 3. Specify | [`prior-art`](skills/prior-art/SKILL.md) | Whether it already exists — buy / adopt / build, judged on fit and cost, *before* the PRD |
 | 3. Specify | [`write-prd`](skills/write-prd/SKILL.md) | A PRD that is explicit about which modules and interfaces change |
-| 3. Specify | [`divergent-ideation`](skills/divergent-ideation/SKILL.md) | A wide candidate set for an open, hard-to-reverse decision — generated *before* choosing |
+| 3. Specify | [`design-critique`](skills/design-critique/SKILL.md) · [`divergent-ideation.md`](skills/design-critique/divergent-ideation.md) | A wide candidate set for an open, hard-to-reverse decision — generated *before* choosing |
 | 3. Specify | [`design-critique`](skills/design-critique/SKILL.md) | Pressure-test the design/PRD through several expert lenses before building |
 | 4. Architect | [`functional-core-imperative-shell`](skills/functional-core-imperative-shell/SKILL.md) | A structure where pure logic is isolated from I/O — the foundation for testability |
-| 4. Architect | [`architecture-boundaries`](skills/architecture-boundaries/SKILL.md) | System-level boundaries — business rules independent of infrastructure (the FCIS instinct, scaled up) |
+| 4. Architect | [`functional-core-imperative-shell`](skills/functional-core-imperative-shell/SKILL.md) · [`system-boundaries.md`](skills/functional-core-imperative-shell/system-boundaries.md) | System-level boundaries — business rules independent of infrastructure (the FCIS instinct, scaled up) |
 | 4. Architect | [`design-interface-delegate-implementation`](skills/design-interface-delegate-implementation/SKILL.md) | Interfaces you design carefully; implementations you delegate and test as gray boxes |
 | 4. Architect | [`design-patterns`](skills/design-patterns/SKILL.md) | GoF patterns chosen by smell or goal — used only when they make a module deeper, never as decoration |
-| 5. Implement | [`confidence-check`](skills/confidence-check/SKILL.md) | A pre-flight readiness gate — do I know the goal, interface, constraints, and how I'll verify? |
-| 5. Implement | [`feedback-loops`](skills/feedback-loops/SKILL.md) | Static types, compiler, fast tests, a real browser/runtime, and a verification gate ladder |
+| 5. Implement | [`verification-before-completion`](skills/verification-before-completion/SKILL.md) · [`confidence-check.md`](skills/verification-before-completion/confidence-check.md) | A pre-flight readiness gate — do I know the goal, interface, constraints, and how I'll verify? |
+| 5. Implement | [`feedback-loops`](skills/feedback-loops/SKILL.md) | Static types, compiler, fast tests, a real browser/runtime (see [`browser-testing.md`](skills/feedback-loops/browser-testing.md)), and a verification gate ladder |
 | 5. Implement | [`tdd`](skills/tdd/SKILL.md) | Small, deliberate, test-first steps that keep the AI inside its headlights |
-| 5. Implement | [`testing-principles`](skills/testing-principles/SKILL.md) | Good decisions about unit size, what to mock, and which behaviors to test |
+| 5. Implement | [`tdd`](skills/tdd/SKILL.md) · [`testing-principles.md`](skills/tdd/testing-principles.md) | Good decisions about unit size, what to mock, and which behaviors to test |
 | 5. Implement | [`subagent-driven-development`](skills/subagent-driven-development/SKILL.md) | Execute a plan via fresh subagents per task with two-stage review — the *how* of gray-box delegation |
-| 5. Implement | [`delegate-to-cli`](skills/delegate-to-cli/SKILL.md) | Offload a bounded task to an external model CLI as a verified gray box |
+| 5. Implement | [`subagent-driven-development`](skills/subagent-driven-development/SKILL.md) · [`external-cli.md`](skills/subagent-driven-development/external-cli.md) | Offload a bounded task to an external model CLI as a verified gray box |
 | 5. Implement | [`systematic-debugging`](skills/systematic-debugging/SKILL.md) | Root-cause-first discipline when anything breaks — no fix without investigation |
 | 5. Implement | [`verification-before-completion`](skills/verification-before-completion/SKILL.md) | The gate before any "done" claim — fresh evidence, never confidence |
 | 5. Implement | [`code-review`](skills/code-review/SKILL.md) | Run the review panel, act on every finding, re-verify — the author is blind to their own gaps |
@@ -85,12 +85,33 @@ adapted from MIT-licensed sources — see [`ATTRIBUTION.md`](ATTRIBUTION.md).
 
 Several skills are paired on purpose, each supporting the other: a functional
 core / imperative shell makes code trivial to test, and testing principles tell
-you *where* to put the boundaries it exposes; `architecture-boundaries` is the
+you *where* to put the boundaries it exposes; `system-boundaries.md` is the
 same instinct at the system scale that `functional-core-imperative-shell` applies
 at the module scale; `design-interface-delegate-implementation` is the *strategy*
-that `subagent-driven-development` and `delegate-to-cli` *operationalize*; and
+that `subagent-driven-development` (with `external-cli.md`) *operationalizes*; and
 `systematic-debugging` (find the root cause) feeds `verification-before-completion`
 (prove the fix worked) before any "done".
+
+## How devmode loads (v2: lean by default)
+
+The pack is 32 skills, and every leaf is `disable-model-invocation: true`, so none
+of their descriptions sit in the per-turn listing. The only always-visible entry
+points are the `/devmode` command and the `devmode-orchestrator` agent. The
+orchestrator reads a skill **by path** only when a phase needs it, looking in
+`.claude/skills/<name>/SKILL.md`, then `skills/<name>/SKILL.md` in the base, then
+`~/.devmode/skills/<name>/SKILL.md`. [`references/skill-index.md`](references/skill-index.md)
+(generated by `scripts/build_skill_index.py`) is the one-page map it consults.
+Skills that were fused in v2 live on as sibling files inside the surviving folder.
+
+- **Global install:** `./setup --host auto` links devmode into `~/.devmode` and
+  the host's user folders (lean: router + orchestrator; `--full` adds the role
+  agents and the leaves). `--check`, `--report`, `--dry-run`, `--uninstall`.
+- **Memory:** `scripts/memory.py` keeps what the orchestrator learns in
+  append-only `.beads/memories.jsonl` (project, created by the installer and
+  mirrored to `bd remember` when Beads is live) and `~/.devmode/memories.jsonl`
+  (the person, every project). The SessionStart hook primes at most 8 lines.
+- **Codex:** projects get only the `devmode` launcher in `.agents/skills`; pass
+  `--codex-full` to the installer to link every leaf.
 
 ## Domain skills
 
@@ -100,24 +121,23 @@ phases — they don't replace the spine, they fill it with craft for real
 development. Reach for them whenever the work touches their area.
 
 - **Front-end & design:** [`frontend-ui-engineering`](skills/frontend-ui-engineering/SKILL.md)
-  · [`ux-design`](skills/ux-design/SKILL.md) · [`accessibility`](skills/accessibility/SKILL.md)
+  (with [`ux-design.md`](skills/frontend-ui-engineering/ux-design.md) and
+  [`accessibility.md`](skills/frontend-ui-engineering/accessibility.md))
 - **Interfaces & quality:** [`api-design`](skills/api-design/SKILL.md)
   · [`security-hardening`](skills/security-hardening/SKILL.md)
   · [`performance-optimization`](skills/performance-optimization/SKILL.md)
-  · [`browser-testing`](skills/browser-testing/SKILL.md)
-- **Ops & delivery:** [`ci-cd-automation`](skills/ci-cd-automation/SKILL.md)
-  · [`git-workflow`](skills/git-workflow/SKILL.md) · [`migration`](skills/migration/SKILL.md)
-  · [`shipping`](skills/shipping/SKILL.md)
-- **Practices:** [`documentation`](skills/documentation/SKILL.md)
-  · [`doc-contracts`](skills/doc-contracts/SKILL.md)
+- **Ops & delivery:** [`git-workflow`](skills/git-workflow/SKILL.md) · [`migration`](skills/migration/SKILL.md)
+  · [`shipping`](skills/shipping/SKILL.md) (with [`ci-cd.md`](skills/shipping/ci-cd.md))
+- **Practices:** [`documentation`](skills/documentation/SKILL.md) (with
+  [`doc-contracts.md`](skills/documentation/doc-contracts.md))
   · [`prototyping`](skills/prototyping/SKILL.md)
   · [`minimal-code`](skills/minimal-code/SKILL.md)
-  · [`context-engineering`](skills/context-engineering/SKILL.md)
-  · [`source-of-truth`](skills/source-of-truth/SKILL.md)
+  · [`context-engineering`](skills/context-engineering/SKILL.md) (with
+    [`source-of-truth.md`](skills/context-engineering/source-of-truth.md))
   · [`visual-explainers`](skills/visual-explainers/SKILL.md)
 
 Most are adapted from `addyosmani/agent-skills` (MIT), generalized off their web
-stack to fit the tool-agnostic base; `ux-design` and `accessibility` are authored
+stack to fit the tool-agnostic base; `ux-design.md` and `accessibility.md` are authored
 to fill the design gap those packs leave. See [`ATTRIBUTION.md`](ATTRIBUTION.md).
 
 ## The agents

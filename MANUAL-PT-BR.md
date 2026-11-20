@@ -40,7 +40,7 @@ Dentro de `devmode/` você tem quatro tipos de peça:
 
 | Peça | O que é | Onde fica |
 |------|---------|-----------|
-| **43 skills** | 22 de *processo* + 18 de *domínio* + 3 *meta* (`self-scorecard`, `discovery`, `goal-brief`) | `skills/<nome>/SKILL.md` |
+| **32 skills** | 17 de *processo* + 12 de *domínio* + 3 *meta* (`self-scorecard`, `discovery`, `goal-brief`), todas ocultas da listagem e lidas por caminho; a v2 fundiu outras 11 em arquivos-irmãos | `skills/<nome>/SKILL.md` + irmãos, mapa em `references/skill-index.md` |
 | **8 agentes** | Subagentes que encarnam papéis do processo (inclui o painel de review) | `.agents/*.md` |
 | **2 referências** | Fundamentos teóricos e guia de diagnóstico | `references/*.md` |
 | **templates + script** | Modelos (PRD, glossário) + auditor da pack (`scripts/audit_skills.py`) | `skills/*/assets/`, `scripts/` |
@@ -49,27 +49,27 @@ E o [`CLAUDE.md`](CLAUDE.md) amarra tudo: é o manifesto + a tabela do fluxo.
 Várias skills foram **adaptadas** de projetos MIT — créditos em
 [`ATTRIBUTION.md`](ATTRIBUTION.md).
 
-### As 22 skills de processo, agrupadas por fase
+### As 17 skills de processo, agrupadas por fase (↳ = arquivo-irmão fundido)
 
 ```
 1. ALINHAR      grill-me ............... conceito de design compartilhado (+ taxonomia de falhas, opções A/B/C)
 2. LINGUAGEM    ubiquitous-language .... vocabulário único + mapa de módulos (+ why por dependência)
 3. ESPECIFICAR  write-prd .............. PRD explícito sobre módulos e interfaces
                 prior-art .............. isso já existe? comprar / adotar / construir
-                divergent-ideation ..... gerar candidatos amplos antes de escolher
+                  ↳ divergent-ideation.md (design-critique): gerar candidatos amplos antes de escolher
                 design-critique ........ revisar o design/PRD por várias lentes antes de codar
 4. ARQUITETAR   functional-core-imperative-shell . separar lógica pura de I/O (nível módulo)
-                architecture-boundaries .......... fronteiras de sistema (regras vs. infraestrutura)
+                  ↳ system-boundaries.md (functional-core-imperative-shell): fronteiras de sistema (regras vs. infraestrutura)
                 design-interface-delegate-impl. .. desenhar interface, delegar implementação
                 design-patterns .................. padrões GoF — só quando aprofundam o módulo
-5. IMPLEMENTAR  confidence-check ....... gate de prontidão ANTES de codar
-                feedback-loops ......... tipos, compilador, testes, browser + escada de gates
+5. IMPLEMENTAR  feedback-loops ......... tipos, compilador, testes, browser + escada de gates
                 tdd .................... passos pequenos test-first
-                testing-principles ..... o que/como/quanto testar (+ anti-padrões)
+                  ↳ testing-principles.md (tdd): o que/como/quanto testar (+ anti-padrões)
                 subagent-driven-dev .... delegar a subagentes c/ revisão em 2 estágios
-                delegate-to-cli ........ delegar a uma CLI externa (gray box)
+                  ↳ external-cli.md (subagent-driven-development): delegar a uma CLI externa (gray box)
                 systematic-debugging ... causa-raiz antes de qualquer correção
                 verification-before-completion . evidência antes de dizer "pronto"
+                  ↳ confidence-check.md (verification-before-completion): gate de prontidão ANTES de codar
                 code-review ............ painel de review → agir nos achados → re-verificar
 6. REFATORAR    impact-analysis ........ raio de explosão (quem depende) antes de mexer
                 improve-codebase-architecture .... consolidar módulos rasos em profundos
@@ -81,45 +81,45 @@ META            authoring-skills ....... escrever/auditar as próprias skills (s
 
 O processo tem duplas projetadas para se reforçar:
 
-- **`functional-core-imperative-shell` ↔ `testing-principles`** — a arquitetura
+- **`functional-core-imperative-shell` ↔ `testing-principles.md` em `tdd`** — a arquitetura
   (núcleo puro / casca) torna o código fácil de testar; os princípios dizem
   *onde* colocar o limite.
-- **`functional-core-imperative-shell` ↔ `architecture-boundaries`** — o mesmo
+- **`functional-core-imperative-shell` ↔ `system-boundaries.md` em `functional-core-imperative-shell`** — o mesmo
   instinto em duas escalas: módulo e sistema.
 - **`tdd` ↔ `feedback-loops`** — o ritmo (vermelho-verde-refatora) e a
   infraestrutura (tipos, testes, browser, escada de gates) que o sustenta.
 - **`design-interface-delegate-implementation` ↔ `subagent-driven-development` /
-  `delegate-to-cli`** — a *estratégia* e o *como* da delegação gray-box.
+  `external-cli.md` em `subagent-driven-development`** — a *estratégia* e o *como* da delegação gray-box.
 - **`systematic-debugging` ↔ `verification-before-completion`** — achar a
   causa-raiz e depois *provar* que a correção funcionou antes de concluir.
-- **`confidence-check` ↔ `verification-before-completion`** — os dois portões:
+- **`confidence-check.md` em `verification-before-completion` ↔ `verification-before-completion`** — os dois portões:
   prontidão *antes* de começar e evidência *depois* de terminar.
 - **`code-review` ↔ `verification-before-completion`** — o painel acha os
   buracos; cada correção é *re-verificada* antes de fechar (loop achar→corrigir→provar).
 
-### As 18 skills de domínio (craft cross-cutting)
+### As 12 skills de domínio (craft cross-cutting)
 
 Não são fases — são *expertise* que os agentes puxam **durante** as fases:
 
 - **Front-end & design:** `frontend-ui-engineering` (UI de produção, fuga da
-  "estética de IA"), `ux-design` (tokens, hierarquia, estados), `accessibility`
+  "estética de IA"), `ux-design.md` em `frontend-ui-engineering` (tokens, hierarquia, estados), `accessibility.md` em `frontend-ui-engineering`
   (WCAG 2.1 AA).
 - **Interfaces & qualidade:** `api-design` (contratos, Hyrum, validar na
   fronteira), `security-hardening` (OWASP, Always/Ask/Never), `performance-optimization`
-  (medir antes), `browser-testing` (verificar no browser; conteúdo = dado não-confiável).
-- **Ops & entrega:** `ci-cd-automation` (gate automático), `git-workflow`,
+  (medir antes), `browser-testing.md` em `feedback-loops` (verificar no browser; conteúdo = dado não-confiável).
+- **Ops & entrega:** `ci-cd.md` em `shipping` (gate automático), `git-workflow`,
   `migration` (strangler/expand-contract), `shipping` (rollout + rollback).
-- **Práticas:** `documentation` (ADRs, o *porquê*), `doc-contracts` (árvore de
+- **Práticas:** `documentation` (ADRs, o *porquê*), `doc-contracts.md` em `documentation` (árvore de
   AGENTS.md — contratos locais por área, lidos antes de editar e atualizados no
   mesmo commit), `prototyping` (spike descartável → captura → deleta),
   `minimal-code` (a escada do "dev sênior preguiçoso" — escrever só o necessário,
   sem nunca cortar segurança; a disciplina do `/devmode lean`),
-  `context-engineering`, `source-of-truth` (checar versão/docs, não a memória),
+  `context-engineering`, `source-of-truth.md` em `context-engineering` (checar versão/docs, não a memória),
   `visual-explainers` (visuais SVG/HTML inline no chat — temáticos, acessíveis).
 
 Importadas de `addyosmani/agent-skills` (MIT), generalizadas para a base
-tool-agnostic; `ux-design`/`accessibility` foram **escritas** para preencher a
-lacuna de design; `doc-contracts` adaptada de `agent0ai/dox` (MIT); `prototyping`
+tool-agnostic; `ux-design.md` e `accessibility.md` (em `frontend-ui-engineering`) foram **escritas** para preencher a
+lacuna de design; `doc-contracts.md` em `documentation` adaptada de `agent0ai/dox` (MIT); `prototyping`
 adaptada de `mattpocock/skills` (MIT — o projeto-irmão do devmode); `minimal-code`
 adaptada de `DietrichGebert/ponytail` (MIT). A meta de cobertura cega foi
 reconciliada com a base.
@@ -130,12 +130,15 @@ reconciliada com a base.
 
 Estas skills são "modos de trabalho". Há duas formas de usá-las:
 
-1. **Deixe a IA disparar sozinha.** Cada skill tem uma `description` que diz
-   *quando* ela deve ser usada. Quando você descreve uma tarefa que casa com
-   isso ("quero construir X", "me entreviste sobre isso", "esses testes estão
-   frágeis"), a IA reconhece e segue a skill.
+1. **Deixe o `/devmode` carregar.** Desde a v2 toda skill fica oculta da
+   listagem que o modelo recebe a cada turno (`disable-model-invocation: true`),
+   então a pack quase não custa nada até uma fase precisar dela. O `/devmode` e o
+   `/devmode do <tarefa>` roteiam para a skill certa e leem o `SKILL.md` por
+   caminho, usando `references/skill-index.md` como mapa. Skills fundidas vivem
+   como arquivos-irmãos (por exemplo `testing-principles.md` dentro de `tdd`).
 2. **Peça explicitamente.** Diga, por exemplo: *"use a skill grill-me comigo"*,
-   *"escreva o PRD desta feature"*, *"vamos fazer isso com TDD"*. Você também
+   *"escreva o PRD desta feature"*, *"vamos fazer isso com TDD"*, ou rode uma
+   direto como `/<nome>` (`/grill-me`, `/tdd`). Você também
    pode abrir o `SKILL.md` correspondente e ler o método para conduzir você
    mesmo.
 
@@ -209,7 +212,7 @@ módulos e interfaces**: assinaturas, tipos, fronteiras reais. É aqui que você
 - **`tdd`** — vermelho (escreva um teste que falha) → verde (faça passar com o
   mínimo) → refatora (melhore o design com o teste te protegendo). **Um
   comportamento por vez.**
-- **`testing-principles`** — decida bem: testar no **limite estável mais
+- **`testing-principles.md` em `tdd`** — decida bem: testar no **limite estável mais
   profundo** (não cada função privada); **mockar só o que você não controla**
   (rede, relógio, disco, terceiros); asseverar **comportamento**, não
   implementação.
@@ -251,14 +254,14 @@ Está travado? Case o sintoma com a skill (versão resumida de
 | "Está quebrado / o teste falha / não sei por quê" | `systematic-debugging` |
 | "Disse que estava pronto, mas não estava" | `verification-before-completion` |
 | "A IA faz coisa demais de uma vez" | `tdd` |
-| "Os testes são frágeis/lentos/sem sentido" | `testing-principles` |
+| "Os testes são frágeis/lentos/sem sentido" | `testing-principles.md` em `tdd` |
 | "Testar exige mock de tudo" | `functional-core-imperative-shell` |
 | "A IA se perde no código / mudança quebra coisas distantes" | `improve-codebase-architecture` |
 | "O que quebra se eu mexer aqui? / é seguro remover?" | `impact-analysis` |
-| "Não sei se estou pronto pra começar a codar" | `confidence-check` |
+| "Não sei se estou pronto pra começar a codar" | `confidence-check.md` em `verification-before-completion` |
 | "Esse design tem buracos? / o que estamos esquecendo?" | `design-critique` |
 | "Está pronto pra mergear? / o que eu (autor) não estou vendo?" | `code-review` |
-| "Mudança espirra em arquivos não relacionados / lógica colada à infra" | `architecture-boundaries` |
+| "Mudança espirra em arquivos não relacionados / lógica colada à infra" | `system-boundaries.md` em `functional-core-imperative-shell` |
 | "Meu cérebro não acompanha o volume de código" | `design-interface-delegate-implementation` + `subagent-driven-development` |
 
 > Regra de ouro do diagnóstico: se você briga sempre com um sintoma *tardio*,
@@ -314,7 +317,7 @@ function renewSubscription(id) {
 }
 ```
 
-**5) Implementar (`tdd` + `testing-principles` + `feedback-loops`).** Cada caso de
+**5) Implementar (`tdd` + `testing-principles.md` em `tdd` + `feedback-loops`).** Cada caso de
 borda do `decideRenewal` vira uma asserção de uma linha, **sem mock** (inativo,
 ainda não venceu, venceu, múltiplos assentos). A casca ganha 1–2 testes de
 integração. Tipos e testes rodam em segundos a cada passo.
@@ -397,19 +400,24 @@ oferecer suporte oficial). O launcher instalado
 em `.agents/skills/devmode/` lê o mesmo arquivo
 `.claude/commands/devmode.md` e adapta só o mecanismo para `AGENTS.md`,
 `.agents/skills/`, `.codex/agents/` e `.codex/hooks.json`. Os skills base têm uma
-única cópia física em `.claude/skills/`; `.agents/skills/` contém links relativos
-para ela. A configuração Claude continua intacta.
+única cópia física em `.claude/skills/`. O Codex lista só o launcher (enxuto) e lê
+cada skill por caminho; um projeto instalado com `--codex-full` recebe links
+relativos para todas. A configuração Claude continua intacta.
 
 > **Retomada morna (SessionStart).** Com `--with-guardrails`, um hook
 > `session_resume.py` injeta no início de cada sessão um resumo curto (última
 > fase, score, track ativo, próxima ação) lido do `.devmode/scorecard.json` —
 > read-only, fail-open. Assim uma sessão nova **continua de onde o loop parou**
 > em vez de começar do zero (padrão do `notque/claude-code-starter-kit`, MIT).
+> O mesmo hook injeta até 8 linhas de **memória**: o que o orquestrador
+> registrou sobre você (`~/.devmode/memories.jsonl`) e sobre o projeto
+> (`.beads/memories.jsonl`, criado pelo instalador, espelhado no `bd remember`
+> quando o Beads está ativo).
 
 Em **toda fase**, o orquestrador mostra um **score** (skill `self-scorecard`): resumo do que foi feito + nota 0–10 em 5 critérios (Correctness, Design, Testing, Safety, Clarity) com deltas (`.devmode/scorecard.py`), e atualiza um **dashboard visual** (`.devmode/dashboard.py` → `devmode-dashboard.html`, sem servidor nem registro). O dashboard traz uma **faixa de KPIs**, uma **esteira do workflow** (as fases Align→Refactor, alcançadas/atual), um **timeline por fase**, um **sparkline** da tendência de score, e um **painel de Gates** alimentado por `.devmode/gates.json` (emitido por um `ci/check.sh`). No fim, `--final` dá **recomendações por critério**. O dashboard é **zero-setup,
 sem servidor nem registro** — basta abrir o `devmode-dashboard.html`.
 
-Os 43 skills e 8 agentes são a **base agnóstica de ferramenta** — funcionam
+Os 32 skills e 8 agentes são a **base agnóstica de ferramenta** — funcionam
 sozinhos. Mas quando o trabalho dura muitas sessões, falta ao devmode uma espinha
 de **orquestração** (tracks, status, dependências) e de **memória persistente**
 (que sobrevive à compactação da conversa). É aí que entra a integração:

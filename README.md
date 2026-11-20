@@ -4,16 +4,23 @@
 > *"Code is not cheap. Bad code is the most expensive it has ever been."*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-![Skills](https://img.shields.io/badge/skills-43-blue.svg)
+![Skills](https://img.shields.io/badge/skills-32-blue.svg)
+![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)
 ![Agents](https://img.shields.io/badge/agents-8-blue.svg)
 ![Hosts](https://img.shields.io/badge/hosts-Claude_Code_%2B_Codex-blue.svg)
 ![Dependencies](https://img.shields.io/badge/runtime_deps-none-lightgrey.svg)
 
 devmode is a complete, **tool-agnostic software development process** packaged as
-43 skills, 8 subagents, deterministic guardrail hooks, a self-scoring system, and
-a zero-setup visual dashboard — built for working *with* AI coding agents without
-letting the codebase rot. It runs on **Claude Code and Codex** off the same
-sources: one physical copy of the pack, two discovery surfaces.
+32 skills, 8 subagents, deterministic guardrail hooks, a self-scoring system, a
+durable memory, and a zero-setup visual dashboard — built for working *with* AI
+coding agents without letting the codebase rot. It runs on **Claude Code and
+Codex** off the same sources: one physical copy of the pack, two discovery
+surfaces.
+
+**v2 is lean by default.** Only the `/devmode` router and its orchestrator sit
+in the per-turn listing; the 32 skills are hidden and read by path when a phase
+needs them. That is about 110 tokens a turn on Claude Code instead of
+~6,200, and about 50 on Codex and Antigravity (measured with `./setup --report`). See [`CHANGELOG.md`](CHANGELOG.md).
 
 📖 **Manual:** the complete usage guide is [`MANUAL.md`](MANUAL.md).
 🇧🇷 **Português:** a mesma íntegra em PT-BR está em [`MANUAL-PT-BR.md`](MANUAL-PT-BR.md).
@@ -27,8 +34,9 @@ sources: one physical copy of the pack, two discovery surfaces.
 - [The four layers of AI engineering](#the-four-layers-of-ai-engineering)
 - [Quick start](#quick-start)
 - [Hosts: Claude Code and Codex](#hosts-claude-code-and-codex)
+- [Memory: what the orchestrator learns](#memory-what-the-orchestrator-learns)
 - [The workflow (a loop, not a march)](#the-workflow-a-loop-not-a-march)
-- [The 43 skills](#the-43-skills)
+- [The 32 skills](#the-32-skills)
 - [The 8 agents](#the-8-agents)
 - [Self-evaluation: scorecard & dashboard](#self-evaluation-scorecard--dashboard)
 - [Enforcement: gates that bite](#enforcement-gates-that-bite)
@@ -76,9 +84,9 @@ direction.**
 
 | Piece | What it is | Where |
 |---|---|---|
-| **43 skills** | 22 *process* + 18 *domain* + 3 *meta* skills — each a focused, trigger-described practice | [`skills/`](skills/) |
+| **32 skills** | 17 *process* + 12 *domain* + 3 *meta* skills — each a focused practice, hidden from the listing and loaded by path ([index](references/skill-index.md)) | [`skills/`](skills/) |
 | **8 agents** | Subagent role definitions, including a parallel 4-lane review panel | [`.agents/`](.agents/) |
-| **Scripts** | Pack auditor, self-scorecard, HTML dashboard, `/goal` budget checker | [`scripts/`](scripts/) |
+| **Scripts** | Global `setup`, memory, skill index, pack auditor, self-scorecard, HTML dashboard, `/goal` budget checker | [`scripts/`](scripts/) |
 | **Guardrail hooks** | Deterministic PreToolUse + Stop gates + a SessionStart warm-resume (Python, stdlib only) | [`integrations/conductor-beads/hooks/`](integrations/conductor-beads/hooks/) |
 | **Integration layer** | Conductor (tracks/spec/plan lifecycle) + Beads (persistent memory) mounted *on top of* the base | [`integrations/conductor-beads/`](integrations/conductor-beads/) |
 | **References** | The principles behind the process + a failure-mode diagnostic table | [`references/`](references/) |
@@ -97,21 +105,37 @@ Modern AI engineering stacks four layers, each wrapping the one beneath —
 
 | Layer (wraps the one below) | What it is | In devmode |
 |---|---|---|
-| **Prompt** | the instruction the model acts on | the 43 trigger-described `skills/*/SKILL.md`, audited by `scripts/audit_skills.py` |
+| **Prompt** | the instruction the model acts on | the 32 `skills/*/SKILL.md` (hidden, loaded by path), audited by `scripts/audit_skills.py` |
 | **Context** | what the model sees, across turns | `ubiquitous-language` + Conductor/Beads memory + `session_resume.py` + `discovery` |
 | **Harness** | the environment around the model | the 8 agents in `.agents/` + deterministic hooks + `feedback-loops` |
 | **Loop** | the multi-run cycle that drives it to done | the `devmode-orchestrator` + `self-scorecard` over `scorecard.py`/`dashboard.py` state |
 
 ## Quick start
 
-### A. Use the skills directly (lightest)
+### A. Install globally (lightest)
 
-Copy `skills/` once and expose that copy through each agent's discovery path:
-`.claude/skills/` for Claude Code and relative links in `.agents/skills/` for
-Codex. Agent definitions live in `.claude/agents/` and `.codex/agents/`. The
-skills are trigger-described: the agent pulls the right one when the situation
-matches (e.g. it reaches for `systematic-debugging` when something breaks,
-`grill-me` when requirements are vague).
+One command makes `/devmode` available in every project, at the lowest per-turn
+cost:
+
+```bash
+git clone https://github.com/fluencer-ai/devmode.git ~/Projects/devmode
+~/Projects/devmode/setup --host auto
+```
+
+`setup` creates `~/.devmode/` (links to the repo, skills, agents, references,
+plus your global `memories.jsonl`) and links devmode into each host it finds:
+
+| Mode | Claude Code (`~/.claude/`) | Codex · Antigravity · Cursor |
+|---|---|---|
+| **lean** (default) | `/devmode` command + `devmode-orchestrator` agent + every leaf skill, hidden | the `devmode` router skill only |
+| **full** (`--full`) | lean + the 7 role agents | every skill linked |
+
+It only ever creates links into the repo, never overwrites a file or a link that
+is not its own, and remembers the mode per host. `--dry-run` shows the plan,
+`--check` exits non-zero on drift, `--report` prints what each host lists and
+its per-turn cost, and `--uninstall` removes only devmode's links (your memory
+file stays). `git pull` updates everything in place; rerun `setup` after a pull
+that adds or removes skills.
 
 ### B. Install into a real project (recommended)
 
@@ -134,12 +158,14 @@ What you get in the project:
 - `CLAUDE.md` (or a non-destructive `@CLAUDE.devmode.md` pointer appended to your
   existing one — your project's rules stay the host and take precedence),
 - `.claude/skills/` + `.claude/agents/` (the full pack),
-- `AGENTS.md` / `AGENTS.devmode.md`, `.agents/skills/` links, and
-  `.codex/agents/` for Codex compatibility; the skills are not copied twice and
-  the launcher includes Codex app metadata,
+- `AGENTS.md` / `AGENTS.devmode.md`, the `.agents/skills/devmode` launcher
+  (lean; `--codex-full` links every skill), and `.codex/agents/` for Codex
+  compatibility; the skills are not copied twice and the launcher includes
+  Codex app metadata,
 - `conductor/` (product/tech-stack/workflow/tracks + per-track `spec.md`/`plan.md`
   templates), `UBIQUITOUS_LANGUAGE.md`,
-- `.devmode/` (scorecard.py, dashboard.py, goal_brief.py) + `devmode-dashboard.html`,
+- `.devmode/` (scorecard.py, dashboard.py, goal_brief.py, memory.py) + `devmode-dashboard.html`,
+- `.beads/memories.jsonl`, the orchestrator's project memory,
 - the deterministic hooks wired into `.claude/settings.json` and, when trusted
   in Codex, `.codex/hooks.json`.
 
@@ -150,7 +176,7 @@ installer; run it directly when scripting (CI) or when not using Claude Code:
 integrations/conductor-beads/install.sh /path/to/your/project --with-guardrails --beads-stealth
 ```
 
-Flags: `--no-skills` (rely on a global install; updates preserve this profile) · `--with-conductor` (vendor the
+Flags: `--no-skills` (rely on a global install; updates preserve this profile) · `--codex-full` (link every skill for Codex, kept across updates) · `--with-conductor` (vendor the
 upstream Conductor commands) · `--beads` / `--beads-stealth` (persistent task
 memory, committed or local) · `--with-guardrails` · `--force`. Idempotent:
 existing files are left alone unless you pass `--force`.
@@ -215,7 +241,7 @@ second copy of the method:
 | Piece | Claude Code | Codex |
 |---|---|---|
 | Durable instructions | [`CLAUDE.md`](CLAUDE.md) | [`AGENTS.md`](AGENTS.md) (or an additive `AGENTS.devmode.md` pointer) |
-| The 43 skills | `.claude/skills/` — the single physical copy | [`.agents/skills/`](.agents/skills/) — relative links to that same copy |
+| The 32 skills | `.claude/skills/` — the single physical copy, every leaf hidden from the listing | [`.agents/skills/`](.agents/skills/) — the `devmode` launcher only (lean); `--codex-full` adds relative links to that same copy |
 | Role agents | `.claude/agents/` | [`.codex/agents/*.toml`](.codex/agents/) — the same 8 roles as Codex custom agents |
 | Guided front door | the `/devmode` slash command | the repo-shared `devmode` skill + its launcher metadata (`agents/openai.yaml`) |
 | Deterministic gates | hooks wired in `.claude/settings.json` | [`.codex/hooks.json`](.codex/hooks.json) → `.codex/hooks/codex_hooks.py` |
@@ -233,6 +259,21 @@ hook definitions are trusted in `/hooks`; see
 [Enforcement](#enforcement-gates-that-bite) for the one behavioral difference
 (Codex has no interactive *ask*).
 
+## Memory: what the orchestrator learns
+
+The orchestrator records what it learns about you and the project so the next
+session does not have to ask again. Both files are append-only JSONL: nothing is
+deleted, `forget` writes a tombstone, `--supersedes` replaces an entry.
+
+| Scope | File | Holds |
+|---|---|---|
+| project | `.beads/memories.jsonl` (created by the installer) | decisions, facts, corrections, preferences for this project; mirrored to `bd remember` when Beads is live |
+| global | `~/.devmode/memories.jsonl` | your own preferences, in every project |
+
+The SessionStart hook primes at most 8 lines once per session. Text that looks
+like a credential is refused. Drive it by hand with
+`python3 .devmode/memory.py add|list|forget|prime` (see `--help`).
+
 ## The workflow (a loop, not a march)
 
 Move top to bottom; each phase has skills that do the work. Small changes can
@@ -242,9 +283,9 @@ skip straight to TDD — the order is the spine, not a bureaucracy.
 |---|---|---|
 | **1. Align** | `grill-me` | A shared design concept, reached by relentless interview *before any asset exists* |
 | **2. Language** | `ubiquitous-language` | A glossary + module map shared by you, the AI, and the code |
-| **3. Specify** | `prior-art` · `write-prd` · `divergent-ideation` · `design-critique` | A PRD explicit about which modules/interfaces change — alternatives generated, then pressure-tested through expert lenses |
-| **4. Architect** | `functional-core-imperative-shell` · `architecture-boundaries` · `design-interface-delegate-implementation` · `design-patterns` | Pure logic isolated from I/O; interfaces you design, implementations you delegate |
-| **5. Implement** | `confidence-check` · `feedback-loops` · `tdd` · `testing-principles` · `subagent-driven-development` · `delegate-to-cli` · `systematic-debugging` · `verification-before-completion` · `code-review` | Small test-first steps, tight feedback, root-cause discipline, evidence before "done", independent review |
+| **3. Specify** | `prior-art` · `write-prd` · `design-critique` (+ `divergent-ideation.md`) | A PRD explicit about which modules/interfaces change — alternatives generated, then pressure-tested through expert lenses |
+| **4. Architect** | `functional-core-imperative-shell` (+ `system-boundaries.md`) · `design-interface-delegate-implementation` · `design-patterns` | Pure logic isolated from I/O; interfaces you design, implementations you delegate |
+| **5. Implement** | `feedback-loops` · `tdd` (+ `testing-principles.md`) · `subagent-driven-development` (+ `external-cli.md`) · `systematic-debugging` · `verification-before-completion` (+ `confidence-check.md`) · `code-review` | Small test-first steps, tight feedback, root-cause discipline, evidence before "done", independent review |
 | **6. Refactor** | `impact-analysis` · `improve-codebase-architecture` | Blast radius mapped before changing; shallow modules consolidated into deep ones |
 
 **The spine is a loop.** When a later phase (review, ops, production) invalidates
@@ -254,16 +295,19 @@ only the affected delta, and record the re-entry as its own scored phase
 (`Re-specify`). The dashboard badges these loop-backs (`↩ re-entry`) so they're
 visible in the trend, not hidden.
 
-## The 43 skills
+## The 32 skills
 
-Each skill is a `SKILL.md` with a trigger-rich description (when to fire) and a
-compact, operational body. The pack is audited by
+Each skill is a `SKILL.md` with a short description (≤300 chars), a compact
+operational body, and sibling files for the cases only some work needs. Every
+leaf carries `disable-model-invocation: true`: you can still run it as
+`/<name>`, and the orchestrator reads it by path. Rows marked ↳ are skills that
+v2 fused into a sibling file of the skill named in brackets; no rule was dropped. The pack is audited by
 [`scripts/audit_skills.py`](scripts/audit_skills.py) — frontmatter, name↔folder,
 line budgets, link integrity, mirror drift, description-overlap (Jaccard), and
 trigger lint.
 
 <details>
-<summary><b>Process skills (22)</b> — the spine: how to think and build</summary>
+<summary><b>Process skills (17)</b> — the spine: how to think and build</summary>
 
 | Skill | One line |
 |---|---|
@@ -271,18 +315,18 @@ trigger lint.
 | [`ubiquitous-language`](skills/ubiquitous-language/SKILL.md) | Glossary + module map; boundaries are part of the language |
 | [`write-prd`](skills/write-prd/SKILL.md) | PRDs explicit about modules, interfaces, tests, and acceptance criteria |
 | [`prior-art`](skills/prior-art/SKILL.md) | Does it already exist? buy/adopt/build judged on fit not stars, priced at three horizons |
-| [`divergent-ideation`](skills/divergent-ideation/SKILL.md) | Generate a wide candidate set for an open decision before choosing — the generative counterpart to design-critique |
+| ↳ [`divergent-ideation.md`](skills/design-critique/divergent-ideation.md) | (in `design-critique`) Generate a wide candidate set for an open decision before choosing — the generative counterpart to design-critique |
 | [`design-critique`](skills/design-critique/SKILL.md) | Pressure-test a design/PRD through several expert lenses before building |
 | [`functional-core-imperative-shell`](skills/functional-core-imperative-shell/SKILL.md) | Pure decisions separated from I/O — the foundation of testability |
-| [`architecture-boundaries`](skills/architecture-boundaries/SKILL.md) | Business rules independent of infrastructure, at system scale |
+| ↳ [`system-boundaries.md`](skills/functional-core-imperative-shell/system-boundaries.md) | (in `functional-core-imperative-shell`) Business rules independent of infrastructure, at system scale |
 | [`design-interface-delegate-implementation`](skills/design-interface-delegate-implementation/SKILL.md) | Interfaces designed by hand; implementations delegated as verified gray boxes |
 | [`design-patterns`](skills/design-patterns/SKILL.md) | GoF patterns chosen by smell/goal — only when they deepen a module |
-| [`confidence-check`](skills/confidence-check/SKILL.md) | Pre-flight gate: do I know the goal, interface, constraints, verification? |
+| ↳ [`confidence-check.md`](skills/verification-before-completion/confidence-check.md) | (in `verification-before-completion`) Pre-flight gate: do I know the goal, interface, constraints, verification? |
 | [`feedback-loops`](skills/feedback-loops/SKILL.md) | Types, compiler, fast tests, real runtime — a verification gate ladder |
 | [`tdd`](skills/tdd/SKILL.md) | Red → green in small deliberate steps that keep the AI inside its headlights |
-| [`testing-principles`](skills/testing-principles/SKILL.md) | Unit size, what to mock, which behaviors to test, adversarial inputs |
+| ↳ [`testing-principles.md`](skills/tdd/testing-principles.md) | (in `tdd`) Unit size, what to mock, which behaviors to test, adversarial inputs |
 | [`subagent-driven-development`](skills/subagent-driven-development/SKILL.md) | Fresh subagent per task + two-stage review — operationalized gray-boxing |
-| [`delegate-to-cli`](skills/delegate-to-cli/SKILL.md) | Offload a bounded task to an external model CLI as a verified gray box |
+| ↳ [`external-cli.md`](skills/subagent-driven-development/external-cli.md) | (in `subagent-driven-development`) Offload a bounded task to an external model CLI as a verified gray box |
 | [`systematic-debugging`](skills/systematic-debugging/SKILL.md) | Root cause first — no fix without investigation |
 | [`verification-before-completion`](skills/verification-before-completion/SKILL.md) | No "done" without fresh evidence; a green gate must have *covered the change* |
 | [`code-review`](skills/code-review/SKILL.md) | Run the panel, act on every finding, re-verify; adopt the finding, verify the fix |
@@ -293,27 +337,27 @@ trigger lint.
 </details>
 
 <details>
-<summary><b>Domain skills (18)</b> — cross-cutting craft pulled in during the phases</summary>
+<summary><b>Domain skills (12)</b> — cross-cutting craft pulled in during the phases</summary>
 
 | Skill | One line |
 |---|---|
 | [`frontend-ui-engineering`](skills/frontend-ui-engineering/SKILL.md) | Production UI; escape the "AI aesthetic" |
-| [`ux-design`](skills/ux-design/SKILL.md) | Tokens, hierarchy, states |
-| [`accessibility`](skills/accessibility/SKILL.md) | WCAG 2.1 AA as a floor, not a feature |
+| ↳ [`ux-design.md`](skills/frontend-ui-engineering/ux-design.md) | (in `frontend-ui-engineering`) Tokens, hierarchy, states |
+| ↳ [`accessibility.md`](skills/frontend-ui-engineering/accessibility.md) | (in `frontend-ui-engineering`) WCAG 2.1 AA as a floor, not a feature |
 | [`api-design`](skills/api-design/SKILL.md) | Contracts, Hyrum's law, validate at the boundary |
 | [`security-hardening`](skills/security-hardening/SKILL.md) | OWASP, Always/Ask/Never tiers, and the **control checklist** (design controls adversarially *before* implementing) |
 | [`performance-optimization`](skills/performance-optimization/SKILL.md) | Measure before optimizing |
-| [`browser-testing`](skills/browser-testing/SKILL.md) | Verify in a real browser; page content is untrusted data |
-| [`ci-cd-automation`](skills/ci-cd-automation/SKILL.md) | The gate ladder as an automated script |
+| ↳ [`browser-testing.md`](skills/feedback-loops/browser-testing.md) | (in `feedback-loops`) Verify in a real browser; page content is untrusted data |
+| ↳ [`ci-cd.md`](skills/shipping/ci-cd.md) | (in `shipping`) The gate ladder as an automated script |
 | [`git-workflow`](skills/git-workflow/SKILL.md) | Atomic conventional commits, clean history |
 | [`migration`](skills/migration/SKILL.md) | Strangler-fig, expand–contract, delete the zombie |
 | [`shipping`](skills/shipping/SKILL.md) | PR-ready ≠ release-ready: checklist, staged rollout, rollback thresholds |
 | [`documentation`](skills/documentation/SKILL.md) | ADRs for the *why*; supersede, don't mutate |
-| [`doc-contracts`](skills/doc-contracts/SKILL.md) | Hierarchical AGENTS.md tree: local contracts walked before editing, updated in the same commit |
+| ↳ [`doc-contracts.md`](skills/documentation/doc-contracts.md) | (in `documentation`) Hierarchical AGENTS.md tree: local contracts walked before editing, updated in the same commit |
 | [`prototyping`](skills/prototyping/SKILL.md) | Throwaway code that answers ONE question — a spike, then captured and deleted (never kept as production) |
 | [`minimal-code`](skills/minimal-code/SKILL.md) | The lazy-senior-dev ladder — write only what's needed (stdlib/native/one line) and never cut safety (the `/devmode lean` discipline) |
 | [`context-engineering`](skills/context-engineering/SKILL.md) | Curate the working set; minimal briefs; clean handoffs that survive compaction |
-| [`source-of-truth`](skills/source-of-truth/SKILL.md) | Check the installed version and real docs, not training-data memory |
+| ↳ [`source-of-truth.md`](skills/context-engineering/source-of-truth.md) | (in `context-engineering`) Check the installed version and real docs, not training-data memory |
 | [`visual-explainers`](skills/visual-explainers/SKILL.md) | Inline SVG/HTML visuals (diagram, chart, mockup) that render in chat — themed, accessible, not clipped |
 
 </details>
@@ -416,7 +460,7 @@ devmode/
 ├── MANUAL-PT-BR.md              # the full usage manual (Portuguese)
 ├── ATTRIBUTION.md               # per-artifact third-party credits
 ├── LICENSE                      # MIT
-├── skills/                      # 43 skills (each: SKILL.md + optional assets/)
+├── skills/                      # 32 skills (each: SKILL.md + sibling .md files + optional assets/)
 ├── .agents/                     # 8 subagent definitions + Codex repo-skill exposure
 ├── .claude/                     # mirrors (commands/agents) so /devmode works here too
 ├── .codex/                      # Codex config, custom-agent adapters, and hook adapter
@@ -501,7 +545,7 @@ devmode and [mattpocock/skills](https://github.com/mattpocock/skills) are
 **siblings**: both were distilled from the thesis in Matt Pocock's *"Claude Code
 for real engineers"* talk — that AI is a brilliant tactician with no strategy, so
 *you* must supply it. devmode generalized that thesis into a tool-agnostic process
-(43 skills, agents, enforced gates, scorecard/dashboard) combined with the
+(32 skills, agents, enforced gates, memory, scorecard/dashboard) combined with the
 reading list above.
 
 ## Author

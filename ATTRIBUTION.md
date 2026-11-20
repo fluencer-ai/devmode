@@ -67,8 +67,23 @@ reused (no files copied), as noted.
 | `skills/confidence-check` | `confidence-check` | [SuperClaude-Org/SuperClaude_Framework](https://github.com/SuperClaude-Org/SuperClaude_Framework) | MIT |
 | `skills/design-critique` | `spec-panel` / `business-panel-experts` | SuperClaude-Org/SuperClaude_Framework | MIT |
 | `.agents/*` ("Will / Will not" boundary sections) | agent frontmatter convention | SuperClaude-Org/SuperClaude_Framework | MIT |
+| v2 refresh: `skills/grill-me` (grilling cadence, the "wait, what?" check, `research.md`), `skills/ubiquitous-language` (glossary format, ADR format, `module-map.md`), `skills/write-prd` (to-spec shape), `skills/design-interface-delegate-implementation` (deepening, design-it-twice, `deep-module-vocabulary.md`), `skills/improve-codebase-architecture` (`html-report.md`), `skills/systematic-debugging` (diagnosis loop), `skills/tdd` (tracer-bullet cadence), `skills/code-review` (`smells.md`), `skills/subagent-driven-development` (implement-from-spec), `skills/context-engineering` (phase boundaries, handoff), `skills/prototyping`, `skills/authoring-skills` (`writing-for-agents.md`, skill mechanics, invocation), `skills/self-scorecard` (retro), `skills/shipping` (PR craft) | `productivity/grilling`, `wait-what`, `handoff`, `writing-for-agents` (+ `SKILL-MECHANICS`); `engineering/domain-modeling` (+ `GLOSSARY-FORMAT`, `ADR-FORMAT`), `to-spec`, `codebase-design` (+ `DEEPENING`, `DESIGN-IT-TWICE`), `improve-codebase-architecture` (+ `HTML-REPORT`), `diagnosing-bugs`, `tdd`, `code-review`, `implement-spec`, `ask-matt` (+ `PHASE-BOUNDARIES`), `prototype`, `retro`, `pr`; `.agents/invocation.md` | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT © Matt Pocock |
 
 ## Notes
+
+- **v2 consolidation (2.0.0).** Eleven skills were fused into sibling files of
+  the skill that owns the case. Rows above that name a retired path keep their
+  credit at the new location: `architecture-boundaries` →
+  `functional-core-imperative-shell/system-boundaries.md`, `divergent-ideation` →
+  `design-critique/divergent-ideation.md`, `testing-principles` →
+  `tdd/testing-principles.md`, `confidence-check` →
+  `verification-before-completion/confidence-check.md`, `browser-testing` →
+  `feedback-loops/browser-testing.md`, `delegate-to-cli` →
+  `subagent-driven-development/external-cli.md`, `ux-design` and `accessibility` →
+  `frontend-ui-engineering/{ux-design,accessibility}.md`, `ci-cd-automation` →
+  `shipping/ci-cd.md`, `doc-contracts` → `documentation/doc-contracts.md`,
+  `source-of-truth` → `context-engineering/source-of-truth.md`. The global
+  `setup`, `scripts/memory.py`, and the skill index are devmode-original.
 
 - **Apache-2.0 sources** (`rbarcante/claude-conductor`,
   `k-kolomeitsev/data-structure-protocol`) permit reuse and modification; this

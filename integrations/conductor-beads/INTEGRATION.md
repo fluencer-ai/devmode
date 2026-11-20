@@ -27,13 +27,12 @@ do not replace it.
  ║ BASE · devmode — how we think, design, and test (source of truth)         ║
  ║                                                                           ║
  ║ grill-me · ubiquitous-language · write-prd ·                              ║
- ║ prior-art · divergent-ideation · design-critique ·                        ║
- ║ functional-core-imperative-shell · architecture-boundaries ·              ║
+ ║ prior-art · design-critique · functional-core-imperative-shell ·          ║
  ║ design-interface-delegate-implementation · design-patterns ·              ║
- ║ feedback-loops · tdd · testing-principles · confidence-check ·            ║
- ║ impact-analysis · systematic-debugging · verification-before-completion · ║
- ║ subagent-driven-development · delegate-to-cli ·                           ║
- ║ improve-codebase-architecture · authoring-skills · …  (43 skills total)   ║
+ ║ feedback-loops · tdd · impact-analysis · systematic-debugging ·           ║
+ ║ verification-before-completion · subagent-driven-development ·            ║
+ ║ improve-codebase-architecture · authoring-skills · …  (32 skills total,   ║
+ ║ hidden from the listing, read by path; fused skills are sibling files)    ║
  ║                                                                           ║
  ║ + 8 agents: design-architect · requirements-planner · tdd-implementer ·   ║
  ║ architecture-refactorer · complexity-reviewer + review panel              ║
@@ -55,7 +54,7 @@ conflict with the base, the base wins** (see "Frictions resolved" below).
 | 2 | **Before** `/conductor-newtrack` | **`grill-me`** — reach the shared design concept first. Do NOT let newtrack create an asset before alignment. | — |
 | 3 | `/conductor-newtrack` → `spec.md` | **`write-prd`** rigor: the spec's *module & interface* section is the heart; mark core/shell and gray-box/critical per `design-interface-delegate-implementation` + `functional-core-imperative-shell`. Before the spec, run **`prior-art`** on any load-bearing component — if it already exists as a product or an OSS project, that changes what the spec says. Pressure-test a high-stakes spec with **`design-critique`** before approving. | `bd create` epic + tasks; `bd dep add` for phase order (the design tree becomes a DAG) |
 | 4 | → `plan.md` | Tasks fall out of the spec's modules; phase 1 = functional core, phase 2 = shell, critical paths flagged | tasks mapped in `metadata.json` |
-| 5 | `/conductor-implement` | **`confidence-check`** pre-flight → **`tdd`** + **`testing-principles`** + **`feedback-loops`** per `workflow.md`; delegate gray-box implementations (**`subagent-driven-development`** / **`delegate-to-cli`**); **`systematic-debugging`** when a test fails; **`verification-before-completion`** before any "done" | `bd prime`, `bd ready`, `bd update`/`close --continue`, `discovered-from` |
+| 5 | `/conductor-implement` | **`confidence-check.md`** (in `verification-before-completion`) pre-flight → **`tdd`** + its **`testing-principles.md`** + **`feedback-loops`** per `workflow.md`; delegate gray-box implementations (**`subagent-driven-development`**, with **`external-cli.md`** for an external CLI); **`systematic-debugging`** when a test fails; **`verification-before-completion`** before any "done" | `bd prime`, `bd ready`, `bd update`/`close --continue`, `discovered-from` |
 | 6 | phase verification | **`feedback-loops`** (browser/types) + the **review panel** (`complexity-reviewer` leads; `code-quality-analyzer` / `security-scanner` / `test-coverage-analyzer` in parallel); record ADRs in `decisions.md` | epic notes (COMPLETED/IN PROGRESS/NEXT/KEY DECISIONS) + `bd sync` |
 | 7 | `/conductor-handoff` | WARM START: write the **design concept + ubiquitous-language/module-map deltas + next step** into the notes so a fresh session recovers strategy, not just status | `bd update --notes`, `bd sync` (beats the 30s debounce) |
 | 8 | `/conductor-revise` | When implementation reveals the design is wrong, fix the spec/interface — don't bend the implementation | `bd` status/dep updates |
@@ -76,7 +75,7 @@ choices with a recommendation.
 /devmode "build a coupon redemption endpoint"
   → ALIGN     (grill-me)        [GATE: confirm the design concept]
   → LANGUAGE  (ubiquitous-language)
-  → SPECIFY   (prior-art + write-prd + divergent-ideation + design-critique) [GATE: resolve trade-offs, approve spec]
+  → SPECIFY   (prior-art + write-prd + design-critique, divergent-ideation.md first) [GATE: resolve trade-offs, approve spec]
   → ARCHITECT (FCIS / boundaries / interfaces) [GATE: approve interfaces]
   → IMPLEMENT (tdd / feedback-loops / debugging) [GATE: "look at it run"]
   → REVIEW    (code-review panel)  [GATE: okay the merge] → verify
@@ -91,8 +90,10 @@ installed into the project's `.claude/` by `install.sh`.
 
 For Codex, `install.sh` also writes `AGENTS.md` / `AGENTS.devmode.md`,
 `.codex/agents/`, `.codex/config.toml`, and, when guardrails are requested,
-`.codex/hooks.json`. `.agents/skills/` contains relative links to the single
-physical skill copy in `.claude/skills/`, plus the Codex-only `devmode` launcher.
+`.codex/hooks.json`. `.agents/skills/` holds only the Codex `devmode` launcher,
+which reads each skill by path from the single physical copy in `.claude/skills/`
+(`--codex-full` adds relative links to every skill). The installer also creates
+`.beads/memories.jsonl`, the orchestrator's append-only project memory.
 Project-local Codex hooks run only after the project and hook definitions are
 trusted in Codex.
 
@@ -108,7 +109,7 @@ templates in `templates/` already encode these resolutions:
 
 1. **">80% coverage" gate → behavior-at-a-stable-boundary.** A coverage number as
    a gate pushes you to test implementation and over-mock. `workflow.md` replaces
-   it with `testing-principles`: cover contract/edges/invariants/regressions;
+   it with `testing-principles.md` (in `tdd`): cover contract/edges/invariants/regressions;
    coverage is a *diagnostic*, not a target.
 2. **Eager asset creation → grill first.** `/conductor-newtrack` wants to emit
    `spec.md` immediately. devmode runs `grill-me` *before* newtrack so the spec

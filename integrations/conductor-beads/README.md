@@ -34,7 +34,7 @@ the shell.
 | `hooks/codex_hooks.py` | Codex adapter for the same gates: guardrails, verify-gate, phase-gate, and warm resume. It is wired into `.codex/hooks.json` when `--with-guardrails` is used. |
 | `install.sh` | Bootstrap: establishes the **devmode base** and mounts the **Conductor layer** in a real project. |
 | `templates/CLAUDE.md` | The **project CLAUDE.md**: declares devmode as the base and Conductor as the layer. It is what makes devmode the foundation. |
-| `templates/AGENTS.md` + `templates/codex.config.toml` | Project adapters for Codex: durable instructions, skill links in `.agents/skills/`, agents in `.codex/agents/`, and hooks in `.codex/hooks.json`. |
+| `templates/AGENTS.md` + `templates/codex.config.toml` | Project adapters for Codex: durable instructions, the `devmode` launcher in `.agents/skills/`, agents in `.codex/agents/`, and hooks in `.codex/hooks.json`. |
 | `templates/workflow.md` | Task-cycle adapter (defers to devmode's skills): TDD + FCIS + gray boxes + testing principles (replaces the ">80% coverage" target). |
 | `templates/track/spec.md` | Track spec with `write-prd`'s module/interface rigor. |
 | `templates/track/plan.md` | Phased plan (core → shell → critical), annotatable for Beads and parallel execution. |
@@ -69,7 +69,8 @@ Flags:
 
 | Flag | Effect |
 |------|--------|
-| *(default)* | Copies the devmode base once into `.claude/skills`, creates relative links in `.agents/skills` for Codex, and installs `CLAUDE.md`, `AGENTS.md`, and the agent adapters. |
+| *(default)* | Copies the devmode base once into `.claude/skills`, installs only the `devmode` launcher in `.agents/skills` for Codex (lean), creates `.beads/memories.jsonl`, and installs `CLAUDE.md`, `AGENTS.md`, and the agent adapters. |
+| `--codex-full` | Also links every skill into `.agents/skills` for Codex. Recorded in `.devmode/codex-skills`, so updates keep it. |
 | `--no-skills` | Does **not** copy skills/agents/references (uses a globally installed devmode). The base CLAUDE.md is still written, and future updates preserve this profile. |
 | `--with-conductor` | Clones Conductor-Beads and copies its slash commands + the `conductor`/`beads` skills. Skip it if they are already global. |
 | `--with-guardrails` | Installs the **four** deterministic hooks (gates-as-code) and wires them into `.claude/settings.json` and `.codex/hooks.json`: **PreToolUse** guardrails (blocks dangerous ops) + **Stop** verify-gate (requires an end-to-end verification after a rebuild/deploy/restart/`.env`) + **Stop** phase-gate (refreshes the dashboard and requires delegation to the orchestrator on a phase-driving `/devmode` turn) + **SessionStart** warm-resume (injects the last phase, score, and active track). |
@@ -83,8 +84,8 @@ an `AGENTS.md`, the Codex base is written to `AGENTS.devmode.md` and the host
 file only receives a textual pointer asking for that adapter to be read. In Codex
 Desktop, invoke the repository skill directly as `/devmode <args>`; in CLI/IDE,
 use `/skills` and select `devmode`. Both agents see the same files:
-`.claude/skills/` holds the single physical copy and `.agents/skills/` contains
-only relative links, plus the Codex launcher. Claude Code's existing `/devmode`
+`.claude/skills/` holds the single physical copy and `.agents/skills/` holds the
+Codex launcher (plus relative links to every skill with `--codex-full`). Claude Code's existing `/devmode`
 stays intact.
 
 The installer records in `.devmode/managed-files` only the assets it actually
