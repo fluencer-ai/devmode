@@ -84,7 +84,9 @@ copy() {  # copy <src> <dst>
   local src="$1" dst="$2"
   if [ -e "$dst" ] && [ "$FORCE" -ne 1 ]; then
     info "kept existing ${dst#"$TARGET"/} (use --force to overwrite)"
-    cmp -s "$src" "$dst" && mark_managed "${dst#"$TARGET"/}"
+    # `cmp` returning 1 (files differ) must not abort the run under `set -e`:
+    # in --adopt every real project file differs from the template.
+    if cmp -s "$src" "$dst"; then mark_managed "${dst#"$TARGET"/}"; fi
   else
     mkdir -p "$(dirname "$dst")"; cp "$src" "$dst"
     mark_managed "${dst#"$TARGET"/}"
