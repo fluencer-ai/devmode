@@ -56,7 +56,9 @@ class GuardrailTest(unittest.TestCase):
     def test_quoted_commands_are_opened_only_where_they_run(self):
         env = "." + "env"
         for cmd in (f'ssh host "cat {env}"', 'bash -c "rm -rf /Users/x/y"', f'sh -lc "cat {env}"',
-                    f'docker exec app sh -c "cat {env}"', f'eval "cat {env}"'):
+                    f'docker exec app sh -c "cat {env}"', f'eval "cat {env}"',
+                    f'watch "cat {env}"', f'watch -n 2 "cat {env}"', f'bash -ce "cat {env}"',
+                    f'bash -ec "cat {env}"'):
             self.assertEqual(bash(cmd)[0], "ask", cmd)
         for cmd in (f'echo "cat {env}"', f'git commit -m "see {env} docs; cat later"'):
             self.assertEqual(bash(cmd)[0], "allow", cmd)

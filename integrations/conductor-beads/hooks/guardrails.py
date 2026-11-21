@@ -96,9 +96,9 @@ def _runs_as_command(head, prev, tok, shell) -> bool:
     `bash -c "..."`, `su -c "..."`, `eval "..."`, `ssh host "..."`, `watch "..."`."""
     if not (" " in tok or "\n" in tok or ";" in tok or "|" in tok) or head is None:
         return False
-    if shell and prev is not None and re.fullmatch(r"-[a-z]*c", prev):
+    if shell and prev is not None and re.fullmatch(r"-[A-Za-z]*c[A-Za-z]*", prev):
         return True
-    return head in _REMOTE and prev is not None and prev != head or head == "eval"
+    return head in _REMOTE and prev is not None or head == "eval"
 
 
 def simple_commands(cmd: str):
