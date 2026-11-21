@@ -46,6 +46,21 @@ class GuardrailTest(unittest.TestCase):
     def test_secret_read_asks(self):
         self.assertEqual(bash("cat .env")[0], "ask")
 
+    # quoted paths with spaces stay one argument; quoted text runs only where executed
+    def test_quoted_paths_with_spaces_keep_their_program(self):
+        env = "." + "env"
+        self.assertEqual(bash(f'cat "Projetos pessoais/{env}"')[0], "ask")
+        self.assertEqual(bash('rm -rf "My Folder/build"')[0], "ask")
+        self.assertEqual(bash('cat "Projetos pessoais/nota.txt"')[0], "allow")
+
+    def test_quoted_commands_are_opened_only_where_they_run(self):
+        env = "." + "env"
+        for cmd in (f'ssh host "cat {env}"', 'bash -c "rm -rf /Users/x/y"', f'sh -lc "cat {env}"',
+                    f'docker exec app sh -c "cat {env}"', f'eval "cat {env}"'):
+            self.assertEqual(bash(cmd)[0], "ask", cmd)
+        for cmd in (f'echo "cat {env}"', f'git commit -m "see {env} docs; cat later"'):
+            self.assertEqual(bash(cmd)[0], "allow", cmd)
+
     # allow (the common case stays frictionless)
     def test_normal_bash_allowed(self):
         self.assertEqual(bash("git status")[0], "allow")

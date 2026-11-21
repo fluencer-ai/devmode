@@ -72,13 +72,33 @@ def _words(cmd: str, fundo: int = 0):
         toks = list(lx)
     except ValueError:
         return [t for t in re.split(r"[\s;|&()]+", text) if t]
-    out = []
+    out, head, prev, shell = [], None, None, False
     for t in toks:
-        if fundo < 4 and t != cmd and (" " in t or "\n" in t or ";" in t or "|" in t):  # a quoted string with a command inside
+        if t and set(t) <= _SEP:
+            head, shell = None, False
+        elif head is None and not (re.match(r"^\w+=", t) or t in _PREFIX):
+            head = _os.path.basename(t)
+        shell = shell or _os.path.basename(t) in _SHELLS  # `docker exec c sh -c "..."` runs it too
+        if fundo < 4 and t != cmd and _runs_as_command(head, prev, t, shell):
             out += [";"] + _words(t, fundo + 1) + [";"]
         else:
-            out.append(t)
+            out.append(t)  # a quoted path or message stays ONE argument of its program
+        prev = t
     return out
+
+
+_SHELLS = {"sh", "bash", "zsh", "dash", "ksh", "fish", "su"}
+_REMOTE = {"ssh", "watch", "eval"}
+
+
+def _runs_as_command(head, prev, tok, shell) -> bool:
+    """A quoted string is opened as a command only where something executes it:
+    `bash -c "..."`, `su -c "..."`, `eval "..."`, `ssh host "..."`, `watch "..."`."""
+    if not (" " in tok or "\n" in tok or ";" in tok or "|" in tok) or head is None:
+        return False
+    if shell and prev is not None and re.fullmatch(r"-[a-z]*c", prev):
+        return True
+    return head in _REMOTE and prev is not None and prev != head or head == "eval"
 
 
 def simple_commands(cmd: str):
