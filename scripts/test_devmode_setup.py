@@ -128,6 +128,24 @@ class InstallTest(Base):
         self.run_setup("--host", "claude")
         self.assertFalse(os.path.lexists(self.h(".claude", "skills", "deleted-skill")))
 
+    def test_a_malformed_state_file_stops_before_any_change(self):
+        os.makedirs(self.h(".devmode"))
+        for bad in ('{"hosts": {}, "links": []}', '{"hosts": {"claude": 3}}',
+                    '{"hosts": {}, "links": {"claude": "x"}}', '{"hosts": {"mars": "lean"}}'):
+            with open(self.h(".devmode", "install.json"), "w") as fh:
+                fh.write(bad)
+            self.assertEqual(1, self.run_setup("--host", "claude"), bad)
+            self.assertFalse(os.path.lexists(self.h(".claude", "skills")), bad)
+
+    def test_save_never_truncates_a_file_named_like_the_temp(self):
+        os.makedirs(self.h(".devmode"))
+        write(self.h(".devmode", "install.json.tmp"), "my notes\n")
+        self.run_setup("--host", "claude")
+        with open(self.h(".devmode", "install.json.tmp")) as fh:
+            self.assertEqual("my notes\n", fh.read())
+        self.assertEqual(["install.json", "install.json.tmp"],
+                         sorted(f for f in os.listdir(self.h(".devmode")) if f.startswith("install")))
+
     def test_converts_a_repo_symlink_home(self):
         os.symlink(self.repo, self.h(".devmode"))
         self.run_setup("--host", "claude")
@@ -225,7 +243,26 @@ class PlanTest(unittest.TestCase):
     def test_unlink_needs_our_name_or_a_record(self):
         cur = {"/h/alias": ("link", "/r/skills/tdd"), "/h/agents": ("link", "/r/.agents")}
         self.assertEqual(ds.plan({}, cur, "/r")[0], [])
-        self.assertEqual(ds.plan({}, cur, "/r", managed={"/h/agents"})[0], [("unlink", "/h/agents")])
+        self.assertEqual(ds.plan({}, cur, "/r", managed={"/h/agents": "/r/.agents"})[0], [("unlink", "/h/agents")])
+
+    def test_a_live_unrecorded_link_is_never_removed_or_redirected(self):
+        alive = lambda t: True  # noqa: E731
+        cur = {"/h/agents/design-architect.toml": ("link", "/r/.codex/agents/design-architect.toml"),
+               "/h/skills/devmode": ("link", "/r/skills/tdd")}
+        want = {"/h/skills/devmode": "/r/.agents/skills/devmode"}
+        acts, notes = ds.plan(want, cur, "/r", alive=alive)
+        self.assertEqual([], acts)
+        self.assertTrue(any("skills/devmode" in n for n in notes), notes)
+        recorded = {"/h/skills/devmode": "/r/skills/tdd", "/h/agents/design-architect.toml":
+                    "/r/.codex/agents/design-architect.toml"}
+        acts, _ = ds.plan(want, cur, "/r", recorded, alive=alive)
+        self.assertEqual(sorted(acts), sorted([("relink", "/r/.agents/skills/devmode", "/h/skills/devmode"),
+                                               ("unlink", "/h/agents/design-architect.toml")]))
+
+    def test_a_record_for_another_target_is_not_ownership(self):
+        cur = {"/h/x": ("link", "/r/skills/mine")}
+        acts, _ = ds.plan({}, cur, "/r", {"/h/x": "/r/skills/x"}, alive=lambda t: True)
+        self.assertEqual([], acts)
 
     def test_prefix_is_not_ownership(self):
         acts, _ = ds.plan({}, {"/h/x": ("link", "/r-other/x")}, "/r")

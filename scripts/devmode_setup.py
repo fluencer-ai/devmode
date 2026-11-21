@@ -34,6 +34,7 @@ import json
 import os
 import re
 import sys
+import tempfile
 
 HOSTS = ("claude", "codex", "agy", "cursor")
 MODES = ("lean", "full")
@@ -104,15 +105,25 @@ def _named_like(dest, target):
     return os.path.basename(dest) == os.path.basename(target.rstrip(os.sep))
 
 
-def plan(want, current, repo, managed=()):
+def plan(want, current, repo, managed=(), alive=os.path.exists):
     """Diff wanted links against the filesystem snapshot.
 
     `current` maps a path to ("link", target) | ("real", None) for every entry in
-    the host folders. `managed` holds the links a previous run recorded. Returns
-    (actions, notes): actions are ("link", src, dest), ("relink", src, dest) or
+    the host folders. `managed` maps each link a previous run recorded to the
+    target it was given (an early record listed only the paths). A link is ours
+    to redirect or remove only when that exact pair was recorded, or when it is
+    a dangling link into the repo named like its target (a skill since removed).
+    A live link the user made into the repo is left alone. Returns (actions,
+    notes): actions are ("link", src, dest), ("relink", src, dest) or
     ("unlink", dest); notes are human-readable skips."""
     owned = lambda t: t is not None and (t == repo or t.startswith(repo + os.sep))  # noqa: E731
-    managed = set(managed)
+    managed = dict(managed) if isinstance(managed, dict) else dict.fromkeys(managed)
+
+    def ours(dest, target):
+        if dest in managed:
+            return managed[dest] in (None, target)
+        return _named_like(dest, target) and not alive(target)
+
     actions, notes = [], []
     for dest, src in sorted(want.items()):
         state = current.get(dest)
@@ -120,8 +131,10 @@ def plan(want, current, repo, managed=()):
             actions.append(("link", src, dest))
         elif state[0] == "link" and state[1] == src:
             continue
-        elif state[0] == "link" and owned(state[1]):
+        elif state[0] == "link" and owned(state[1]) and ours(dest, state[1]):
             actions.append(("relink", src, dest))
+        elif state[0] == "link" and owned(state[1]):
+            notes.append(f"skip {dest}: a link you made into the repo ({state[1]})")
         elif state[0] == "link":
             notes.append(f"skip {dest}: links elsewhere ({state[1]})")
         else:
@@ -129,7 +142,7 @@ def plan(want, current, repo, managed=()):
     for path, state in sorted(current.items()):
         if path in want or state[0] != "link" or not owned(state[1]):
             continue
-        if path in managed or _named_like(path, state[1]):
+        if ours(path, state[1]):
             actions.append(("unlink", path))  # ours, but not wanted in this mode (or stale)
     return actions, notes
 
@@ -151,12 +164,27 @@ def frontmatter(path):
     return {"hidden": bool(re.search(r"^disable-model-invocation:\s*true\s*$", fm, re.M))}, desc
 
 
+def toml_description(path):
+    """The `description = "..."` line of a Codex agent file."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            for line in fh:
+                m = re.match(r'^description\s*=\s*"((?:[^"\\]|\\.)*)"\s*$', line)
+                if m:
+                    return m.group(1)
+    except OSError:
+        pass
+    return ""
+
+
 def listing_cost(host, want):
     """Estimated characters the host puts in every turn for these links."""
     chars, rows = 0, []
     for dest, src in sorted(want.items()):
-        f = src if src.endswith(".md") else os.path.join(src, "SKILL.md")
-        meta, desc = frontmatter(f)
+        if src.endswith(".toml"):
+            meta, desc = {}, toml_description(src)
+        else:
+            meta, desc = frontmatter(src if src.endswith(".md") else os.path.join(src, "SKILL.md"))
         if host == "claude" and meta.get("hidden"):
             continue  # Claude Code drops hidden skills from the listing
         n = len(os.path.basename(dest)) + len(desc) + 4
@@ -196,10 +224,29 @@ def load_state(home):
             st = json.load(fh)
     except Exception:
         return None
-    if not isinstance(st, dict) or not isinstance(st.get("hosts"), dict):
+    if not _valid_state(st):
         return None
     st.setdefault("links", {})
     return st
+
+
+def _valid_state(st):
+    """Only a shape this installer writes: hosts {host: mode}, links {host: record}."""
+    if not isinstance(st, dict) or not isinstance(st.get("hosts"), dict):
+        return False
+    if any(h not in HOSTS or m not in ("lean", "full") for h, m in st["hosts"].items()):
+        return False
+    links = st.get("links", {})
+    if not isinstance(links, dict) or any(h not in HOSTS for h in links):
+        return False
+    for rec in links.values():
+        if isinstance(rec, list):
+            if not all(isinstance(d, str) for d in rec):
+                return False
+        elif not (isinstance(rec, dict) and all(isinstance(k, str) and isinstance(v, str)
+                                                for k, v in rec.items())):
+            return False
+    return True
 
 
 def save_state(home, st, dry):
@@ -209,10 +256,15 @@ def save_state(home, st, dry):
     base = os.path.dirname(state_path(home))
     if os.path.islink(base) or not os.path.isdir(base):
         return
-    tmp = state_path(home) + ".tmp"
-    with open(tmp, "w") as fh:
-        json.dump(st, fh, indent=2, sort_keys=True)
-    os.replace(tmp, state_path(home))
+    fd, tmp = tempfile.mkstemp(prefix=".install-", suffix=".json", dir=base)
+    try:
+        with os.fdopen(fd, "w") as fh:
+            json.dump(st, fh, indent=2, sort_keys=True)
+        os.replace(tmp, state_path(home))
+    except BaseException:
+        if os.path.lexists(tmp):
+            os.unlink(tmp)  # only the temp this run created
+        raise
 
 
 def ensure_home(home, repo, dry, out):
@@ -233,7 +285,7 @@ def ensure_home(home, repo, dry, out):
     want = {os.path.join(base, k): os.path.join(repo, v) if v else repo for k, v in HOME_LINKS.items()}
     cur = snapshot([base]) if os.path.isdir(base) else {}
     cur = {p: s for p, s in cur.items() if os.path.basename(p) in HOME_LINKS}
-    acts, notes = plan(want, cur, repo)
+    acts, notes = plan(want, cur, repo, dict.fromkeys(want))  # these names are devmode's own
     apply(acts, dry, out)
     for n in notes:
         out("  " + n)
@@ -335,7 +387,7 @@ def main(argv=None, home=None, repo=None, out=print):
         mode = a.mode or st["hosts"].get(h) or "lean"
         want = desired(h, mode, items, home)
         cur = snapshot(host_dirs(h, home).values())
-        managed = st["links"].get(h, [])
+        managed = st["links"].get(h, {})
         if a.check:
             if h not in st["hosts"]:
                 out(f"{h}: not installed")
@@ -375,13 +427,14 @@ def main(argv=None, home=None, repo=None, out=print):
                 out("  " + n)
             st["hosts"][h] = mode
             if not a.dry_run:  # record exactly what we hold, so a later run can prune it
-                st["links"][h] = sorted(d for d, s in want.items()
-                                        if os.path.islink(d) and os.readlink(d) == s)
+                st["links"][h] = {d: s for d, s in sorted(want.items())
+                                  if os.path.islink(d) and os.readlink(d) == s}
             out(f"  {len(want)} entries wanted, {len(acts)} change(s)")
     if a.uninstall and not st["hosts"]:
         base = os.path.join(home, ".devmode")
         if os.path.isdir(base) and not os.path.islink(base):
-            home_links = {os.path.join(base, k) for k in HOME_LINKS}
+            home_links = {os.path.join(base, k): os.path.join(repo, v) if v else repo
+                          for k, v in HOME_LINKS.items()}
             cur = {p: s for p, s in snapshot([base]).items() if p in home_links}
             apply(plan({}, cur, repo, home_links)[0], a.dry_run, out)
             if not a.dry_run:
