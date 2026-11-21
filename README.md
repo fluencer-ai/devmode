@@ -502,11 +502,11 @@ projects. Full per-artifact mapping with licenses:
 |---|---|---|
 | [obra/superpowers](https://github.com/obra/superpowers) | systematic-debugging, verification-before-completion, subagent-driven-development, code-review, testing anti-patterns, authoring-skills lineage | MIT |
 | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | 12 domain skills (generalized off their web stack) + the a11y checklist | MIT |
-| [ryanthedev/code-foundations](https://github.com/ryanthedev/code-foundations) | grill-me's fault taxonomy, design-patterns, architecture-boundaries, the prover/verifier reviewer | MIT |
+| [ryanthedev/code-foundations](https://github.com/ryanthedev/code-foundations) | grill-me's fault taxonomy, design-patterns, system boundaries (`system-boundaries.md`), the prover/verifier reviewer | MIT |
 | [rbarcante/claude-conductor](https://github.com/rbarcante/claude-conductor) | the parallel review-panel lanes, ADR capture, structured-choice grilling | Apache-2.0 |
 | [Chachamaru127/claude-code-harness](https://github.com/Chachamaru127/claude-code-harness) | evidence-gated handoffs, "not observed ≠ absent", guardrail patterns | MIT |
 | [saidwafiq/deepflow](https://github.com/saidwafiq/deepflow) | AC↔test traceability, the verify gate ladder | MIT |
-| [softaworks/agent-toolkit](https://github.com/softaworks/agent-toolkit) | delegate-to-cli, skill-judge ideas | MIT |
+| [softaworks/agent-toolkit](https://github.com/softaworks/agent-toolkit) | external-CLI delegation (`external-cli.md`), skill-judge ideas | MIT |
 | [glittercowboy/taches-cc-resources](https://github.com/glittercowboy/taches-cc-resources) | skill-auditing ideas | MIT |
 | [gsd-build/get-shit-done](https://github.com/gsd-build/get-shit-done) → [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) | gate taxonomy + STATE.md memory (original); the edge-coverage probe (`testing-principles`), decision-coverage gate (`feedback-loops`), and package-legitimacy/slopsquat awareness (`security-hardening`) from the maintained gsd-core successor | MIT |
 | [khendzel/skills-janitor](https://github.com/khendzel/skills-janitor) | description-overlap detection + trigger lint in the auditor | MIT |
@@ -537,7 +537,7 @@ projects. Full per-artifact mapping with licenses:
 | [Nutlope/hallmark](https://github.com/Nutlope/hallmark) | `ux-design` — content integrity (never fabricate a stat to fill a slot) + interface copy (buttons, errors, empty states, loading, placeholders); `security-hardening` — instructions-in-ingested-content, SSRF allow/deny | MIT |
 | [microsoft/SkillOpt](https://github.com/microsoft/SkillOpt) | `authoring-skills` — editing is not just adding (re-run a scenario the skill already handled; try an unseen case) + consolidate, don't just patch | MIT |
 | [clawnify/greybeard](https://github.com/clawnify/greybeard) | 9 senior-judgment maxims across `source-of-truth`, `impact-analysis`, `ubiquitous-language`, `grill-me` (disagree out loud), `minimal-code` (the surgical rule), `confidence-check`, `verification-before-completion`, `context-engineering`, `systematic-debugging` | MIT |
-| [UditAkhourii/adhd](https://github.com/UditAkhourii/adhd) | the **`divergent-ideation`** skill — generate a wide candidate set for an open decision before choosing (concept only; none of its library/CLI or 0–10 scoring) | MIT |
+| [UditAkhourii/adhd](https://github.com/UditAkhourii/adhd) | **`divergent-ideation.md`** (in `design-critique`) — generate a wide candidate set for an open decision before choosing (concept only; none of its library/CLI or 0–10 scoring) | MIT |
 | [AaravKashyap12/advise-project-approach](https://github.com/AaravKashyap12/advise-project-approach) | the **`prior-art`** skill — does it already exist? (buy/adopt/build), fit-over-stars comparable bias controls, cost at three horizons, and the "when this becomes wrong" trade-off; plus `discovery`'s read-only-inspection boundary (reviewing a repo ≠ permission to run its code) and its inspection scope note (also sharpened `design-critique` + `minimal-code`) | MIT |
 | [UditAkhourii/neuroarxiv](https://github.com/UditAkhourii/neuroarxiv) | `prior-art`'s escalation rung — when nothing shipped exists, read the research literature: a 3-question cost gate, one isolated reader per paper, converge on ONE path with citations | MIT |
 

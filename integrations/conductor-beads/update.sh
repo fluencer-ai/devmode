@@ -7,7 +7,7 @@
 # managed copies of skills v2 fused away), the .agents/skills/ launcher (plus
 # every skill link only when .devmode/codex-skills says full), the role agents + the orchestrator, Codex agent
 # adapters, the /devmode command, the hooks, the .devmode scripts
-# (scorecard/dashboard/goal_brief), the references, the conductor workflow
+# (scorecard/dashboard/goal_brief/beads_doctor/memory), the references, the conductor workflow
 # adapter + INTEGRATION.md + per-track templates, and CLAUDE.devmode.md /
 # AGENTS.devmode.md (only if present or needed as non-destructive pointers).
 # Merges (never replaces): the devmode-owned keys in .codex/config.toml — your

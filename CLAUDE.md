@@ -104,8 +104,8 @@ orchestrator reads a skill **by path** only when a phase needs it, looking in
 Skills that were fused in v2 live on as sibling files inside the surviving folder.
 
 - **Global install:** `./setup --host auto` links devmode into `~/.devmode` and
-  the host's user folders (lean: router + orchestrator; `--full` adds the role
-  agents and the leaves). `--check`, `--report`, `--dry-run`, `--uninstall`.
+  the host's user folders (lean lists only the router + orchestrator; `--full`
+  adds the role agents on Claude Code and every leaf on the other hosts). `--check`, `--report`, `--dry-run`, `--uninstall`.
 - **Memory:** `scripts/memory.py` keeps what the orchestrator learns in
   append-only `.beads/memories.jsonl` (project, created by the installer and
   mirrored to `bd remember` when Beads is live) and `~/.devmode/memories.jsonl`

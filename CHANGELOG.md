@@ -85,6 +85,22 @@ Measured with `./setup --report` against a scratch HOME (4 chars ≈ 1 token).
 - Codex projects get only the `devmode` launcher in `.agents/skills` by default.
 - The `/devmode` command and the orchestrator have one-line descriptions.
 
+### Fixed (2026-11-21 audit)
+
+- The installer's closing summary no longer claims "base skill links" for
+  Codex on a default (lean) install; it reports leaf links only with
+  `--codex-full`.
+- Role agents now say how to open a `skills/<name>` reference (the leaves are
+  hidden from the listing): by path, from the project, the base, or the global
+  install. The project `AGENTS.md` / `CLAUDE.md` templates say the same instead
+  of "Codex discovers them through `.agents/skills/`".
+- `/devmode start`, `adopt`, `update` and `wiki` share one guard: work from the
+  devmode base (the current directory, else `~/.devmode/repo`), so they run
+  from any folder after a global install. The memory fallback follows it.
+- The Codex launcher names where `skill-index.md` lives in each install.
+- `argument-hint` lists `plan <objective>`; README credits name the sibling
+  files that replaced the fused skills.
+
 ### Migration from v1
 
 - **Projects:** run `/devmode update <folder>` (or

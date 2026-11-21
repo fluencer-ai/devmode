@@ -11,7 +11,7 @@ updates every host at once, while loading as little as possible per turn.
   ./setup --dry-run              print what would change, change nothing
   ./setup --check                report missing, foreign or stale links (exit 1 on a problem)
   ./setup --report               estimated per-turn listing cost of what is installed
-  ./setup --uninstall --host X   remove only links that point into this repo
+  ./setup --uninstall --host X   remove only the links devmode made
 
 What loads on every turn:
   Claude Code lean   the /devmode router + the devmode-orchestrator agent. The leaf
@@ -26,8 +26,9 @@ What loads on every turn:
 ~/.devmode is a real folder: links into this repo (repo, skills, agents, references)
 plus the user's global memories.jsonl, which uninstall never deletes. It never
 overwrites a real file or a link it does not own; a clash is reported and skipped.
-A link is ours to remove only when it points into this repo AND it was recorded in
-install.json or carries the name of what it points to (a personal alias stays).
+A link is ours to redirect or remove only when it points into this repo AND that
+exact link was recorded in install.json, or it dangles and carries the name of what
+it pointed to (a skill since removed). A live link you made yourself stays.
 """
 import argparse
 import json
