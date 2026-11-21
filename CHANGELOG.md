@@ -10,7 +10,7 @@ what changed is how much of it the model has to carry on every turn.
 | Host | v1 | v2 lean | How v2 gets there |
 |---|---|---|---|
 | Claude Code | ~6,200 tokens (43 skills + command + orchestrator) | ~110 tokens | leaves hidden; only `/devmode` and `devmode-orchestrator` listed |
-| Codex | ~6,000 tokens (43 skill links + launcher) | ~50 tokens | only the `devmode` launcher listed |
+| Codex | ~6,000 tokens (43 skill links + launcher) | ~105 tokens | only the `devmode` launcher and the `devmode-orchestrator` agent listed |
 | Antigravity / Cursor | (not supported) | ~50 tokens | only the router skill listed |
 
 Measured with `./setup --report` against a scratch HOME (4 chars ≈ 1 token).
