@@ -36,7 +36,10 @@ class CodexCompatibilityTests(unittest.TestCase):
         codex_skills = ROOT / ".agents/skills"
         self.assertEqual(["devmode"], sorted(path.name for path in codex_skills.iterdir()))
         launcher = (codex_skills / "devmode/SKILL.md").read_text(encoding="utf-8")
-        self.assertIn("references/skill-index.md", launcher)
+        self.assertIn("skill-index.md", launcher)
+        # The index sits in a different folder per install; the launcher names all three.
+        for root in (".claude/devmode/references/", "`references/`", "~/.devmode/references/"):
+            self.assertIn(root, launcher)
         metadata = codex_skills / "devmode/agents/openai.yaml"
         self.assertTrue(metadata.is_file())
         self.assertIn('display_name: "devmode"', metadata.read_text(encoding="utf-8"))
@@ -607,11 +610,26 @@ class CodexCompatibilityTests(unittest.TestCase):
                 text=True,
             )
 
-        self.assertIn("base skill links", full.stdout)
+        with tempfile.TemporaryDirectory(prefix="devmode-summary-codex-full-") as temporary_dir:
+            codex_full = subprocess.run(
+                [str(INSTALL), temporary_dir, "--codex-full"],
+                cwd=ROOT,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+        linked = "every base skill linked in .agents/skills/"
+        # Default install: Codex stays lean, so the summary must not claim leaf links.
+        self.assertNotIn(linked, full.stdout)
+        self.assertIn("role-agent adapters in .codex/agents/", full.stdout)
         self.assertIn(".codex/hooks.json wired", full.stdout)
         self.assertNotIn(".codex/hooks.json NOT wired", full.stdout)
 
-        self.assertNotIn("base skill links", lean.stdout)
+        self.assertIn(linked, codex_full.stdout)
+
+        self.assertNotIn(linked, lean.stdout)
+        self.assertNotIn("role-agent adapters in .codex/agents/", lean.stdout)
         self.assertIn("--no-skills", lean.stdout)
         self.assertIn(".codex/hooks.json NOT wired", lean.stdout)
 

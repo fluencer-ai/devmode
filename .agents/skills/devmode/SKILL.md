@@ -43,7 +43,8 @@ Codex adaptations:
    Every other devmode skill is read by path when a phase needs it:
    `.claude/skills/<name>/SKILL.md` (project), else `skills/<name>/SKILL.md`
    (devmode base), else `~/.devmode/skills/<name>/SKILL.md` (global install).
-   `references/skill-index.md` lists them in one line each.
+   `skill-index.md` lists them in one line each: `.claude/devmode/references/`
+   (project), else `references/` (devmode base), else `~/.devmode/references/`.
 7. Preserve project-owned instructions and the Claude Code setup. Add Codex
    adapters; do not remove or weaken `.claude/`, `CLAUDE.md`, or existing hooks.
 

@@ -616,9 +616,12 @@ elif [ -f "$PROJECT_DIR/.codex/config.toml" ]; then
   CODEX_SUMMARY="$CODEX_SUMMARY
   - .codex/config.toml was left as-is (check features.hooks + features.multi_agent)"
 fi
-if [ "$WITH_SKILLS" -eq 1 ]; then
+if [ "$WITH_SKILLS" -eq 1 ] && [ "$CODEX_FULL" -eq 1 ]; then
   CODEX_SUMMARY="$CODEX_SUMMARY
-  - base skill links in .agents/skills/ + role-agent adapters in .codex/agents/"
+  - every base skill linked in .agents/skills/ (--codex-full) + role-agent adapters in .codex/agents/"
+elif [ "$WITH_SKILLS" -eq 1 ]; then
+  CODEX_SUMMARY="$CODEX_SUMMARY
+  - role-agent adapters in .codex/agents/ (skills stay unlisted: the launcher reads .claude/skills/ by path)"
 else
   CODEX_SUMMARY="$CODEX_SUMMARY
   - skill links and role-agent adapters skipped (--no-skills: global install expected)"

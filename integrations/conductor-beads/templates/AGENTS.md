@@ -24,7 +24,11 @@ Desktop or select `devmode` through `/skills` in CLI/IDE, then read
 ## Codex Surface Map
 
 - Durable repo instructions: `AGENTS.md` or `AGENTS.devmode.md`.
-- Base skills: Codex discovers them through `.agents/skills/`.
+- Base skills: Codex lists only the `devmode` launcher in `.agents/skills/`
+  (lean, so the skill list stays one line). The launcher reads each leaf by
+  path (`.claude/skills/<name>/SKILL.md`, index in
+  `.claude/devmode/references/skill-index.md`). A project installed with
+  `--codex-full` links every leaf instead.
 - Guided front door: invoke `/devmode <args>` in Codex Desktop; in CLI/IDE,
   select the repo-shared `devmode` skill through `/skills`.
 - Custom subagents: `.codex/agents/*.toml` adapts the existing role definitions
