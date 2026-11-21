@@ -59,7 +59,8 @@ structured A/B/C choices with a recommendation and rationale, never an open void
   `--supersedes <id>`. Never record a secret (the script refuses one). The project
   file is `.beads/memories.jsonl`, mirrored into `bd remember` when Beads is live;
   the global file is `~/.devmode/memories.jsonl`. Outside a devmode project
-  (no `.devmode/memory.py`), run `~/.devmode/repo/scripts/memory.py` instead.
+  (no `.devmode/memory.py`), run `scripts/memory.py` from the devmode base
+  (defined below) instead.
 - **The base wins.** Honor the non-negotiables: grill *before* any asset; no blind
   coverage gate; fresh verification before any "done"; critical modules reviewed
   in full.

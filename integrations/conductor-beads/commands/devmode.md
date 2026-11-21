@@ -1,6 +1,6 @@
 ---
 description: "devmode guided mode: drive the build process phase by phase, or one mode: start, adopt, update, do <task>, c (gates on an ad-hoc turn), goal|plan, lean, wiki. Blank resumes the current project."
-argument-hint: start <name> <idea> | adopt <folder> | update <folder>|wiki <folder> | goal <objective> | lean <idea>|goal <objective> | do <task> | wiki start|adopt <path> | c [comment] | <idea> | (blank to resume)
+argument-hint: start <name> <idea> | adopt <folder> | update <folder>|wiki <folder> | goal <objective> | lean <idea>|goal <objective> | plan <objective> | do <task> | wiki start|adopt <path> | c [comment] | <idea> | (blank to resume)
 ---
 
 # /devmode — guided mode
@@ -62,11 +62,11 @@ Raw input: **$ARGUMENTS**
   user states a preference, makes a decision, or corrects you, record it in one
   line: `python3 .devmode/memory.py add "<text>" --kind preference|decision|fact|correction`
   (add `--scope global` when it is about the person, not the project). Never a
-  secret. Outside a devmode project, use `~/.devmode/repo/scripts/memory.py`.
+  secret. Outside a devmode project, use `scripts/memory.py` in the devmode base.
 
 ## Decide the mode from $ARGUMENTS
 
-### Mode C-lite — `c [comentário]`  (first token is `c`)  ← CHECK THIS FIRST
+### Mode C-lite — `c [comment]`  (first token is `c`)  ← CHECK THIS FIRST
 The **per-turn discipline trigger**. Use for ops/debug/any ad-hoc work where the
 heavy phase machine doesn't fit but the devmode *gates* must still apply. Do **NOT**
 spin up the orchestrator, tracks, or phases. Parse everything after `c` as the task.
@@ -79,15 +79,16 @@ the `Stop` hook `verify_gate.py` *enforces* the last one):
    *investigate and state the root cause first*. No fix, rebuild, or config change
    before you can name the cause. Don't guess-and-rebuild.
 2. **Risky op → backup first, then plan the check.** Before
-   `rebuild`/`docker build`/`deploy`/`.env` changes: back up images + `.env`; never
-   `--full`/`--super-power` (wrong-direction sync). Say how you'll verify *before* you act.
+   `rebuild`/`docker build`/`deploy`/`.env` changes: back up images + `.env`; never a
+   wide rebuild or sync flag you have not verified (`--full`, `--super-power`: a
+   wrong-direction sync). Say how you'll verify *before* you act.
 3. **No "done" without fresh end-to-end evidence** (`verification-before-completion`).
    Run a real check (a job reaching `completed/`, tests passing, a container log /
    HTTP 200) and *show it*. The `Stop` hook blocks the turn otherwise. If a check
    truly doesn't apply, write `VERIFY-OK: <reason>`.
 4. **Honest self-read** — if you slipped on 1–3, say so plainly (`self-scorecard`).
 
-Then do `[comentário]` under that contract. Keep the user *led, not quizzed*.
+Then do `[comment]` under that contract. Keep the user *led, not quizzed*.
 
 ### Mode Do — `do <task>`  (first token is `do`)  ← also runs INLINE
 Do ONE bounded task, **routed and gated** — the single-task sibling of the full
@@ -124,8 +125,8 @@ Keep the user *led, not quizzed*.
 Deploy a **Karpathy LLM Wiki** (the opt-in `integrations/llm-wiki/` module): a
 persistent, LLM-maintained **markdown** knowledge base — no app, no database, no
 server. It's a *knowledge* base, not the code phase machine, so it runs **inline**
-(do NOT spin up the orchestrator). **Guard first: you must be at the devmode base
-repo** (see the installer-modes warning above). The **second** token selects:
+(do NOT spin up the orchestrator). **Guard first: work from the devmode base**
+(see the installer-modes warning above). The **second** token selects:
 
 - **`wiki start <path>`** — scaffold a FRESH wiki at `<path>`:
   ```bash
@@ -181,8 +182,8 @@ Keep the user *led, not quizzed*.
 ### Mode Update — `update <folder>` | `update wiki <folder>`  (first token is `update`)  ← runs INLINE
 Refresh the devmode-MANAGED files in an existing project to the **current base**,
 without touching anything the project owns. Runs **inline** (a sync, not the phase
-machine). Refuse a missing `<folder>`. **Guard first: you must be at the devmode
-base repo** (see the installer-modes warning above). The **second** token selects
+machine). Refuse a missing `<folder>`. **Guard first: work from the devmode
+base** (see the installer-modes warning above). The **second** token selects
 what to update:
 
 - **`update <folder>`** — update the **devmode system** in `<folder>`:
@@ -228,10 +229,11 @@ Refuse missing `<name>` or `<idea>`. After slugification, require `<name>` to
 match `^[a-z0-9][a-z0-9-]*$`; reject dots, slashes, absolute paths, `..`, and any
 other value that could escape or ambiguously address `workspaces/`.
 
-1. **Guard:** confirm you're at the devmode repo root (the dir containing
-   `integrations/conductor-beads/install.sh`). If not, tell the user to run it
-   from the devmode repo. Refuse if `workspaces/<name>` already exists (suggest a
-   new name or `/devmode` to resume).
+1. **Guard:** work from the devmode base (the dir containing
+   `integrations/conductor-beads/install.sh`): the current directory, else
+   `~/.devmode/repo`, else ask the user for its path. Every path below is
+   relative to it. Refuse if `workspaces/<name>` already exists (suggest a new
+   name or `/devmode` to resume).
 2. **Create the working repo before initializing memory:** Beads needs repository
    context, so create the target and initialize Git before the installer runs:
    ```bash
@@ -262,9 +264,10 @@ Deploy devmode into an **existing** codebase and discover it (do NOT scaffold a
 blank project). Parse everything after `adopt` as `<folder>` (an absolute or
 relative path to the target repo). Refuse a missing `<folder>`.
 
-1. **Guard:** confirm you're at the devmode repo root (the dir containing
-   `integrations/conductor-beads/install.sh`) — the installer path below is
-   relative to it. Then confirm `<folder>` exists and looks like a code repo. If
+1. **Guard:** work from the devmode base (the dir containing
+   `integrations/conductor-beads/install.sh`): the current directory, else
+   `~/.devmode/repo`, else ask the user for its path. The installer path below
+   is relative to it. Then confirm `<folder>` exists and looks like a code repo. If
    it already has `conductor/` + `.claude/`, offer to refresh discovery instead
    of redeploy.
 2. **Deploy the base+layer in place:** run the installer against the existing
