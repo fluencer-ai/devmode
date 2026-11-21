@@ -224,18 +224,21 @@ replace_codex_skill_link() {
   mark_managed "$rel"
 }
 
-# Lean Codex lists only the launcher. Drop what devmode itself put in
-# .agents/skills (our link, or an exact legacy copy); keep anything else.
+# Lean Codex lists only the launcher. Drop only what devmode provably put in
+# .agents/skills: our link to a devmode-owned skill, or a copy recorded in
+# CODEX_DUPS (an exact twin of a devmode-owned skill, taken BEFORE the refresh,
+# so a v1 copy still matches). A project's own skill, linked or copied, stays.
 drop_codex_skill_link() {
   local skill_name="$1"
-  local source="$P/.claude/skills/$skill_name"
   local destination="$P/.agents/skills/$skill_name"
 
   if [ -L "$destination" ]; then
-    [ "$(readlink "$destination")" = "../../.claude/skills/$skill_name" ] && rm -f -- "$destination"
-  elif [ -d "$destination" ] && [ -d "$source" ] && \
-       diff -qr "$source" "$destination" >/dev/null 2>&1; then
-    rm -rf -- "$destination"
+    if [ "$(readlink "$destination")" = "../../.claude/skills/$skill_name" ] && \
+       { is_managed ".agents/skills/$skill_name" || is_managed ".claude/skills/$skill_name/"; }; then
+      rm -f -- "$destination"
+    fi
+  elif [ -d "$destination" ]; then
+    case "$CODEX_DUPS" in *" $skill_name "*) rm -rf -- "$destination" ;; esac
   fi
   return 0
 }
@@ -371,6 +374,23 @@ if [ "$LEGACY_OWNERSHIP" -eq 1 ]; then
   warn "legacy install had no ownership manifest: exact/absent assets will be claimed; divergent same-name files stay project-owned"
 fi
 
+# Before any skill is refreshed, note which physical Codex copies are exact twins
+# of a devmode-owned Claude skill. After the refresh a v1 twin no longer matches,
+# and a twin of a project-owned skill must never count as ours.
+CODEX_DUPS=" "
+for codex_copy in "$P"/.agents/skills/*; do
+  [ -d "$codex_copy" ] && [ ! -L "$codex_copy" ] || continue
+  dup_name="$(basename "$codex_copy")"
+  [ "$dup_name" = devmode ] && continue
+  claude_copy="$P/.claude/skills/$dup_name"
+  [ -d "$claude_copy" ] && [ ! -L "$claude_copy" ] || continue
+  diff -qr "$claude_copy" "$codex_copy" >/dev/null 2>&1 || continue
+  if is_managed ".claude/skills/$dup_name/" || \
+     { [ -d "$DEVMODE_ROOT/skills/$dup_name" ] && diff -qr "$DEVMODE_ROOT/skills/$dup_name" "$claude_copy" >/dev/null 2>&1; }; then
+    CODEX_DUPS="$CODEX_DUPS$dup_name "
+  fi
+done
+
 # 1. skills — refresh only directories installed by devmode. Unrelated and
 # same-name project skills are left in place.
 mkdir -p "$P/.claude/skills"
@@ -395,10 +415,7 @@ fi
 for retired in architecture-boundaries divergent-ideation testing-principles confidence-check \
                browser-testing delegate-to-cli ux-design accessibility ci-cd-automation \
                doc-contracts source-of-truth; do
-  if [ -L "$P/.agents/skills/$retired" ] && \
-     [ "$(readlink "$P/.agents/skills/$retired")" = "../../.claude/skills/$retired" ]; then
-    rm -f -- "$P/.agents/skills/$retired"
-  fi
+  drop_codex_skill_link "$retired"
   [ -d "$P/.claude/skills/$retired" ] || continue
   if is_managed ".claude/skills/$retired/"; then
     rm -rf -- "$P/.claude/skills/$retired"
@@ -515,8 +532,8 @@ for script in scorecard.py dashboard.py goal_brief.py beads_doctor.py memory.py;
 done
 ok "scorecard.py + dashboard.py + goal_brief.py + beads_doctor.py + memory.py refreshed (scorecard.json untouched)"
 # Memory is project data: created when missing, never rewritten.
-if [ -f "$P/.devmode/memory.py" ] && [ -d "$P/conductor" ]; then
-  python3 "$P/.devmode/memory.py" init --root "$P" >/dev/null && ok "memory → .beads/memories.jsonl present (never rewritten)"
+if [ -d "$P/conductor" ] && command -v python3 >/dev/null 2>&1; then
+  python3 "$DEVMODE_ROOT/scripts/memory.py" init --root "$P" >/dev/null && ok "memory → .beads/memories.jsonl present (never rewritten)"
 fi
 
 # 6. Hooks are opt-in. The preflight above detected and validated ownership

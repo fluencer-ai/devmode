@@ -68,6 +68,41 @@ class CodexCompatibilityTests(unittest.TestCase):
             )
             self.assertEqual("project-owned skill\n", (own / "SKILL.md").read_text(encoding="utf-8"))
 
+    def test_lean_update_keeps_project_owned_codex_skills_and_drops_proven_v1_copies(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="devmode-codex-own-") as temporary_dir:
+            project = Path(temporary_dir)
+            subprocess.run([str(INSTALL), str(project)], cwd=ROOT, check=True, capture_output=True, text=True)
+            manifest = project / ".devmode/managed-files"
+
+            # 1. The project's own tdd: divergent from the base, not in the manifest,
+            #    mirrored to Codex as a copy AND a same-name link the user made.
+            mine = project / ".claude/skills/tdd"
+            shutil.rmtree(mine)
+            mine.mkdir()
+            (mine / "SKILL.md").write_text("our own tdd\n", encoding="utf-8")
+            shutil.copytree(mine, project / ".agents/skills/tdd")
+            (project / ".agents/skills/grill-me-alias").symlink_to(Path("../../.claude/skills/tdd"))
+            kept = [ln for ln in manifest.read_text(encoding="utf-8").splitlines()
+                    if ln != ".claude/skills/tdd/"]
+            manifest.write_text("\n".join(kept) + "\n", encoding="utf-8")
+
+            # 2. A devmode-owned skill with older (v1) content and its exact Codex copy.
+            old = project / ".claude/skills/shipping/SKILL.md"
+            old.write_text(old.read_text(encoding="utf-8") + "\nv1 line\n", encoding="utf-8")
+            shutil.copytree(project / ".claude/skills/shipping", project / ".agents/skills/shipping")
+
+            # 3. A project-owned skill linked under its own name.
+            ours = project / ".claude/skills/house-style"
+            ours.mkdir()
+            (ours / "SKILL.md").write_text("house style\n", encoding="utf-8")
+            (project / ".agents/skills/house-style").symlink_to(Path("../../.claude/skills/house-style"))
+
+            subprocess.run([str(UPDATE), str(project)], cwd=ROOT, check=True, capture_output=True, text=True)
+            names = sorted(p.name for p in (project / ".agents/skills").iterdir())
+            self.assertEqual(["devmode", "grill-me-alias", "house-style", "tdd"], names)
+            self.assertEqual("our own tdd\n", (project / ".agents/skills/tdd/SKILL.md").read_text(encoding="utf-8"))
+            self.assertEqual("our own tdd\n", (mine / "SKILL.md").read_text(encoding="utf-8"))
+
     def test_full_install_and_update_share_skills_without_copying_them_twice(self) -> None:
         skill_names = sorted(path.name for path in (ROOT / "skills").iterdir() if path.is_dir())
 
