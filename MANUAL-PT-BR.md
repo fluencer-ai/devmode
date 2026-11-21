@@ -111,7 +111,7 @@ Não são fases — são *expertise* que os agentes puxam **durante** as fases:
   `migration` (strangler/expand-contract), `shipping` (rollout + rollback).
 - **Práticas:** `documentation` (ADRs, o *porquê*), `doc-contracts.md` em `documentation` (árvore de
   AGENTS.md — contratos locais por área, lidos antes de editar e atualizados no
-  mesmo commit), `prototyping` (spike descartável → captura → deleta),
+  mesmo commit), `prototyping` (spike descartável → captura → sai do `main` para um branch `prototype/`),
   `minimal-code` (a escada do "dev sênior preguiçoso" — escrever só o necessário,
   sem nunca cortar segurança; a disciplina do `/devmode lean`),
   `context-engineering`, `source-of-truth.md` em `context-engineering` (checar versão/docs, não a memória),

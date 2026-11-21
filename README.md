@@ -127,11 +127,11 @@ plus your global `memories.jsonl`) and links devmode into each host it finds:
 
 | Mode | Claude Code (`~/.claude/`) | Codex · Antigravity · Cursor |
 |---|---|---|
-| **lean** (default) | `/devmode` command + `devmode-orchestrator` agent + every leaf skill, hidden | the `devmode` router skill only |
+| **lean** (default) | `/devmode` command + `devmode-orchestrator` agent + every leaf skill, hidden | the `devmode` router skill only (Codex also gets the `devmode-orchestrator` agent in `~/.codex/agents/`) |
 | **full** (`--full`) | lean + the 8 role agents | every skill linked |
 
 It only ever creates links into the repo, never overwrites a file or a link that
-is not its own, and remembers the mode per host. `--dry-run` shows the plan,
+is not its own (it records the links it made and removes only those), and remembers the mode per host. `--host claude,codex` picks hosts explicitly. `--dry-run` shows the plan,
 `--check` exits non-zero on drift, `--report` prints what each host lists and
 its per-turn cost, and `--uninstall` removes only devmode's links (your memory
 file stays). `git pull` updates everything in place; rerun `setup` after a pull
@@ -354,7 +354,7 @@ trigger lint.
 | [`shipping`](skills/shipping/SKILL.md) | PR-ready ≠ release-ready: checklist, staged rollout, rollback thresholds |
 | [`documentation`](skills/documentation/SKILL.md) | ADRs for the *why*; supersede, don't mutate |
 | ↳ [`doc-contracts.md`](skills/documentation/doc-contracts.md) | (in `documentation`) Hierarchical AGENTS.md tree: local contracts walked before editing, updated in the same commit |
-| [`prototyping`](skills/prototyping/SKILL.md) | Throwaway code that answers ONE question — a spike, then captured and deleted (never kept as production) |
+| [`prototyping`](skills/prototyping/SKILL.md) | Throwaway code that answers ONE question — a spike, captured, then moved off `main` to a `prototype/<name>` branch (never kept as production) |
 | [`minimal-code`](skills/minimal-code/SKILL.md) | The lazy-senior-dev ladder — write only what's needed (stdlib/native/one line) and never cut safety (the `/devmode lean` discipline) |
 | [`context-engineering`](skills/context-engineering/SKILL.md) | Curate the working set; minimal briefs; clean handoffs that survive compaction |
 | ↳ [`source-of-truth.md`](skills/context-engineering/source-of-truth.md) | (in `context-engineering`) Check the installed version and real docs, not training-data memory |
@@ -512,7 +512,7 @@ projects. Full per-artifact mapping with licenses:
 | [khendzel/skills-janitor](https://github.com/khendzel/skills-janitor) | description-overlap detection + trigger lint in the auditor | MIT |
 | [sandeco/reversa](https://github.com/sandeco/reversa) | the discovery pipeline (Scout/Soul/Detective/Architect, 🟢🟡🔴) | MIT |
 | [agent0ai/dox](https://github.com/agent0ai/dox) | the doc-contracts AGENTS.md tree (pre-edit traversal, post-edit pass) | MIT |
-| [mattpocock/skills](https://github.com/mattpocock/skills) | **the sibling project** — same thesis & four failure modes; `prototyping` (spike) + the `context-engineering` handoff details; plus tautological tests (`testing-principles`), conflict resolution (`git-workflow`), leading words + steer-by-the-positive (`authoring-skills`), the red-capable repro loop (`systematic-debugging`), the deletion test (`improve-codebase-architecture`), design-it-twice (`design-interface-delegate-implementation`), terms-in-use dialogue (`ubiquitous-language`), ask-in-rounds/frontier + facts-are-your-job (`grill-me`) | MIT |
+| [mattpocock/skills](https://github.com/mattpocock/skills) | **the sibling project** — same thesis & four failure modes; `prototyping` (spike) + the `context-engineering` handoff details; plus tautological tests (`testing-principles`), conflict resolution (`git-workflow`), leading words + steer-by-the-positive (`authoring-skills`), the red-capable repro loop (`systematic-debugging`), the deletion test (`improve-codebase-architecture`), design-it-twice (`design-interface-delegate-implementation`), terms-in-use dialogue (`ubiquitous-language`), ask-in-rounds/frontier + facts-are-your-job (`grill-me`); v2: ticket slicing (`write-prd/tickets.md`), wayfinding for multi-session efforts (`grill-me/wayfinding.md`), check-before-you-grill (`grill-me`), the human-steps script (`shipping`) | MIT |
 | [notque/vexjoy-agent](https://github.com/notque/vexjoy-agent) | the `/do` plain-English task-router (Route→Plan→Execute→Verify→Deliver, evidence over assertions) | MIT |
 | [notque/claude-code-starter-kit](https://github.com/notque/claude-code-starter-kit) | the SessionStart warm-resume hook (more lifecycle events; LLM-orchestrates / scripts-execute) | MIT |
 | loop-engineering essays — [Osmani](https://addyosmani.com/blog/loop-engineering/), [Autocomplete](https://medium.com/autocomplete-real-world-ai/wtf-is-a-agentic-coding-loop-and-how-to-build-one-58eedb7cbcae), [Greyling](https://cobusgreyling.medium.com/loop-engineering-62926dd6991c) | the maker/checker split, "comprehension debt", worktree isolation reinforcements | (essays) |

@@ -125,4 +125,6 @@ part, and note that it came from a prototype.
   review it through several expert lenses and surface the trade-offs while it's
   still cheap (on paper).
 - When the PRD is approved, it becomes the brief for implementation — typically
-  handed to `tdd` and the `tdd-implementer` agent.
+  handed to `tdd` and the `tdd-implementer` agent. When it is more than one
+  context's work, slice it into blocking-ordered tracer-bullet tickets first:
+  read `tickets.md` in this folder.

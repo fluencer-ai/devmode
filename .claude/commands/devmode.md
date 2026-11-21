@@ -101,7 +101,7 @@ phases); unlike `c`, it adds *routing* + a short pipeline. Parse everything afte
    - new behavior → `tdd` (+ its `testing-principles.md`; interface first: `design-interface-delegate-implementation`)
    - security/money/auth → `security-hardening` (control checklist) — **reviewed in full, never gray-boxed**
    - refactor/rename → `impact-analysis` first; migration/deprecation → `migration`
-   - unknown to learn → a *code* `prototyping` spike (capture → delete); an
+   - unknown to learn → a *code* `prototyping` spike (capture → move to a `prototype/` branch); an
      *information* gap (unfamiliar tech/domain) → grounded perspective research
      (`grill-me`'s research technique: diverse perspectives, cite everything)
    - unclear ask → **stop and `grill-me`** before touching code

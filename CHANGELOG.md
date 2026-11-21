@@ -30,7 +30,8 @@ Measured with `./setup --report` against a scratch HOME (4 chars ≈ 1 token).
   `bd remember` when Beads is live); global memory in
   `~/.devmode/memories.jsonl`. `forget` writes a tombstone and `--supersedes`
   replaces an entry, so history is kept. Secret-looking text is refused. The
-  SessionStart hook (Claude and Codex) primes at most 8 lines once per session.
+  SessionStart hook (Claude and Codex) primes at most 8 lines (headers included) once per session, and only runs
+  devmode's own `memory.py`.
 - **Skill index** (`references/skill-index.md`, built by
   `scripts/build_skill_index.py`): the one-page map the orchestrator consults
   before reading a skill by path. The audit fails when it is stale.
@@ -64,8 +65,20 @@ Measured with `./setup --report` against a scratch HOME (4 chars ≈ 1 token).
   skill as `/<name>`.
 - Skills absorbed newer upstream material (grilling, domain modeling, deep
   modules and design-it-twice, diagnosis loop, review smells, handoff and
-  phase boundaries, writing for agents, retro, PR craft). Credits in
-  `ATTRIBUTION.md`.
+  phase boundaries, writing for agents, retro, PR craft). New in v2:
+  `write-prd/tickets.md` (slice an approved PRD into blocking-ordered
+  tracer-bullet tickets, wide refactors as expand–contract),
+  `grill-me/wayfinding.md` (chart an effort bigger than one session as a map
+  of decision tickets), a check-before-you-grill rule in `grill-me` (already
+  built? ruled out before? reproduce the bug first), and a guided script for
+  launch steps only a human can do in `shipping`. Credits in `ATTRIBUTION.md`.
+- `prototyping`: a finished spike moves off `main` to a `prototype/<name>`
+  branch linked from its issue or ADR, instead of being deleted, so the
+  evidence behind the decision stays one checkout away.
+- Codex global install also links the `devmode-orchestrator` agent into
+  `~/.codex/agents`. `./setup` records the links it made and removes only
+  those (or links carrying devmode's own names); an unreadable state file
+  stops it rather than being overwritten.
 - The orchestrator loads skills per phase, by path, in this order:
   `.claude/skills/`, the base `skills/`, then `~/.devmode/skills/`. Role agents
   fall back to a general-purpose agent that reads the role file.

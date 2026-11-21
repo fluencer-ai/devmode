@@ -53,6 +53,20 @@ Before releasing, confirm (with evidence, not assumption —
 - **Rollback plan** — you know *exactly* how to undo this (flag flip, redeploy
   previous, revert), and it's been thought through *before* you ship.
 
+## Steps only a human can do
+
+Some launch steps can't be automated by the agent: a third-party dashboard, a
+credential to create, a CI secret to set, a one-off cutover. Don't re-explain
+them in chat each time. Write a small guided script that walks the human through
+them stage by stage: it opens each URL, says exactly what to click and copy,
+reads secrets with hidden input, writes each value where it belongs (the env
+file, the CI secret store), confirms before anything irreversible, and shows how
+many stages remain. First read the repo (the env example file, the CI workflow's
+secret references) for every value the script must produce, and never invent a
+UI step you haven't checked. Verify it statically (`bash -n`, `shellcheck`)
+rather than running it yourself, since it waits on a human. Delete it after the
+run unless it should become the repo's documented setup path.
+
 ## Staged rollout
 
 Don't expose 100% of users at once:

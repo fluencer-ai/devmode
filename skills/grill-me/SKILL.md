@@ -123,7 +123,19 @@ When a gap is shared ignorance (an unfamiliar library, protocol, or domain), not
 the user's preference, investigate before you grill: read `research.md` in this
 folder for the perspective-guided research technique.
 
+## Too big for one session? Chart a map
+
+When the idea is too big for one session and the way to it is still foggy, don't
+grill it all at once: read `wayfinding.md` in this folder to chart it as a map of
+decision tickets worked one per session.
+
 ## Rules of engagement
+
+- **Check before you grill an incoming request.** Search the code for the
+  behaviour by domain concept (not the request's wording) and read the ADRs and
+  any out-of-scope notes: it may be done already, or ruled out before. For a
+  reported bug, reproduce it first; for a proposed patch, run it. Grill only what
+  survives, and say where you looked.
 
 - **Ask a lot.** Real grilling means dozens of questions — keep going until the
   understanding is genuinely shared, not until you hit a quota. It is normal for
