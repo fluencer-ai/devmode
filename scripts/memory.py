@@ -25,6 +25,7 @@ import json
 import os
 import re
 import shutil
+import stat
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -42,6 +43,7 @@ _SECRET_RES = [
     re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
     re.compile(r"\b(password|passwd|senha|secret|token|api[_-]?key)\s*[:=]\s*\S{6,}", re.I),
     re.compile(r"\bauthorization\s*:\s*\S{6,}", re.I),
+    re.compile(r"\bauthorization\s*:\s*(basic|digest|negotiate|ntlm|token)\s+\S{4,}", re.I),
     re.compile(r"\bbearer\s+[A-Za-z0-9._~+/-]{16,}=*", re.I),
 ]
 _ID_RE = re.compile(r"^m-[0-9a-f]{10}$")
@@ -99,11 +101,21 @@ def _clip(text, n):
 def prime_lines(global_live, project_live, *, limit=12, max_text=160):
     """The compact block injected into a fresh context: at most `limit` lines,
     headers included. Global entries come first, then project entries, newest
-    first. When both scopes have entries, each keeps at least half the room, and
-    room one scope does not use goes to the other."""
-    newest = lambda rs: sorted(rs, key=lambda r: r.get("ts", ""), reverse=True)  # noqa: E731
+    first (a same-second tie goes to the later write). When both scopes have
+    entries, each keeps at least half the room, and room one scope does not use
+    goes to the other; when the room fits only one scope, the project wins. An
+    entry that looks like a credential (written before the screen existed) is
+    never shown."""
+    def newest(rs):
+        rs = [r for r in rs if not looks_secret(str(r.get("text", "")))]
+        order = sorted(enumerate(rs), key=lambda p: (str(p[1].get("ts", "")), p[0]), reverse=True)
+        return [r for _, r in order]
+
     sections = [(t, newest(rs)) for t, rs in (("About you (global)", global_live),
-                                               ("This project", project_live)) if rs]
+                                               ("This project", project_live))]
+    sections = [s for s in sections if s[1]]
+    if len(sections) == 2 and limit - 3 < 2:  # no room for one entry in each: keep the project
+        sections = sections[1:]
     room = limit - 1 - len(sections)  # the title line + one header per section
     if not sections or room < len(sections):
         return []
@@ -149,20 +161,46 @@ def _read(path):
     return rows
 
 
+class Redirected(OSError):
+    """The memory path is a link or not a regular file: never written through."""
+
+
+def _open_private(path):
+    """Open the log for appending, owner-only (0600), never through a link.
+
+    A file the user already owns is tightened to 0600 in place (an older install
+    created it 0644); its content is never rewritten."""
+    os.makedirs(os.path.dirname(path), mode=0o700, exist_ok=True)
+    try:
+        fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_NOFOLLOW, 0o600)
+    except OSError as e:
+        if os.path.islink(path):
+            raise Redirected(f"{path} is a link; memory is never written through one") from e
+        raise
+    st = os.fstat(fd)
+    if not stat.S_ISREG(st.st_mode):
+        os.close(fd)
+        raise Redirected(f"{path} is not a regular file")
+    if st.st_uid == os.getuid() and st.st_mode & 0o077:
+        os.fchmod(fd, 0o600)
+    return fd
+
+
 def _touch_private(path):
     """Create the file owner-only (0600) without touching what is already in it."""
-    os.makedirs(os.path.dirname(path), mode=0o700, exist_ok=True)
-    os.close(os.open(path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600))
+    os.close(_open_private(path))
 
 
 def _append(path, rec):
-    os.makedirs(os.path.dirname(path), mode=0o700, exist_ok=True)
     line = json.dumps(rec, ensure_ascii=False) + "\n"
-    fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
+    fd = _open_private(path)
     try:
         os.write(fd, line.encode("utf-8"))
     finally:
         os.close(fd)
+
+
+MIRRORED = "mirrored to bd"
 
 
 def _bd(root, *args):
@@ -171,14 +209,18 @@ def _bd(root, *args):
         return "mirror skipped (bd not available)"
     try:
         p = subprocess.run(["bd", "-C", root, *args], capture_output=True, text=True, timeout=15)
-        return "mirrored to bd" if p.returncode == 0 else "mirror skipped (bd returned an error)"
+        return MIRRORED if p.returncode == 0 else "mirror skipped (bd returned an error)"
     except Exception:
         return "mirror skipped (bd did not answer)"
 
 
 def cmd_init(a):
     path = _path("project", a.root)
-    _touch_private(path)
+    try:
+        _touch_private(path)
+    except Redirected as e:
+        print(f"refused: {e}", file=sys.stderr)
+        return 1
     print(f"ok {os.path.relpath(path, a.root)}")
     return 0
 
@@ -203,12 +245,26 @@ def cmd_add(a):
     except ValueError as e:
         print(f"error: {e}", file=sys.stderr)
         return 1
+    if a.supersedes and not any(r["id"] == a.supersedes for r in _live(a.scope, a.root)):
+        other = next(s for s in SCOPES if s != a.scope)
+        hint = (f"; it lives in the {other} scope, pass --scope {other}"
+                if any(r["id"] == a.supersedes for r in _live(other, a.root)) else "")
+        print(f"error: no live {a.scope} memory {a.supersedes}{hint}", file=sys.stderr)
+        return 1
     path = _path(a.scope, a.root)
-    _append(path, rec)
+    try:
+        _append(path, rec)
+    except Redirected as e:
+        print(f"refused: {e}", file=sys.stderr)
+        return 1
     if a.scope == "project":
         status = _bd(a.root, "remember", rec["text"], "--key", f"devmode-{rec['id']}")
-        if a.supersedes and a.supersedes != rec["id"]:  # the replaced key must leave bd too
-            _bd(a.root, "forget", f"devmode-{a.supersedes}")
+        if status == MIRRORED and a.supersedes and a.supersedes != rec["id"]:
+            # the replaced key leaves bd only once the new one is safely there
+            gone = _bd(a.root, "forget", f"devmode-{a.supersedes}")
+            if gone != MIRRORED:
+                status = (f"new key mirrored, but devmode-{a.supersedes} is still in bd ({gone}); "
+                          f"retry: bd forget devmode-{a.supersedes}")
     else:
         status = "global (not mirrored)"
     print(f"ok {rec['id']} {a.scope} · {status}")
@@ -238,8 +294,12 @@ def cmd_forget(a):
         return 2
     for scope in SCOPES:
         if any(r["id"] == a.id for r in _live(scope, a.root)):
-            _append(_path(scope, a.root), {"v": 1, "op": "forget", "id": a.id, "ts": _now(),
-                                           "reason": a.reason or ""})
+            try:
+                _append(_path(scope, a.root), {"v": 1, "op": "forget", "id": a.id, "ts": _now(),
+                                               "reason": a.reason or ""})
+            except Redirected as e:
+                print(f"refused: {e}", file=sys.stderr)
+                return 1
             status = _bd(a.root, "forget", f"devmode-{a.id}") if scope == "project" else "global"
             print(f"ok forgot {a.id} · {status}")
             return 0

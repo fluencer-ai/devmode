@@ -81,6 +81,27 @@ class CoreTest(unittest.TestCase):
         self.assertEqual(len(lines), 8)
         self.assertEqual(sum("decision" in ln for ln in lines), 6)
 
+    def test_prime_lines_never_shows_a_legacy_secret(self):
+        old = {"v": 1, "id": "m-0000000001", "ts": NOW, "kind": "fact",
+               "text": "staging password: hunter2hunter2"}
+        ok = memory.make_record("Reply in PT-BR", kind="preference", scope="global", now=NOW)
+        text = "\n".join(memory.prime_lines([ok], [old], limit=8))
+        self.assertNotIn("hunter2", text)
+        self.assertIn("Reply in PT-BR", text)
+
+    def test_prime_lines_breaks_same_second_ties_by_newest_write(self):
+        recs = [memory.make_record(f"fact {i}", kind="fact", scope="project", now=NOW) for i in range(8)]
+        lines = memory.prime_lines([], recs, limit=4)
+        self.assertEqual(["fact 7", "fact 6"], [ln.split("] ")[1].split("  (")[0] for ln in lines[2:]])
+
+    def test_prime_lines_small_limit_keeps_the_project_scope(self):
+        g = memory.make_record("Reply in PT-BR", kind="preference", scope="global", now=NOW)
+        p = memory.make_record("use pnpm", kind="preference", scope="project", now=NOW)
+        lines = memory.prime_lines([g], [p], limit=3)
+        self.assertEqual(3, len(lines))
+        self.assertIn("use pnpm", lines[2])
+        self.assertEqual([], memory.prime_lines([g], [p], limit=2))
+
     def test_prime_lines_empty_is_empty(self):
         self.assertEqual(memory.prime_lines([], [], limit=5), [])
 
@@ -88,7 +109,8 @@ class CoreTest(unittest.TestCase):
         for bad in ("token sk-ant-api03-abcdefghijklmnop", "password: hunter2hunter2",
                     "AKIAABCDEFGHIJKLMNOP", "ghp_" + "a" * 36, "-----BEGIN RSA PRIVATE KEY-----",
                     "send Authorization: Bearer abcdefghijklmnopqrstu",
-                    "use bearer eyJhbGciOiJIUzI1NiJ9.payload.sig"):
+                    "use bearer eyJhbGciOiJIUzI1NiJ9.payload.sig",
+                    "Authorization: Basic dXNlcjpwYXNzd29yZA==", "authorization: basic Zm9vOmJhcg=="):
             self.assertTrue(memory.looks_secret(bad), bad)
         for ok in ("never commit .env files", "the API uses JWT", "keys live in 1Password",
                    "bearer tokens rotate daily"):
@@ -143,6 +165,62 @@ class CliTest(unittest.TestCase):
             os.umask(old)
         mode = os.stat(os.path.join(self.root, ".beads", "memories.jsonl")).st_mode & 0o777
         self.assertEqual(mode, 0o600)
+
+    def test_init_and_add_tighten_an_existing_world_readable_file(self):
+        path = os.path.join(self.root, ".beads", "memories.jsonl")
+        with open(path, "w") as fh:
+            fh.write('{"v": 1, "id": "m-0000000001", "ts": "x", "kind": "fact", "text": "kept"}\n')
+        os.chmod(path, 0o644)
+        self.run_cli("init")
+        self.assertEqual(0o600, os.stat(path).st_mode & 0o777)
+        os.chmod(path, 0o644)
+        self.run_cli("add", "use pnpm")
+        self.assertEqual(0o600, os.stat(path).st_mode & 0o777)
+        with open(path) as fh:
+            self.assertIn("kept", fh.read())
+
+    def test_refuses_a_redirected_memory_file(self):
+        target = os.path.join(self.tmp.name, "elsewhere.txt")
+        with open(target, "w") as fh:
+            fh.write("untouched\n")
+        os.symlink(target, os.path.join(self.root, ".beads", "memories.jsonl"))
+        self.assertEqual(1, self.run_cli("add", "use pnpm", ok=False).returncode)
+        self.assertEqual(1, self.run_cli("init", ok=False).returncode)
+        with open(target) as fh:
+            self.assertEqual("untouched\n", fh.read())
+
+    def test_supersedes_must_name_a_live_memory_in_that_scope(self):
+        self.assertEqual(1, self.run_cli("add", "x", "--supersedes", "m-0123456789", ok=False).returncode)
+        gid = self.run_cli("add", "Reply in PT-BR", "--scope", "global").stdout.split()[1]
+        p = self.run_cli("add", "Reply in English", "--supersedes", gid, ok=False)
+        self.assertEqual(1, p.returncode)
+        self.assertIn("--scope global", p.stderr)
+
+    def fake_bd(self, fail_on):
+        fake_bin = os.path.join(self.tmp.name, "bin")
+        os.makedirs(fake_bin, exist_ok=True)
+        log = os.path.join(self.tmp.name, "bd.log")
+        with open(os.path.join(fake_bin, "bd"), "w") as fh:
+            fh.write(f'#!/bin/sh\necho "$@" >> "{log}"\ncase "$3" in {fail_on}) exit 1;; esac\n')
+        os.chmod(os.path.join(fake_bin, "bd"), 0o755)
+        self.env.pop("DEVMODE_MEMORY_NO_BD", None)
+        self.env["PATH"] = fake_bin + os.pathsep + self.env["PATH"]
+        return log
+
+    def test_supersede_keeps_the_old_bd_key_when_remember_fails(self):
+        old = self.run_cli("add", "use pnpm", "--kind", "decision").stdout.split()[1]
+        log = self.fake_bd("remember")
+        out = self.run_cli("add", "use bun", "--kind", "decision", "--supersedes", old).stdout
+        with open(log) as fh:
+            self.assertFalse(any("forget" in c for c in fh.read().splitlines()))
+        self.assertIn("mirror skipped", out)
+
+    def test_supersede_reports_a_failed_forget(self):
+        old = self.run_cli("add", "use pnpm", "--kind", "decision").stdout.split()[1]
+        self.fake_bd("forget")
+        out = self.run_cli("add", "use bun", "--kind", "decision", "--supersedes", old).stdout
+        self.assertNotIn("· mirrored to bd", out)
+        self.assertIn(f"devmode-{old}", out)
 
     def test_refuses_secrets_in_every_persisted_field(self):
         fake = "sk-ant-api03-abcdefghijklmnop"
