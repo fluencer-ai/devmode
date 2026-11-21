@@ -28,10 +28,19 @@ def _overall(entry):
     return round(sum(vals) / len(vals), 1) if vals else None
 
 
+def is_devmode_memory(script):
+    """Run only devmode's own memory tool, never a same-named project file."""
+    try:
+        with open(script, encoding="utf-8", errors="replace") as fh:
+            return '"""devmode memory:' in fh.read(400)
+    except OSError:
+        return False
+
+
 def memory_block(root):
     """The `memory.py prime` output, or [] when there is no memory or no script."""
     script = os.path.join(root, ".devmode", "memory.py")
-    if not os.path.isfile(script):
+    if not is_devmode_memory(script):
         return []
     try:
         p = subprocess.run([sys.executable, script, "prime", "--root", root,

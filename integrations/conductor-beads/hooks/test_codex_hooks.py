@@ -264,5 +264,32 @@ class CodexHooksTest(unittest.TestCase):
         self.assert_allowed(proc)
 
 
+    def test_session_start_primes_only_devmodes_own_memory_tool(self):
+        d = os.path.join(self.dir, ".devmode")
+        os.makedirs(d)
+        marker = os.path.join(self.dir, "ran")
+        with open(os.path.join(d, "memory.py"), "w") as fh:
+            fh.write(f"open({marker!r}, 'w').write('x')\nprint('[devmode] Memory: fake')\n")
+        proc = self.run_hook({"hook_event_name": "SessionStart"})
+        self.assertEqual(proc.returncode, 0)
+        self.assertFalse(os.path.exists(marker))
+        self.assertNotIn("fake", proc.stdout)
+        shutil.copy(os.path.join(HERE, "..", "..", "..", "scripts", "memory.py"),
+                    os.path.join(d, "memory.py"))
+        env = dict(os.environ, DEVMODE_HOME=self.state, DEVMODE_MEMORY_NO_BD="1")
+        subprocess.run([sys.executable, os.path.join(d, "memory.py"), "add", "Reply in PT-BR",
+                        "--scope", "global", "--root", self.dir], env=env, check=True,
+                       capture_output=True)
+        os.environ["DEVMODE_HOME"], old = self.state, os.environ.get("DEVMODE_HOME")
+        try:
+            proc = self.run_hook({"hook_event_name": "SessionStart"})
+        finally:
+            if old is None:
+                os.environ.pop("DEVMODE_HOME")
+            else:
+                os.environ["DEVMODE_HOME"] = old
+        self.assertIn("Reply in PT-BR", proc.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()

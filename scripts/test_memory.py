@@ -54,22 +54,44 @@ class CoreTest(unittest.TestCase):
         recs = [memory.make_record(f"fact {i} " + "z" * 300, kind="fact", scope="project",
                                    now=f"2026-11-{10 + i:02d}T00:00:00Z") for i in range(5)]
         g = memory.make_record("Reply in PT-BR", kind="preference", scope="global", now=NOW)
-        lines = memory.prime_lines([g], recs, limit=3, max_text=80)
+        lines = memory.prime_lines([g], recs, limit=6, max_text=80)
+        self.assertEqual(len(lines), 6)  # limit counts every emitted line, headers included
         self.assertIn("About you", lines[1])
         self.assertIn("Reply in PT-BR", "\n".join(lines))
         project_items = [ln for ln in lines if "fact " in ln]
-        self.assertEqual(len(project_items), 2)  # limit counts global too
+        self.assertEqual(len(project_items), 2)
         self.assertIn("fact 4", project_items[0])  # newest first
         self.assertTrue(all(len(ln) <= 110 for ln in project_items))
+
+    def test_prime_lines_keeps_room_for_both_scopes(self):
+        gl = [memory.make_record(f"pref {i}", kind="preference", scope="global",
+                                 now=f"2026-11-{10 + i:02d}T00:00:00Z") for i in range(8)]
+        pl = [memory.make_record(f"decision {i}", kind="decision", scope="project",
+                                 now=f"2026-11-{10 + i:02d}T00:00:00Z") for i in range(4)]
+        for g, p in ((gl, pl), (gl[:4], pl)):
+            lines = memory.prime_lines(g, p, limit=8)
+            self.assertLessEqual(len(lines), 8)
+            self.assertTrue(any("decision" in ln for ln in lines), lines)
+            self.assertTrue(any("pref" in ln for ln in lines), lines)
+
+    def test_prime_lines_gives_unused_room_to_the_other_scope(self):
+        pl = [memory.make_record(f"decision {i}", kind="decision", scope="project", now=NOW)
+              for i in range(10)]
+        lines = memory.prime_lines([], pl, limit=8)
+        self.assertEqual(len(lines), 8)
+        self.assertEqual(sum("decision" in ln for ln in lines), 6)
 
     def test_prime_lines_empty_is_empty(self):
         self.assertEqual(memory.prime_lines([], [], limit=5), [])
 
     def test_looks_secret(self):
         for bad in ("token sk-ant-api03-abcdefghijklmnop", "password: hunter2hunter2",
-                    "AKIAABCDEFGHIJKLMNOP", "ghp_" + "a" * 36, "-----BEGIN RSA PRIVATE KEY-----"):
+                    "AKIAABCDEFGHIJKLMNOP", "ghp_" + "a" * 36, "-----BEGIN RSA PRIVATE KEY-----",
+                    "send Authorization: Bearer abcdefghijklmnopqrstu",
+                    "use bearer eyJhbGciOiJIUzI1NiJ9.payload.sig"):
             self.assertTrue(memory.looks_secret(bad), bad)
-        for ok in ("never commit .env files", "the API uses JWT", "keys live in 1Password"):
+        for ok in ("never commit .env files", "the API uses JWT", "keys live in 1Password",
+                   "bearer tokens rotate daily"):
             self.assertFalse(memory.looks_secret(ok), ok)
 
 
@@ -112,6 +134,43 @@ class CliTest(unittest.TestCase):
         with open(os.path.join(self.root, ".beads", "memories.jsonl")) as fh:
             raw = fh.read().splitlines()
         self.assertEqual(len(raw), 2)  # kept the record: add + tombstone, nothing deleted
+
+    def test_init_creates_a_private_file(self):
+        old = os.umask(0o022)
+        try:
+            self.run_cli("init")
+        finally:
+            os.umask(old)
+        mode = os.stat(os.path.join(self.root, ".beads", "memories.jsonl")).st_mode & 0o777
+        self.assertEqual(mode, 0o600)
+
+    def test_refuses_secrets_in_every_persisted_field(self):
+        fake = "sk-ant-api03-abcdefghijklmnop"
+        self.assertEqual(self.run_cli("add", "fine", "--tags", f"a,{fake}", ok=False).returncode, 2)
+        self.assertEqual(self.run_cli("add", "fine", "--supersedes", fake, ok=False).returncode, 2)
+        mid = self.run_cli("add", "fine").stdout.split()[1]
+        self.assertEqual(self.run_cli("forget", mid, "--reason", fake, ok=False).returncode, 2)
+        with open(os.path.join(self.root, ".beads", "memories.jsonl")) as fh:
+            self.assertNotIn(fake, fh.read())
+
+    def test_supersedes_must_be_a_memory_id(self):
+        self.assertEqual(self.run_cli("add", "fine", "--supersedes", "not an id", ok=False).returncode, 1)
+
+    def test_supersede_also_forgets_the_old_key_in_bd(self):
+        fake_bin = os.path.join(self.tmp.name, "bin")
+        os.makedirs(fake_bin)
+        log = os.path.join(self.tmp.name, "bd.log")
+        with open(os.path.join(fake_bin, "bd"), "w") as fh:
+            fh.write(f'#!/bin/sh\necho "$@" >> "{log}"\n')
+        os.chmod(os.path.join(fake_bin, "bd"), 0o755)
+        self.env.pop("DEVMODE_MEMORY_NO_BD")
+        self.env["PATH"] = fake_bin + os.pathsep + self.env["PATH"]
+        old = self.run_cli("add", "use pnpm", "--kind", "decision").stdout.split()[1]
+        new = self.run_cli("add", "use bun", "--kind", "decision", "--supersedes", old).stdout.split()[1]
+        with open(log) as fh:
+            calls = fh.read().splitlines()
+        self.assertTrue(any(c.endswith(f"forget devmode-{old}") for c in calls), calls)
+        self.assertTrue(any(f"--key devmode-{new}" in c for c in calls), calls)
 
     def test_refuses_secret(self):
         p = self.run_cli("add", "the key is sk-ant-api03-abcdefghijklmnop", ok=False)

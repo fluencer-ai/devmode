@@ -430,10 +430,19 @@ def _warm_resume(root: str) -> str:
     return "\n".join(lines)
 
 
+def _is_devmode_memory(script: str) -> bool:
+    """Run only devmode's own memory tool, never a same-named project file."""
+    try:
+        with open(script, encoding="utf-8", errors="replace") as fh:
+            return '"""devmode memory:' in fh.read(400)
+    except OSError:
+        return False
+
+
 def _memory_prime(root: str) -> str:
     """`.devmode/memory.py prime`, capped; "" when absent. Once per session, never per turn."""
     script = os.path.join(root, ".devmode", "memory.py")
-    if not os.path.isfile(script):
+    if not _is_devmode_memory(script):
         return ""
     try:
         proc = subprocess.run([sys.executable, script, "prime", "--root", root, "--limit", "8"],

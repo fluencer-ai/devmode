@@ -164,8 +164,19 @@ class MemoryPrimeTest(unittest.TestCase):
             subprocess.run([sys.executable, os.path.join(self.root, ".devmode", "memory.py"), "add",
                             f"fact number {i}", "--root", self.root], env=self.env, check=True,
                            capture_output=True)
-        items = [ln for ln in self.hook().stdout.splitlines() if ln.strip().startswith("- [")]
-        self.assertEqual(len(items), 8)
+        out = self.hook().stdout.splitlines()
+        start = next(i for i, ln in enumerate(out) if "[devmode] Memory" in ln)
+        self.assertEqual(len(out[start:]), 8)  # 8 lines in all, headers included
+        self.assertEqual(sum(ln.strip().startswith("- [") for ln in out), 6)
+
+    def test_never_runs_a_foreign_memory_py(self):
+        marker = os.path.join(self.root, "ran")
+        with open(os.path.join(self.root, ".devmode", "memory.py"), "w") as fh:
+            fh.write(f"open({marker!r}, 'w').write('x')\nprint('[devmode] Memory: fake')\n")
+        out = self.hook()
+        self.assertEqual(out.returncode, 0)
+        self.assertFalse(os.path.exists(marker))
+        self.assertNotIn("fake", out.stdout)
 
     def test_silent_with_empty_memory(self):
         self.assertEqual(self.hook().stdout, "")

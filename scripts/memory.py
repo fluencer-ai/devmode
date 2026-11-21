@@ -41,7 +41,10 @@ _SECRET_RES = [
     re.compile(r"\bxox[abprs]-[A-Za-z0-9-]{10,}"),
     re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
     re.compile(r"\b(password|passwd|senha|secret|token|api[_-]?key)\s*[:=]\s*\S{6,}", re.I),
+    re.compile(r"\bauthorization\s*:\s*\S{6,}", re.I),
+    re.compile(r"\bbearer\s+[A-Za-z0-9._~+/-]{16,}=*", re.I),
 ]
+_ID_RE = re.compile(r"^m-[0-9a-f]{10}$")
 
 
 def looks_secret(text: str) -> bool:
@@ -94,21 +97,24 @@ def _clip(text, n):
 
 
 def prime_lines(global_live, project_live, *, limit=12, max_text=160):
-    """The compact block injected into a fresh context. Global entries come first,
-    then project entries, newest first; `limit` counts both."""
-    if not global_live and not project_live:
-        return []
+    """The compact block injected into a fresh context: at most `limit` lines,
+    headers included. Global entries come first, then project entries, newest
+    first. When both scopes have entries, each keeps at least half the room, and
+    room one scope does not use goes to the other."""
     newest = lambda rs: sorted(rs, key=lambda r: r.get("ts", ""), reverse=True)  # noqa: E731
+    sections = [(t, newest(rs)) for t, rs in (("About you (global)", global_live),
+                                               ("This project", project_live)) if rs]
+    room = limit - 1 - len(sections)  # the title line + one header per section
+    if not sections or room < len(sections):
+        return []
+    take = [min(len(rs), room // len(sections)) for _, rs in sections]
+    for i, (_, rs) in enumerate(sections):  # hand the leftover room to whoever can use it
+        take[i] = min(len(rs), take[i] + room - sum(take))
     out = ["[devmode] Memory: apply these, and record new ones with .devmode/memory.py add"]
-    budget = limit
-    for title, rows in (("About you (global)", newest(global_live)), ("This project", newest(project_live))):
-        rows = rows[:max(budget, 0)]
-        if not rows:
-            continue
+    for (title, rows), n in zip(sections, take):
         out.append(f"  {title}:")
-        for r in rows:
+        for r in rows[:n]:
             out.append(f"   - [{r.get('kind', 'fact')}] {_clip(r['text'], max_text)}  ({r['id']})")
-        budget -= len(rows)
     return out
 
 
@@ -143,8 +149,14 @@ def _read(path):
     return rows
 
 
+def _touch_private(path):
+    """Create the file owner-only (0600) without touching what is already in it."""
+    os.makedirs(os.path.dirname(path), mode=0o700, exist_ok=True)
+    os.close(os.open(path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600))
+
+
 def _append(path, rec):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+    os.makedirs(os.path.dirname(path), mode=0o700, exist_ok=True)
     line = json.dumps(rec, ensure_ascii=False) + "\n"
     fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
     try:
@@ -166,17 +178,25 @@ def _bd(root, *args):
 
 def cmd_init(a):
     path = _path("project", a.root)
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    if not os.path.exists(path):
-        open(path, "a", encoding="utf-8").close()
+    _touch_private(path)
     print(f"ok {os.path.relpath(path, a.root)}")
     return 0
 
 
+def _refuse_secrets(*fields):
+    """Every persisted field is screened, not just the text. True when refused."""
+    if any(f and looks_secret(str(f)) for f in fields):
+        print("refused: a field looks like a credential; memory never stores secrets", file=sys.stderr)
+        return True
+    return False
+
+
 def cmd_add(a):
-    if looks_secret(a.text):
-        print("refused: the text looks like a credential; memory never stores secrets", file=sys.stderr)
+    if _refuse_secrets(a.text, a.tags, a.supersedes):
         return 2
+    if a.supersedes and not _ID_RE.match(a.supersedes):
+        print("error: --supersedes takes a memory id (m-xxxxxxxxxx)", file=sys.stderr)
+        return 1
     try:
         rec = make_record(a.text, kind=a.kind, scope=a.scope, now=_now(),
                           tags=[t for t in (a.tags or "").split(",") if t], supersedes=a.supersedes)
@@ -185,8 +205,12 @@ def cmd_add(a):
         return 1
     path = _path(a.scope, a.root)
     _append(path, rec)
-    status = _bd(a.root, "remember", rec["text"], "--key", f"devmode-{rec['id']}") \
-        if a.scope == "project" else "global (not mirrored)"
+    if a.scope == "project":
+        status = _bd(a.root, "remember", rec["text"], "--key", f"devmode-{rec['id']}")
+        if a.supersedes and a.supersedes != rec["id"]:  # the replaced key must leave bd too
+            _bd(a.root, "forget", f"devmode-{a.supersedes}")
+    else:
+        status = "global (not mirrored)"
     print(f"ok {rec['id']} {a.scope} · {status}")
     return 0
 
@@ -210,6 +234,8 @@ def cmd_list(a):
 
 
 def cmd_forget(a):
+    if _refuse_secrets(a.id, a.reason):
+        return 2
     for scope in SCOPES:
         if any(r["id"] == a.id for r in _live(scope, a.root)):
             _append(_path(scope, a.root), {"v": 1, "op": "forget", "id": a.id, "ts": _now(),

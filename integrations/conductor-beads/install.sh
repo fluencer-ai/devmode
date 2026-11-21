@@ -290,7 +290,14 @@ for script in scorecard.py dashboard.py goal_brief.py beads_doctor.py memory.py;
 done
 ok "installed devmode tooling → .devmode/"
 # The orchestrator's durable memory: append-only, always present with the layer.
-python3 "$PROJECT_DIR/.devmode/memory.py" init --root "$PROJECT_DIR" >/dev/null
+# Created by the base's own script (never a same-named file the project already
+# had), or by the shell when python3 is missing, owner-only either way.
+if [ "$HAVE_PY3" -eq 1 ]; then
+  python3 "$DEVMODE_ROOT/scripts/memory.py" init --root "$PROJECT_DIR" >/dev/null
+else
+  mkdir -p "$PROJECT_DIR/.beads"
+  (umask 077; : >> "$PROJECT_DIR/.beads/memories.jsonl")
+fi
 ok "memory ready → .beads/memories.jsonl (global: ~/.devmode/memories.jsonl)"
 # Codex skill mode survives updates: lean unless --codex-full was ever chosen.
 if [ "$CODEX_FULL" -eq 1 ]; then
