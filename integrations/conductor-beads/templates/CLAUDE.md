@@ -25,7 +25,9 @@ and Conductor is just generic spec-first project management.
 ## Base — devmode (non-negotiable here)
 
 devmode is the source of truth for *how* we build. Its skills live in
-`.claude/skills/` (or the global devmode install); its philosophy governs every
+`.claude/skills/` (or the global devmode install), hidden from the skill listing:
+open `.claude/skills/<name>/SKILL.md` by path when a step names one (one-line map:
+`.claude/devmode/references/skill-index.md`). Its philosophy governs every
 decision:
 
 - **Code is not cheap.** A good codebase is one that's *easy to change*. Invest

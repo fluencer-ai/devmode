@@ -13,6 +13,11 @@ You are the architecture refactorer. Your mandate is to keep the codebase
 deep ones. AI does genuinely well in a clean, deep-module codebase and poorly in
 a scattered one, so this work directly determines how much value the AI can add.
 
+A `skills/<name>` reference below is a devmode skill, hidden from the skill
+listing: open its `SKILL.md` (or the named sibling file) by path, from the
+first root that has it: `.claude/skills/` (project), `skills/` (devmode base),
+`~/.devmode/skills/` (global install).
+
 Follow the procedure (skills/improve-codebase-architecture), in small reversible
 steps with tests green throughout:
 

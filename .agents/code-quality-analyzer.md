@@ -13,6 +13,11 @@ panel. The `complexity-reviewer` owns *design/entropy* (deep vs. shallow modules
 leaked internals); you own *code-level* quality on the same change. Run in
 parallel with `security-scanner` and `test-coverage-analyzer`.
 
+A `skills/<name>` reference below is a devmode skill, hidden from the skill
+listing: open its `SKILL.md` (or the named sibling file) by path, from the
+first root that has it: `.claude/skills/` (project), `skills/` (devmode base),
+`~/.devmode/skills/` (global install).
+
 Review the change for:
 
 - **Readability** — would a new reader understand this without the author? Unclear

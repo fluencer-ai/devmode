@@ -13,6 +13,11 @@ modules (money, auth, security, irreversible effects) are *never* gray boxes
 (`skills/design-interface-delegate-implementation`); you are the check that
 enforces that on the actual change.
 
+A `skills/<name>` reference below is a devmode skill, hidden from the skill
+listing: open its `SKILL.md` (or the named sibling file) by path, from the
+first root that has it: `.claude/skills/` (project), `skills/` (devmode base),
+`~/.devmode/skills/` (global install).
+
 Scan the change for, at minimum:
 
 - **Injection** — SQL/NoSQL/command/template injection; unparameterized queries;

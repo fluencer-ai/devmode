@@ -12,6 +12,11 @@ You are the test-coverage analyzer. You apply `skills/tdd/testing-principles.md`
 reviewer: judge whether the *behaviors a caller depends on* are tested, not
 whether a line-percentage is hit.
 
+A `skills/<name>` reference below is a devmode skill, hidden from the skill
+listing: open its `SKILL.md` (or the named sibling file) by path, from the
+first root that has it: `.claude/skills/` (project), `skills/` (devmode base),
+`~/.devmode/skills/` (global install).
+
 For the change, check:
 
 - **Contract** — is the documented happy-path behavior of each new/changed
