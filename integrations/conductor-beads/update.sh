@@ -210,7 +210,12 @@ replace_codex_skill_link() {
   # Older Codex ports copied the same skill tree a second time and had no
   # ownership manifest. An exact duplicate is safe to collapse to the shared
   # link; a divergent same-name skill remains project-owned.
-  if [ -d "$destination" ] && [ -d "$source" ] && \
+  # CODEX_DUPS holds the copies proven equal BEFORE this refresh changed the
+  # Claude side, so a v1 twin still collapses after its skill moved on.
+  if [ -d "$destination" ] && [ ! -L "$destination" ] && \
+     { case "$CODEX_DUPS" in *" $skill_name "*) true ;; *) false ;; esac; }; then
+    rm -rf -- "$destination"
+  elif [ -d "$destination" ] && [ -d "$source" ] && \
      diff -qr "$source" "$destination" >/dev/null 2>&1; then
     rm -rf -- "$destination"
   elif [ -L "$destination" ] || [ -e "$destination" ]; then
@@ -225,7 +230,8 @@ replace_codex_skill_link() {
 }
 
 # Lean Codex lists only the launcher. Drop only what devmode provably put in
-# .agents/skills: our link to a devmode-owned skill, or a copy recorded in
+# .agents/skills: a link the manifest records as ours (every Codex link the
+# installer ever made was recorded; a link the user added by hand was not), or a copy recorded in
 # CODEX_DUPS (an exact twin of a devmode-owned skill, taken BEFORE the refresh,
 # so a v1 copy still matches). A project's own skill, linked or copied, stays.
 drop_codex_skill_link() {
@@ -234,7 +240,7 @@ drop_codex_skill_link() {
 
   if [ -L "$destination" ]; then
     if [ "$(readlink "$destination")" = "../../.claude/skills/$skill_name" ] && \
-       { is_managed ".agents/skills/$skill_name" || is_managed ".claude/skills/$skill_name/"; }; then
+       is_managed ".agents/skills/$skill_name"; then
       rm -f -- "$destination"
     fi
   elif [ -d "$destination" ]; then

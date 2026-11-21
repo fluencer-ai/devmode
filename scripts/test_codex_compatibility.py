@@ -52,10 +52,13 @@ class CodexCompatibilityTests(unittest.TestCase):
             for name in skill_names:
                 self.assertTrue((project / ".claude/skills" / name / "SKILL.md").is_file())
 
-            # A project from v1 had every leaf linked, plus exact copies; one
-            # same-name skill is the project's own and must survive.
-            for name in skill_names[:3]:
-                (project / ".agents/skills" / name).symlink_to(Path("../../.claude/skills") / name)
+            # A project from v1 had every leaf linked (each link recorded in the
+            # manifest, as the v1 installer did), plus exact copies; one same-name
+            # skill is the project's own and must survive.
+            with (project / ".devmode/managed-files").open("a", encoding="utf-8") as manifest:
+                for name in skill_names[:3]:
+                    (project / ".agents/skills" / name).symlink_to(Path("../../.claude/skills") / name)
+                    manifest.write(f".agents/skills/{name}\n")
             shutil.copytree(project / ".claude/skills" / skill_names[3], project / ".agents/skills" / skill_names[3])
             own = project / ".agents/skills" / skill_names[4]
             own.mkdir()
@@ -97,11 +100,34 @@ class CodexCompatibilityTests(unittest.TestCase):
             (ours / "SKILL.md").write_text("house style\n", encoding="utf-8")
             (project / ".agents/skills/house-style").symlink_to(Path("../../.claude/skills/house-style"))
 
+            # 4. A base skill the user chose to expose to Codex by hand after a lean
+            #    install: devmode owns .claude/skills/grill-me/, but not this link.
+            (project / ".agents/skills/grill-me").symlink_to(Path("../../.claude/skills/grill-me"))
+
             subprocess.run([str(UPDATE), str(project)], cwd=ROOT, check=True, capture_output=True, text=True)
             names = sorted(p.name for p in (project / ".agents/skills").iterdir())
-            self.assertEqual(["devmode", "grill-me-alias", "house-style", "tdd"], names)
+            self.assertEqual(["devmode", "grill-me", "grill-me-alias", "house-style", "tdd"], names)
             self.assertEqual("our own tdd\n", (project / ".agents/skills/tdd/SKILL.md").read_text(encoding="utf-8"))
             self.assertEqual("our own tdd\n", (mine / "SKILL.md").read_text(encoding="utf-8"))
+
+    def test_full_update_turns_a_proven_v1_copy_into_the_shared_link(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="devmode-codex-full-v1-") as temporary_dir:
+            project = Path(temporary_dir)
+            subprocess.run([str(INSTALL), str(project), "--codex-full"], cwd=ROOT, check=True,
+                           capture_output=True, text=True)
+            manifest = project / ".devmode/managed-files"
+            manifest.write_text("\n".join(ln for ln in manifest.read_text(encoding="utf-8").splitlines()
+                                          if ln != ".agents/skills/shipping") + "\n", encoding="utf-8")
+            old = project / ".claude/skills/shipping/SKILL.md"
+            old.write_text(old.read_text(encoding="utf-8") + "\nv1 line\n", encoding="utf-8")
+            codex = project / ".agents/skills/shipping"
+            codex.unlink()
+            shutil.copytree(project / ".claude/skills/shipping", codex)
+
+            subprocess.run([str(UPDATE), str(project)], cwd=ROOT, check=True, capture_output=True, text=True)
+            self.assertTrue(codex.is_symlink())
+            self.assertEqual("../../.claude/skills/shipping", os.readlink(codex))
+            self.assertNotIn("v1 line", (codex / "SKILL.md").read_text(encoding="utf-8"))
 
     def test_full_install_and_update_share_skills_without_copying_them_twice(self) -> None:
         skill_names = sorted(path.name for path in (ROOT / "skills").iterdir() if path.is_dir())
