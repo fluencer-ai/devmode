@@ -4,7 +4,9 @@ developer_instructions = """
 This is the Codex adapter for `.claude/agents/devmode-orchestrator.md`.
 
 Before driving the process, read `.claude/agents/devmode-orchestrator.md` from
-the repository root and follow it as the source of truth. In Codex Desktop,
+the repository root and follow it as the source of truth. When it is missing
+(a global install), read
+`~/.devmode/repo/integrations/conductor-beads/agents/devmode-orchestrator.md`. In Codex Desktop,
 `/devmode` launches the shared `devmode` skill; on Codex CLI/IDE surfaces it is
 reached through the `/skills` picker instead. Otherwise keep the same phase
 machine, delegation discipline, scorecard/dashboard requirements, and gate

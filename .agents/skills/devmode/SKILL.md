@@ -9,8 +9,10 @@ This skill is the Codex launcher equivalent of Claude Code's
 `.claude/commands/devmode.md`.
 
 Before acting, read `.claude/commands/devmode.md` from the repository root and
-follow it as the source of truth. If that file is missing in an adopted project,
-read `integrations/conductor-beads/commands/devmode.md` from the devmode base.
+follow it as the source of truth. If that file is missing (an adopted project
+without it, or any folder under a global install), read
+`integrations/conductor-beads/commands/devmode.md` from the devmode base: this
+repository, or `~/.devmode/repo` for a global install.
 
 Codex adaptations:
 

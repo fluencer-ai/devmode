@@ -38,6 +38,9 @@ class Base(unittest.TestCase):
         write(os.path.join(cb, "agents", "devmode-orchestrator.md"), "---\nname: o\ndescription: Drives devmode.\n---\n")
         write(os.path.join(self.repo, ".agents", "skills", "devmode", "SKILL.md"), skill("devmode router", hidden=False))
         write(os.path.join(self.repo, ".agents", "tdd-implementer.md"), "---\nname: t\ndescription: Writes tests.\n---\n")
+        write(os.path.join(self.repo, ".codex", "agents", "devmode-orchestrator.toml"),
+              'name = "devmode-orchestrator"\ndescription = "Drives devmode."\n')
+        write(os.path.join(self.repo, "references", "skill-index.md"), "# index\n")
         os.makedirs(os.path.join(self.home, ".claude"))
         os.makedirs(os.path.join(self.home, ".codex"))
         self.log = []
@@ -63,6 +66,25 @@ class InstallTest(Base):
         base = self.h(".devmode")
         self.assertTrue(os.path.isdir(base) and not os.path.islink(base))
         self.assertEqual(os.path.realpath(os.path.join(base, "skills")), os.path.join(self.repo, "skills"))
+
+    def test_install_creates_a_private_global_memory_and_keeps_an_existing_one(self):
+        old = os.umask(0o022)
+        try:
+            self.run_setup("--host", "claude")
+        finally:
+            os.umask(old)
+        mem = self.h(".devmode", "memories.jsonl")
+        self.assertEqual(0o600, os.stat(mem).st_mode & 0o777)
+        with open(mem, "a", encoding="utf-8") as fh:
+            fh.write('{"id": "m-0000000000"}\n')
+        self.run_setup("--host", "claude")
+        self.run_setup("--uninstall")
+        with open(mem, encoding="utf-8") as fh:
+            self.assertIn("m-0000000000", fh.read())
+
+    def test_dry_run_creates_no_memory(self):
+        self.run_setup("--host", "claude", "--dry-run")
+        self.assertFalse(os.path.lexists(self.h(".devmode", "memories.jsonl")))
 
     def test_full_adds_role_agents_and_mode_is_kept(self):
         self.run_setup("--host", "claude", "--full")
@@ -132,9 +154,62 @@ class InstallTest(Base):
         self.assertIn("loud", line)  # not hidden, so it is listed
         self.assertNotIn("tdd", line)
 
+    def test_codex_gets_the_orchestrator_agent_the_launcher_delegates_to(self):
+        self.run_setup("--host", "codex")
+        dest = self.h(".codex", "agents", "devmode-orchestrator.toml")
+        self.assertEqual(os.readlink(dest),
+                         os.path.join(self.repo, ".codex", "agents", "devmode-orchestrator.toml"))
+        self.run_setup("--uninstall", "--host", "codex")
+        self.assertFalse(os.path.lexists(dest))
+
+    def test_a_personal_alias_into_the_repo_is_never_removed(self):
+        os.makedirs(self.h(".claude", "skills"))
+        alias = self.h(".claude", "skills", "apelido")
+        os.symlink(os.path.join(self.repo, "skills", "tdd"), alias)
+        self.run_setup("--host", "claude")
+        self.run_setup("--host", "claude", "--full")
+        self.run_setup("--uninstall", "--host", "claude")
+        self.assertTrue(os.path.islink(alias))
+
+    def test_a_refused_home_writes_no_state(self):
+        os.makedirs(os.path.join(self.tmp.name, "elsewhere"))
+        os.symlink(os.path.join(self.tmp.name, "elsewhere"), self.h(".devmode"))
+        self.assertEqual(self.run_setup("--host", "claude"), 1)
+        self.assertEqual(os.listdir(os.path.join(self.tmp.name, "elsewhere")), [])
+        self.assertFalse(os.path.lexists(self.h(".claude", "skills")))
+
+    def test_an_unreadable_state_file_is_never_overwritten(self):
+        write(self.h(".devmode", "install.json"), "not json, someone else's file")
+        self.assertEqual(self.run_setup("--host", "claude"), 1)
+        with open(self.h(".devmode", "install.json")) as fh:
+            self.assertEqual(fh.read(), "not json, someone else's file")
+        self.assertEqual(self.run_setup("--uninstall"), 1)
+        self.assertTrue(os.path.exists(self.h(".devmode", "install.json")))
+
+    def test_check_flags_broken_or_misdirected_home_links(self):
+        self.run_setup("--host", "claude")
+        os.unlink(self.h(".devmode", "skills"))
+        os.symlink(os.path.join(self.tmp.name, "nowhere"), self.h(".devmode", "skills"))
+        self.assertEqual(self.run_setup("--check"), 1)
+        self.assertTrue(any("~/.devmode" in ln and "skills" in ln for ln in self.log), self.log)
+
+    def test_report_counts_only_what_is_actually_installed(self):
+        self.run_setup("--host", "codex", "--report")
+        line = next(ln for ln in self.log if ln.startswith("codex"))
+        self.assertIn("not installed", line)
+
     def test_requires_a_host(self):
         with self.assertRaises(SystemExit):
             self.run_setup()
+
+    def test_several_hosts_in_one_flag(self):
+        self.assertEqual(0, self.run_setup("--host", "claude,codex", "--dry-run"))
+        self.assertTrue(any(ln.startswith("claude") for ln in self.log), self.log)
+        self.assertTrue(any(ln.startswith("codex") for ln in self.log), self.log)
+
+    def test_a_repeated_host_flag_is_refused_not_overwritten(self):
+        with self.assertRaises(SystemExit):
+            self.run_setup("--host", "claude", "--host", "codex", "--dry-run")
 
 
 class PlanTest(unittest.TestCase):
@@ -146,6 +221,11 @@ class PlanTest(unittest.TestCase):
         acts, notes = ds.plan(want, cur, repo)
         self.assertEqual(acts, [("relink", "/r/skills/b", "/h/b"), ("unlink", "/h/c")])
         self.assertEqual(notes, [])
+
+    def test_unlink_needs_our_name_or_a_record(self):
+        cur = {"/h/alias": ("link", "/r/skills/tdd"), "/h/agents": ("link", "/r/.agents")}
+        self.assertEqual(ds.plan({}, cur, "/r")[0], [])
+        self.assertEqual(ds.plan({}, cur, "/r", managed={"/h/agents"})[0], [("unlink", "/h/agents")])
 
     def test_prefix_is_not_ownership(self):
         acts, _ = ds.plan({}, {"/h/x": ("link", "/r-other/x")}, "/r")
