@@ -12,6 +12,11 @@ import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 HOOK = os.path.join(HERE, "codex_hooks.py")
+# The real memory tool: in the base repo (integrations/conductor-beads/hooks) or
+# in an installed project (.codex/hooks -> .devmode/memory.py).
+MEMORY = next((p for p in (os.path.join(HERE, "..", "..", "..", "scripts", "memory.py"),
+                           os.path.join(HERE, "..", "..", ".devmode", "memory.py"))
+               if os.path.isfile(p)), None)
 
 
 class CodexHooksTest(unittest.TestCase):
@@ -274,8 +279,9 @@ class CodexHooksTest(unittest.TestCase):
         self.assertEqual(proc.returncode, 0)
         self.assertFalse(os.path.exists(marker))
         self.assertNotIn("fake", proc.stdout)
-        shutil.copy(os.path.join(HERE, "..", "..", "..", "scripts", "memory.py"),
-                    os.path.join(d, "memory.py"))
+        if MEMORY is None:
+            self.skipTest("devmode's memory.py is not next to this hook")
+        shutil.copy(MEMORY, os.path.join(d, "memory.py"))
         env = dict(os.environ, DEVMODE_HOME=self.state, DEVMODE_MEMORY_NO_BD="1")
         subprocess.run([sys.executable, os.path.join(d, "memory.py"), "add", "Reply in PT-BR",
                         "--scope", "global", "--root", self.dir], env=env, check=True,
