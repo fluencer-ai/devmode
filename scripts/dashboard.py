@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""devmode dashboard — generate a self-contained HTML overview of a project from
+"""devmode dashboard: generate a self-contained HTML overview of a project from
 its own devmode files. No server, no registration, no external service: just open
 the file. This is the lightweight "visualization" alternative to standing up a
-heavy external Web UI/dashboard service — it reads what's already on disk and
+heavy external Web UI/dashboard service: it reads what's already on disk and
 gives a KPI strip, a workflow pipeline, run/gate monitoring, and a trend chart
 without the infrastructure.
 
@@ -25,7 +25,7 @@ import re
 import sys
 
 CRITERIA = ["correctness", "design", "testing", "safety", "clarity"]
-# the canonical devmode workflow — used for the pipeline visualization
+# the canonical devmode workflow: used for the pipeline visualization
 PHASES = ["Align", "Language", "Specify", "Architect", "Implement", "Review", "Refactor"]
 
 
@@ -52,7 +52,7 @@ SKIP_DIRS = {"archive", ".templates", "track"}  # scaffold/template dirs, not re
 
 def tracks(root):
     out = []
-    # list each track DIRECTORY (a track exists once it has a spec.md — plan.md is optional)
+    # list each track DIRECTORY (a track exists once it has a spec.md; plan.md is optional)
     for d in sorted(glob.glob(os.path.join(root, "conductor", "tracks", "*"))):
         tid = os.path.basename(d)
         if not os.path.isdir(d) or tid in SKIP_DIRS:
@@ -137,9 +137,9 @@ def pipeline(hist):
 def gates_card(root):
     g = load_json(root, "gates.json")
     if not g:
-        return ('<span class="note">—</span>',
-                '<p class="note">No gate run recorded yet. Run <code>ci/check.sh</code> '
-                '— it writes <code>.devmode/gates.json</code>.</p>')
+        return ('<span class="note">-</span>',
+                '<p class="note">No gate run recorded yet. Run <code>ci/check.sh</code>'
+                ': it writes <code>.devmode/gates.json</code>.</p>')
     items = g.get("gates", [])
     allok = g.get("ok", all(x.get("ok") for x in items)) if items else False
     kpi = '<span class="ok">&#10003; pass</span>' if allok else '<span class="bad">&#10007; fail</span>'
@@ -158,7 +158,7 @@ def render(root):
     hist = scorecard(root)
     latest = hist[-1] if hist else None
     name = os.path.basename(os.path.abspath(root))
-    phase = latest.get("phase", "—") if latest else "—"
+    phase = latest.get("phase", "-") if latest else "-"
 
     rows = ""
     if latest:
@@ -169,13 +169,13 @@ def render(root):
                      f'<td class="num">{sc}/10</td><td class="note">{html.escape(s.get("note",""))}</td></tr>')
         overall = overall_of(latest)
     else:
-        overall = "—"
+        overall = "-"
 
     overalls = [overall_of(e) for e in hist]
     trend = "  &rarr;  ".join(
         f'{html.escape(e.get("phase","?"))} {overall_of(e)}' for e in hist) or "no scorecard yet"
     # carry forward the most recent recommendations (persist "next actions" even
-    # after a phase that recorded none) — the overview stays actionable.
+    # after a phase that recorded none), so the overview stays actionable.
     recs = {}
     for e in reversed(hist):
         if e.get("recommendations"):
@@ -197,8 +197,8 @@ def render(root):
                          f'background:#1d4ed8"></div></div>')
             done_cell = f'{t["done"]}/{t["total"]}'
         else:  # a track with a spec but no plan.md yet
-            prog_cell = '<span class="note">spec only — no plan yet</span>'
-            done_cell = "—"
+            prog_cell = '<span class="note">spec only: no plan yet</span>'
+            done_cell = "-"
         trk += (f'<tr><td>{html.escape(t["id"])}</td>'
                 f'<td>{prog_cell}</td>'
                 f'<td class="num">{done_cell}</td>'
@@ -206,7 +206,7 @@ def render(root):
                 f'<td class="num">{t["adrs"]} ADR</td></tr>')
     trk = trk or '<tr><td colspan="5" class="note">no tracks yet</td></tr>'
 
-    # timeline — one event per recorded phase (summary already in scorecard.json)
+    # timeline: one event per recorded phase (summary already in scorecard.json)
     tl, prev_o, prev_pi = "", None, None
     for e in hist:
         o = overall_of(e)
@@ -219,7 +219,7 @@ def render(root):
                  else '<span class="flat">&mdash;</span>')
         prev_o = o
         # loop-back: this phase's canonical position is EARLIER than the previous one
-        # (the workflow is a loop — a downstream finding sent us back upstream).
+        # (the workflow is a loop; a downstream finding sent us back upstream).
         c = canon(e.get("phase", ""))
         pi = PHASES.index(c) if c in PHASES else None
         loopback = pi is not None and prev_pi is not None and pi < prev_pi
@@ -236,7 +236,7 @@ def render(root):
 
     gate_kpi, gate_html = gates_card(root)
     spark = sparkline(overalls)
-    band_label = band(overall) if hist else "—"
+    band_label = band(overall) if hist else "-"
 
     # KPI strip (overview tiles)
     def kpi(label, value):
@@ -246,7 +246,7 @@ def render(root):
         + kpi("Band", band_label)
         + kpi("Phases", len(hist))
         + kpi("Tracks", len(trks))
-        + kpi("Tasks", f'{tasks_done}/{tasks_total}' if tasks_total else "—")
+        + kpi("Tasks", f'{tasks_done}/{tasks_total}' if tasks_total else "-")
         + kpi("ADRs", adrs_total)
         + kpi("Gates", gate_kpi)
         + (kpi("Blocked", f'<span class="bad">{blocked_total}</span>') if blocked_total else "")

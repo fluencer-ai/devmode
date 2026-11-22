@@ -1,11 +1,11 @@
-"""Tests for verify_gate.py — the Stop hook that blocks ending a turn after a
+"""Tests for verify_gate.py: the Stop hook that blocks ending a turn after a
 risky action (rebuild / docker build / deploy / .env write) until a fresh
 end-to-end verification ran AFTER it.
 
 Unlike guardrails (a pure core), this hook is an I/O script: it reads JSON on
 stdin, follows `transcript_path` to a JSONL transcript, and prints a block
 payload (or nothing) before exiting 0. So we test it as a black box exactly as
-Claude Code invokes it — crafted stdin + crafted transcript via subprocess —
+Claude Code invokes it (crafted stdin + crafted transcript via subprocess)
 and assert the block-vs-allow decision and the VERIFY-OK override.
 
 Run:  python3 -m unittest test_verify_gate   (from this directory)
@@ -93,7 +93,7 @@ class VerifyGateTest(unittest.TestCase):
         self.assertBlocked(proc)
 
     def test_verify_before_risky_still_blocks(self):
-        # verification must come AFTER the risky action — an earlier one doesn't count.
+        # verification must come AFTER the risky action: an earlier one doesn't count.
         proc = self.run_gate([
             msg_entry("assistant", tool_use("Bash", command="pytest -q")),
             msg_entry("assistant", tool_use("Bash", command="docker build -t app .")),
@@ -129,7 +129,7 @@ class VerifyGateTest(unittest.TestCase):
         # the verification signal can land in tool_result output, not just a command.
         proc = self.run_gate([
             msg_entry("assistant", tool_use("Bash", command="docker build -t app .")),
-            msg_entry("user", tool_result("queued; moved to jobs/completed/abc.json — COMPLETED")),
+            msg_entry("user", tool_result("queued; moved to jobs/completed/abc.json: COMPLETED")),
         ])
         self.assertAllowed(proc)
 

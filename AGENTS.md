@@ -57,15 +57,15 @@ guided flow, invoke `/devmode` in Codex Desktop or select `devmode` through
 The Codex hooks enforce the same gates as Claude Code and expose the same escape
 hatches. Each one is a conscious statement, never a routine bypass:
 
-- **`VERIFY-OK: <reason>`** — write it in your reply when the Stop verify gate
+- **`VERIFY-OK: <reason>`**: write it in your reply when the Stop verify gate
   fires after a rebuild/deploy/`.env` change that genuinely needs no end-to-end
   check.
-- **`DEVMODE-OK: <reason>`** — write it in your reply when a phase-driving
+- **`DEVMODE-OK: <reason>`**: write it in your reply when a phase-driving
   `/devmode` turn genuinely does not need the orchestrator.
-- **`# DEVMODE-GUARDRAIL-OK`** — Codex has no interactive "ask", so the PreToolUse
+- **`# DEVMODE-GUARDRAIL-OK`**: Codex has no interactive "ask", so the PreToolUse
   guardrail turns Claude's *ask* rules (destructive git, scoped `rm -rf`, reading
   a likely secret file) into a deny. **Ask the user first**, then re-run the
-  command with that comment in it. Never add it pre-emptively — the deny is the
+  command with that comment in it. Never add it pre-emptively: the deny is the
   confirmation prompt.
 
 Rules that **deny** on both hosts (`sudo`, force-push, `--no-verify`, `rm -rf /`,

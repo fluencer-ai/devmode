@@ -12,7 +12,7 @@
 
 devmode is a complete, **tool-agnostic software development process** packaged as
 32 skills, 8 subagents, deterministic guardrail hooks, a self-scoring system, a
-durable memory, and a zero-setup visual dashboard — built for working *with* AI
+durable memory, and a zero-setup visual dashboard: built for working *with* AI
 coding agents without letting the codebase rot. It runs on **Claude Code and
 Codex** off the same sources: one physical copy of the pack, two discovery
 surfaces.
@@ -51,11 +51,11 @@ needs them. That is about 110 tokens a turn on Claude Code instead of
 
 ## Why devmode exists
 
-There's a popular belief that in the AI age **code is cheap** — generate it,
+There's a popular belief that in the AI age **code is cheap**: generate it,
 regenerate it, who cares. devmode is built on the opposite thesis: **software
 fundamentals matter more now than they ever have.**
 
-AI is an extraordinary *tactical* programmer — a sergeant on the ground who makes
+AI is an extraordinary *tactical* programmer: a sergeant on the ground who makes
 changes faster than any human. But it has no *strategy*. Left alone it optimizes
 the change in front of it, ignores the design of the whole, and produces code
 that gets worse every iteration (software entropy). The result is the
@@ -65,11 +65,11 @@ devmode supplies the strategy:
 
 1. **A good codebase is one that is easy to change.** Complexity (Ousterhout) is
    anything that makes a system hard to understand and modify. AI amplifies
-   whatever you give it — a clean codebase compounds, a complex one collapses.
+   whatever you give it: a clean codebase compounds, a complex one collapses.
 2. **No one knows exactly what they want.** The first job is requirements
    gathering: reaching a *shared design concept* (Brooks) before any code exists.
 3. **Speak one language.** A ubiquitous language (Evans/DDD) aligns thinking,
-   planning, and implementation — verbosity and drift come from a language gap.
+   planning, and implementation: verbosity and drift come from a language gap.
 4. **The rate of feedback is your speed limit.** Small, deliberate, test-first
    steps beat big bangs. Don't outrun your headlights.
 5. **Deep modules over shallow ones.** Lots of functionality behind a simple
@@ -84,7 +84,7 @@ direction.**
 
 | Piece | What it is | Where |
 |---|---|---|
-| **32 skills** | 17 *process* + 12 *domain* + 3 *meta* skills — each a focused practice, hidden from the listing and loaded by path ([index](references/skill-index.md)) | [`skills/`](skills/) |
+| **32 skills** | 17 *process* + 12 *domain* + 3 *meta* skills: each a focused practice, hidden from the listing and loaded by path ([index](references/skill-index.md)) | [`skills/`](skills/) |
 | **8 agents** | Subagent role definitions, including a parallel 4-lane review panel | [`.agents/`](.agents/) |
 | **Scripts** | Global `setup`, memory, skill index, pack auditor, self-scorecard, HTML dashboard, `/goal` budget checker | [`scripts/`](scripts/) |
 | **Guardrail hooks** | Deterministic PreToolUse + Stop gates + a SessionStart warm-resume (Python, stdlib only) | [`integrations/conductor-beads/hooks/`](integrations/conductor-beads/hooks/) |
@@ -100,7 +100,7 @@ registration, no build step.**
 
 ## The four layers of AI engineering
 
-Modern AI engineering stacks four layers, each wrapping the one beneath —
+Modern AI engineering stacks four layers, each wrapping the one beneath:
 *prompt → context → harness → loop*. devmode ships a concrete artifact for each:
 
 | Layer (wraps the one below) | What it is | In devmode |
@@ -139,7 +139,7 @@ that adds or removes skills.
 
 ### B. Install into a real project (recommended)
 
-The easiest path is to let `/devmode adopt` do it for you — clone devmode, open
+The easiest path is to let `/devmode adopt` do it for you: clone devmode, open
 Claude Code **in the devmode repo**, and point it at your project:
 
 ```bash
@@ -156,7 +156,7 @@ you into the first alignment gate. See [§C](#c-guided-mode--devmode-the-front-d
 What you get in the project:
 
 - `CLAUDE.md` (or a non-destructive `@CLAUDE.devmode.md` pointer appended to your
-  existing one — your project's rules stay the host and take precedence),
+  existing one: your project's rules stay the host and take precedence),
 - `.claude/skills/` + `.claude/agents/` (the full pack),
 - `AGENTS.md` / `AGENTS.devmode.md`, the `.agents/skills/devmode` launcher
   (lean; `--codex-full` links every skill), and `.codex/agents/` for Codex
@@ -181,7 +181,7 @@ upstream Conductor commands) · `--beads` / `--beads-stealth` (persistent task
 memory, committed or local) · `--with-guardrails` · `--force`. Idempotent:
 existing files are left alone unless you pass `--force`.
 
-### C. Guided mode — `/devmode` / `devmode` skill (the front door)
+### C. Guided mode: `/devmode` / `devmode` skill (the front door)
 
 The integration installs a `devmode-orchestrator` agent + `/devmode` command that
 drives the whole phase machine for you, pausing only at human decision gates:
@@ -202,12 +202,12 @@ drives the whole phase machine for you, pausing only at human decision gates:
 ```
 
 At every gate it shows a self-scorecard and refreshes `devmode-dashboard.html`.
-**Run it from the project directory** — the hooks key off the project root.
+**Run it from the project directory**: the hooks key off the project root.
 
 `/devmode <args>` is **verified working in Codex Desktop**: the app resolves that
 slash command to the launcher installed in `.agents/skills/devmode/`. That is the
 one Codex surface where the slash form is confirmed. On CLI/IDE surfaces, skills
-are reached through the official picker — use `/skills` and select `devmode`; no
+are reached through the official picker: use `/skills` and select `devmode`; no
 Desktop-equivalent slash behavior is promised there until Codex ships official
 support. Either way the launcher reads the same `.claude/commands/devmode.md`
 source and maps it to Codex custom agents and hooks, and the existing Claude Code
@@ -217,11 +217,11 @@ The installer records only the paths it actually writes in
 `.devmode/managed-files`. Updates use that ownership manifest, so a project skill,
 agent, reference, or script that happens to have the same name is preserved.
 
-### D. One task, routed and gated — `/devmode do`
+### D. One task, routed and gated: `/devmode do`
 
 For a single, well-bounded task (not a whole project), `/devmode do <plain-English>`
 **routes** it to the right skill(s)+agent and runs a short evidence-gated pipeline
-(Understand → Plan → Execute → Verify → Deliver) — verified, not asserted:
+(Understand → Plan → Execute → Verify → Deliver): verified, not asserted:
 
 ```text
 /devmode do debug this failing quota test   # → systematic-debugging (+ tdd for the regression)
@@ -229,7 +229,7 @@ For a single, well-bounded task (not a whole project), `/devmode do <plain-Engli
 ```
 
 `/devmode do` is the single-task sibling of `/devmode` (full project) and
-`/devmode c` (bare per-turn gates) — every entry point starts with `/devmode`, and
+`/devmode c` (bare per-turn gates): every entry point starts with `/devmode`, and
 it reuses the existing skills/agents/gates, no new machinery.
 
 ## Hosts: Claude Code and Codex
@@ -241,11 +241,11 @@ second copy of the method:
 | Piece | Claude Code | Codex |
 |---|---|---|
 | Durable instructions | [`CLAUDE.md`](CLAUDE.md) | [`AGENTS.md`](AGENTS.md) (or an additive `AGENTS.devmode.md` pointer) |
-| The 32 skills | `.claude/skills/` — the single physical copy, every leaf hidden from the listing | [`.agents/skills/`](.agents/skills/) — the `devmode` launcher only (lean); `--codex-full` adds relative links to that same copy |
-| Role agents | `.claude/agents/` | [`.codex/agents/*.toml`](.codex/agents/) — the same 8 roles as Codex custom agents |
+| The 32 skills | `.claude/skills/`: the single physical copy, every leaf hidden from the listing | [`.agents/skills/`](.agents/skills/): the `devmode` launcher only (lean); `--codex-full` adds relative links to that same copy |
+| Role agents | `.claude/agents/` | [`.codex/agents/*.toml`](.codex/agents/): the same 8 roles as Codex custom agents |
 | Guided front door | the `/devmode` slash command | the repo-shared `devmode` skill + its launcher metadata (`agents/openai.yaml`) |
 | Deterministic gates | hooks wired in `.claude/settings.json` | [`.codex/hooks.json`](.codex/hooks.json) → `.codex/hooks/codex_hooks.py` |
-| Host config | (host defaults) | [`.codex/config.toml`](.codex/config.toml) — enables hooks + multi-agent; **merged** on update, never replaced |
+| Host config | (host defaults) | [`.codex/config.toml`](.codex/config.toml): enables hooks + multi-agent; **merged** on update, never replaced |
 
 `AGENTS.md` names `CLAUDE.md` and `.claude/commands/devmode.md` as the canonical
 sources, so when an adapter and its source disagree the **adapter** is what gets
@@ -253,7 +253,7 @@ fixed. Adding Codex support removed nothing from the Claude Code surface.
 
 **Invocation.** `/devmode <args>` is **verified working in Codex Desktop**. On
 CLI/IDE surfaces, reach the same skill through the official picker (`/skills` →
-`devmode`) — no Desktop-equivalent slash behavior is promised there until Codex
+`devmode`): no Desktop-equivalent slash behavior is promised there until Codex
 ships official support. Codex project hooks only run once the project *and* the
 hook definitions are trusted in `/hooks`; see
 [Enforcement](#enforcement-gates-that-bite) for the one behavioral difference
@@ -277,19 +277,19 @@ like a credential is refused. Drive it by hand with
 ## The workflow (a loop, not a march)
 
 Move top to bottom; each phase has skills that do the work. Small changes can
-skip straight to TDD — the order is the spine, not a bureaucracy.
+skip straight to TDD: the order is the spine, not a bureaucracy.
 
 | Phase | Skills | What it gives you |
 |---|---|---|
 | **1. Align** | `grill-me` | A shared design concept, reached by relentless interview *before any asset exists* |
 | **2. Language** | `ubiquitous-language` | A glossary + module map shared by you, the AI, and the code |
-| **3. Specify** | `prior-art` · `write-prd` · `design-critique` (+ `divergent-ideation.md`) | A PRD explicit about which modules/interfaces change — alternatives generated, then pressure-tested through expert lenses |
+| **3. Specify** | `prior-art` · `write-prd` · `design-critique` (+ `divergent-ideation.md`) | A PRD explicit about which modules/interfaces change: alternatives generated, then pressure-tested through expert lenses |
 | **4. Architect** | `functional-core-imperative-shell` (+ `system-boundaries.md`) · `design-interface-delegate-implementation` · `design-patterns` | Pure logic isolated from I/O; interfaces you design, implementations you delegate |
 | **5. Implement** | `feedback-loops` · `tdd` (+ `testing-principles.md`) · `subagent-driven-development` (+ `external-cli.md`) · `systematic-debugging` · `verification-before-completion` (+ `confidence-check.md`) · `code-review` | Small test-first steps, tight feedback, root-cause discipline, evidence before "done", independent review |
 | **6. Refactor** | `impact-analysis` · `improve-codebase-architecture` | Blast radius mapped before changing; shallow modules consolidated into deep ones |
 
 **The spine is a loop.** When a later phase (review, ops, production) invalidates
-an earlier decision, go back to the phase that owns it — usually Specify — and
+an earlier decision, go back to the phase that owns it (usually Specify), and
 **supersede the ADR** (new decision referencing the old; history kept), re-run
 only the affected delta, and record the re-entry as its own scored phase
 (`Re-specify`). The dashboard badges these loop-backs (`↩ re-entry`) so they're
@@ -302,12 +302,12 @@ operational body, and sibling files for the cases only some work needs. Every
 leaf carries `disable-model-invocation: true`: you can still run it as
 `/<name>`, and the orchestrator reads it by path. Rows marked ↳ are skills that
 v2 fused into a sibling file of the skill named in brackets; no rule was dropped. The pack is audited by
-[`scripts/audit_skills.py`](scripts/audit_skills.py) — frontmatter, name↔folder,
+[`scripts/audit_skills.py`](scripts/audit_skills.py): frontmatter, name↔folder,
 line budgets, link integrity, mirror drift, description-overlap (Jaccard), and
 trigger lint.
 
 <details>
-<summary><b>Process skills (17)</b> — the spine: how to think and build</summary>
+<summary><b>Process skills (17)</b>: the spine: how to think and build</summary>
 
 | Skill | One line |
 |---|---|
@@ -315,29 +315,29 @@ trigger lint.
 | [`ubiquitous-language`](skills/ubiquitous-language/SKILL.md) | Glossary + module map; boundaries are part of the language |
 | [`write-prd`](skills/write-prd/SKILL.md) | PRDs explicit about modules, interfaces, tests, and acceptance criteria |
 | [`prior-art`](skills/prior-art/SKILL.md) | Does it already exist? buy/adopt/build judged on fit not stars, priced at three horizons |
-| ↳ [`divergent-ideation.md`](skills/design-critique/divergent-ideation.md) | (in `design-critique`) Generate a wide candidate set for an open decision before choosing — the generative counterpart to design-critique |
+| ↳ [`divergent-ideation.md`](skills/design-critique/divergent-ideation.md) | (in `design-critique`) Generate a wide candidate set for an open decision before choosing: the generative counterpart to design-critique |
 | [`design-critique`](skills/design-critique/SKILL.md) | Pressure-test a design/PRD through several expert lenses before building |
-| [`functional-core-imperative-shell`](skills/functional-core-imperative-shell/SKILL.md) | Pure decisions separated from I/O — the foundation of testability |
+| [`functional-core-imperative-shell`](skills/functional-core-imperative-shell/SKILL.md) | Pure decisions separated from I/O: the foundation of testability |
 | ↳ [`system-boundaries.md`](skills/functional-core-imperative-shell/system-boundaries.md) | (in `functional-core-imperative-shell`) Business rules independent of infrastructure, at system scale |
 | [`design-interface-delegate-implementation`](skills/design-interface-delegate-implementation/SKILL.md) | Interfaces designed by hand; implementations delegated as verified gray boxes |
-| [`design-patterns`](skills/design-patterns/SKILL.md) | GoF patterns chosen by smell/goal — only when they deepen a module |
+| [`design-patterns`](skills/design-patterns/SKILL.md) | GoF patterns chosen by smell/goal, only when they deepen a module |
 | ↳ [`confidence-check.md`](skills/verification-before-completion/confidence-check.md) | (in `verification-before-completion`) Pre-flight gate: do I know the goal, interface, constraints, verification? |
-| [`feedback-loops`](skills/feedback-loops/SKILL.md) | Types, compiler, fast tests, real runtime — a verification gate ladder |
+| [`feedback-loops`](skills/feedback-loops/SKILL.md) | Types, compiler, fast tests, real runtime: a verification gate ladder |
 | [`tdd`](skills/tdd/SKILL.md) | Red → green in small deliberate steps that keep the AI inside its headlights |
 | ↳ [`testing-principles.md`](skills/tdd/testing-principles.md) | (in `tdd`) Unit size, what to mock, which behaviors to test, adversarial inputs |
-| [`subagent-driven-development`](skills/subagent-driven-development/SKILL.md) | Fresh subagent per task + two-stage review — operationalized gray-boxing |
+| [`subagent-driven-development`](skills/subagent-driven-development/SKILL.md) | Fresh subagent per task + two-stage review: operationalized gray-boxing |
 | ↳ [`external-cli.md`](skills/subagent-driven-development/external-cli.md) | (in `subagent-driven-development`) Offload a bounded task to an external model CLI as a verified gray box |
-| [`systematic-debugging`](skills/systematic-debugging/SKILL.md) | Root cause first — no fix without investigation |
+| [`systematic-debugging`](skills/systematic-debugging/SKILL.md) | Root cause first: no fix without investigation |
 | [`verification-before-completion`](skills/verification-before-completion/SKILL.md) | No "done" without fresh evidence; a green gate must have *covered the change* |
 | [`code-review`](skills/code-review/SKILL.md) | Run the panel, act on every finding, re-verify; adopt the finding, verify the fix |
 | [`impact-analysis`](skills/impact-analysis/SKILL.md) | Who depends on this? What breaks? Renames hit tests and substrings |
-| [`improve-codebase-architecture`](skills/improve-codebase-architecture/SKILL.md) | Consolidate shallow modules into deep ones — fight entropy |
+| [`improve-codebase-architecture`](skills/improve-codebase-architecture/SKILL.md) | Consolidate shallow modules into deep ones: fight entropy |
 | [`authoring-skills`](skills/authoring-skills/SKILL.md) | Maintain the pack itself, test-first, audited |
 
 </details>
 
 <details>
-<summary><b>Domain skills (12)</b> — cross-cutting craft pulled in during the phases</summary>
+<summary><b>Domain skills (12)</b>: cross-cutting craft pulled in during the phases</summary>
 
 | Skill | One line |
 |---|---|
@@ -354,21 +354,21 @@ trigger lint.
 | [`shipping`](skills/shipping/SKILL.md) | PR-ready ≠ release-ready: checklist, staged rollout, rollback thresholds |
 | [`documentation`](skills/documentation/SKILL.md) | ADRs for the *why*; supersede, don't mutate |
 | ↳ [`doc-contracts.md`](skills/documentation/doc-contracts.md) | (in `documentation`) Hierarchical AGENTS.md tree: local contracts walked before editing, updated in the same commit |
-| [`prototyping`](skills/prototyping/SKILL.md) | Throwaway code that answers ONE question — a spike, captured, then moved off `main` to a `prototype/<name>` branch (never kept as production) |
-| [`minimal-code`](skills/minimal-code/SKILL.md) | The lazy-senior-dev ladder — write only what's needed (stdlib/native/one line) and never cut safety (the `/devmode lean` discipline) |
+| [`prototyping`](skills/prototyping/SKILL.md) | Throwaway code that answers ONE question: a spike, captured, then moved off `main` to a `prototype/<name>` branch (never kept as production) |
+| [`minimal-code`](skills/minimal-code/SKILL.md) | The lazy-senior-dev ladder: write only what's needed (stdlib/native/one line) and never cut safety (the `/devmode lean` discipline) |
 | [`context-engineering`](skills/context-engineering/SKILL.md) | Curate the working set; minimal briefs; clean handoffs that survive compaction |
 | ↳ [`source-of-truth.md`](skills/context-engineering/source-of-truth.md) | (in `context-engineering`) Check the installed version and real docs, not training-data memory |
-| [`visual-explainers`](skills/visual-explainers/SKILL.md) | Inline SVG/HTML visuals (diagram, chart, mockup) that render in chat — themed, accessible, not clipped |
+| [`visual-explainers`](skills/visual-explainers/SKILL.md) | Inline SVG/HTML visuals (diagram, chart, mockup) that render in chat: themed, accessible, not clipped |
 
 </details>
 
 <details>
-<summary><b>Meta skills (3)</b> — self-evaluation and adoption</summary>
+<summary><b>Meta skills (3)</b>: self-evaluation and adoption</summary>
 
 | Skill | One line |
 |---|---|
-| [`self-scorecard`](skills/self-scorecard/SKILL.md) | The agent judges its own work each phase: 0–10 on Correctness, Design, Testing, Safety, Clarity — with deltas and trend |
-| [`discovery`](skills/discovery/SKILL.md) | Reverse-engineer an existing codebase into the starting artifacts (🟢 confirmed / 🟡 inferred / 🔴 gap) — the `/devmode adopt` engine |
+| [`self-scorecard`](skills/self-scorecard/SKILL.md) | The agent judges its own work each phase: 0–10 on Correctness, Design, Testing, Safety, Clarity, with deltas and trend |
+| [`discovery`](skills/discovery/SKILL.md) | Reverse-engineer an existing codebase into the starting artifacts (🟢 confirmed / 🟡 inferred / 🔴 gap): the `/devmode adopt` engine |
 | [`goal-brief`](skills/goal-brief/SKILL.md) | Turn a spec into a cross-host `/goal`/`/plan` command, budget-checked to ≤3800 chars |
 
 </details>
@@ -377,25 +377,25 @@ trigger lint.
 
 | Agent | Role |
 |---|---|
-| [`design-architect`](.agents/design-architect.md) | The strategist — interfaces, module boundaries, core/shell split |
+| [`design-architect`](.agents/design-architect.md) | The strategist: interfaces, module boundaries, core/shell split |
 | [`requirements-planner`](.agents/requirements-planner.md) | Runs the grill, maintains the language, writes the PRD |
-| [`tdd-implementer`](.agents/tdd-implementer.md) | The tactical programmer — failing test first, small steps, evidence-gated handoff |
+| [`tdd-implementer`](.agents/tdd-implementer.md) | The tactical programmer, failing test first, small steps, evidence-gated handoff |
 | [`architecture-refactorer`](.agents/architecture-refactorer.md) | Hunts shallow modules, consolidates into deep ones |
-| [`complexity-reviewer`](.agents/complexity-reviewer.md) | The entropy guard — leads the review panel |
+| [`complexity-reviewer`](.agents/complexity-reviewer.md) | The entropy guard: leads the review panel |
 | [`code-quality-analyzer`](.agents/code-quality-analyzer.md) | Review lane: readability, duplication, naming |
 | [`security-scanner`](.agents/security-scanner.md) | Review lane: vulnerabilities, secret leakage, authz, control bypasses |
 | [`test-coverage-analyzer`](.agents/test-coverage-analyzer.md) | Review lane: untested behaviors, edges, adversarial inputs |
 
-The last three run **in parallel as fresh subagents** after implementation —
+The last three run **in parallel as fresh subagents** after implementation:
 independent eyes that consistently catch what the author cannot see (see the
 case study below).
 
 ## Self-evaluation: scorecard & dashboard
 
-- **`scripts/scorecard.py`** — the agent records a 0–10 self-judgment on five
+- **`scripts/scorecard.py`**: the agent records a 0–10 self-judgment on five
   criteria per phase (with a one-line summary and per-criterion notes); history
   lives in `.devmode/scorecard.json`, rendered with deltas and a trend.
-- **`scripts/dashboard.py`** — generates a **single self-contained
+- **`scripts/dashboard.py`**: generates a **single self-contained
   `devmode-dashboard.html`** (no server, no registration, no JS build): a KPI
   strip (overall, band, phases, tracks, tasks, ADRs, gates), a **workflow
   pipeline** of the seven phases (reached / current), a **per-phase timeline**
@@ -404,7 +404,7 @@ case study below).
   CI gate script), per-track progress, and carried-forward next actions.
 
 ```bash
-python3 scripts/dashboard.py /path/to/project    # writes devmode-dashboard.html — just open it
+python3 scripts/dashboard.py /path/to/project    # writes devmode-dashboard.html, just open it
 ```
 
 ## Enforcement: gates that bite
@@ -415,18 +415,18 @@ hooks** (Python stdlib, fail-open, with tests), wired by `--with-guardrails`:
 | Hook | Event | What it does |
 |---|---|---|
 | [`guardrails.py`](integrations/conductor-beads/hooks/guardrails.py) | PreToolUse | **Blocks** `sudo`, force-push, `--no-verify`, `rm -rf` at root, writes to `.env`/`.git`/secrets; **asks** on `reset --hard`, scoped `rm -rf`, secret reads |
-| [`verify_gate.py`](integrations/conductor-beads/hooks/verify_gate.py) | Stop | Blocks ending a turn after a rebuild/deploy/restart/`.env` change **with no fresh end-to-end check after it** — `verification-before-completion`, enforced |
+| [`verify_gate.py`](integrations/conductor-beads/hooks/verify_gate.py) | Stop | Blocks ending a turn after a rebuild/deploy/restart/`.env` change **with no fresh end-to-end check after it**: `verification-before-completion`, enforced |
 | [`devmode_phase_gate.py`](integrations/conductor-beads/hooks/devmode_phase_gate.py) | Stop | Enforces the ceremony: auto-refreshes the dashboard from the scorecard and blocks a full `/devmode` turn that bypassed the orchestrator |
-| [`session_resume.py`](integrations/conductor-beads/hooks/session_resume.py) | SessionStart | Injects a **warm-resume** hint (last phase, score, active track, next action) from `.devmode/scorecard.json` — read-only, fail-open (a fresh session starts where the loop left off) |
+| [`session_resume.py`](integrations/conductor-beads/hooks/session_resume.py) | SessionStart | Injects a **warm-resume** hint (last phase, score, active track, next action) from `.devmode/scorecard.json`: read-only, fail-open (a fresh session starts where the loop left off) |
 
-Conscious overrides exist (`VERIFY-OK: <reason>` / `DEVMODE-OK: <reason>`) — the
+Conscious overrides exist (`VERIFY-OK: <reason>` / `DEVMODE-OK: <reason>`): the
 gates force the *decision* to skip to be explicit, never silent.
 
 Codex uses `.codex/hooks/codex_hooks.py` as an adapter over the same gates.
 Project-local Codex hooks run only after the project is trusted and the hook
 definitions are trusted in `/hooks`. One behavior differs by necessity: Codex has
 no interactive *ask*, so the guardrail's three ask-rules become a **deny** with a
-third override — the agent must confirm with you and then re-run the command
+third override; the agent must confirm with you and then re-run the command
 carrying `# DEVMODE-GUARDRAIL-OK`. The deny **is** the confirmation prompt; the
 deny-only rules (`sudo`, force-push, `--no-verify`, `rm -rf /`, secret writes)
 have no override on either host.
@@ -437,13 +437,13 @@ The base stays clean; experiments live in **`workspaces/`** (gitignored scratch)
 Copy the base in, run the experiment, **bring back only the learnings**.
 
 The shipped process was battle-tested on **Teamflow**, a SaaS lab project driven
-end-to-end through the full workflow — 6 tracks, 67 tests, every skill and agent
+end-to-end through the full workflow: 6 tracks, 67 tests, every skill and agent
 exercised. The independent review panel caught real bugs the implementer missed
 **in every track**, including: a quota bypass via caller-supplied limits, a
 quota-replay via a corrupt *future-dated* period, a CI glob that silently skipped
 the new file (green gate, vacuous pass), a rotated key *born revoked*, and an
 unauthorized-rotation DoS. Each finding was fixed, re-verified, and **distilled
-back into the base skills** — most visibly the
+back into the base skills**: most visibly the
 [control checklist](skills/security-hardening/SKILL.md) (the track designed
 against it up front survived review with zero findings) and the loop-back
 discipline (a requirement change was absorbed by superseding an ADR, not by a
@@ -484,17 +484,17 @@ The process is a synthesis of long-standing fundamentals, applied to AI-assisted
 development (full essay: [`references/foundations.md`](references/foundations.md);
 diagnostic table: [`references/failure-modes.md`](references/failure-modes.md)):
 
-- *A Philosophy of Software Design* — John Ousterhout (complexity, deep modules)
-- *The Pragmatic Programmer* — Hunt & Thomas (entropy, feedback, headlights)
-- *The Design of Design* — Frederick P. Brooks (the shared design concept)
-- *Domain-Driven Design* — Eric Evans (ubiquitous language)
+- *A Philosophy of Software Design*: John Ousterhout (complexity, deep modules)
+- *The Pragmatic Programmer*: Hunt & Thomas (entropy, feedback, headlights)
+- *The Design of Design*: Frederick P. Brooks (the shared design concept)
+- *Domain-Driven Design*: Eric Evans (ubiquitous language)
 - Kent Beck (TDD; invest in the design every day)
-- Gary Bernhardt — "Boundaries" (functional core, imperative shell)
+- Gary Bernhardt: "Boundaries" (functional core, imperative shell)
 
 ## Acknowledgments & attribution
 
 devmode's core process is original, but many skills were **adapted** (reframed,
-generalized, cross-wired — not copied verbatim) from excellent open-source
+generalized, cross-wired, not copied verbatim) from excellent open-source
 projects. Full per-artifact mapping with licenses:
 [`ATTRIBUTION.md`](ATTRIBUTION.md). Thank you to all of them:
 
@@ -512,38 +512,38 @@ projects. Full per-artifact mapping with licenses:
 | [khendzel/skills-janitor](https://github.com/khendzel/skills-janitor) | description-overlap detection + trigger lint in the auditor | MIT |
 | [sandeco/reversa](https://github.com/sandeco/reversa) | the discovery pipeline (Scout/Soul/Detective/Architect, 🟢🟡🔴) | MIT |
 | [agent0ai/dox](https://github.com/agent0ai/dox) | the doc-contracts AGENTS.md tree (pre-edit traversal, post-edit pass) | MIT |
-| [mattpocock/skills](https://github.com/mattpocock/skills) | **the sibling project** — same thesis & four failure modes; `prototyping` (spike) + the `context-engineering` handoff details; plus tautological tests (`testing-principles`), conflict resolution (`git-workflow`), leading words + steer-by-the-positive (`authoring-skills`), the red-capable repro loop (`systematic-debugging`), the deletion test (`improve-codebase-architecture`), design-it-twice (`design-interface-delegate-implementation`), terms-in-use dialogue (`ubiquitous-language`), ask-in-rounds/frontier + facts-are-your-job (`grill-me`); v2: ticket slicing (`write-prd/tickets.md`), wayfinding for multi-session efforts (`grill-me/wayfinding.md`), check-before-you-grill (`grill-me`), the human-steps script (`shipping`) | MIT |
+| [mattpocock/skills](https://github.com/mattpocock/skills) | **the sibling project**: same thesis & four failure modes; `prototyping` (spike) + the `context-engineering` handoff details; plus tautological tests (`testing-principles`), conflict resolution (`git-workflow`), leading words + steer-by-the-positive (`authoring-skills`), the red-capable repro loop (`systematic-debugging`), the deletion test (`improve-codebase-architecture`), design-it-twice (`design-interface-delegate-implementation`), terms-in-use dialogue (`ubiquitous-language`), ask-in-rounds/frontier + facts-are-your-job (`grill-me`); v2: ticket slicing (`write-prd/tickets.md`), wayfinding for multi-session efforts (`grill-me/wayfinding.md`), check-before-you-grill (`grill-me`), the human-steps script (`shipping`) | MIT |
 | [notque/vexjoy-agent](https://github.com/notque/vexjoy-agent) | the `/do` plain-English task-router (Route→Plan→Execute→Verify→Deliver, evidence over assertions) | MIT |
 | [notque/claude-code-starter-kit](https://github.com/notque/claude-code-starter-kit) | the SessionStart warm-resume hook (more lifecycle events; LLM-orchestrates / scripts-execute) | MIT |
-| loop-engineering essays — [Osmani](https://addyosmani.com/blog/loop-engineering/), [Autocomplete](https://medium.com/autocomplete-real-world-ai/wtf-is-a-agentic-coding-loop-and-how-to-build-one-58eedb7cbcae), [Greyling](https://cobusgreyling.medium.com/loop-engineering-62926dd6991c) | the maker/checker split, "comprehension debt", worktree isolation reinforcements | (essays) |
-| [cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering) | `code-review` — the green-by-deletion tripwire (a fix that disables/comments the test it should satisfy is an automatic finding), from its `loop-verifier` gate (concept only; none of its npm CLIs / MCP server / scheduler) | MIT |
+| loop-engineering essays: [Osmani](https://addyosmani.com/blog/loop-engineering/), [Autocomplete](https://medium.com/autocomplete-real-world-ai/wtf-is-a-agentic-coding-loop-and-how-to-build-one-58eedb7cbcae), [Greyling](https://cobusgreyling.medium.com/loop-engineering-62926dd6991c) | the maker/checker split, "comprehension debt", worktree isolation reinforcements | (essays) |
+| [cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering) | `code-review`: the green-by-deletion tripwire (a fix that disables/comments the test it should satisfy is an automatic finding), from its `loop-verifier` gate (concept only; none of its npm CLIs / MCP server / scheduler) | MIT |
 | [k-kolomeitsev/data-structure-protocol](https://github.com/k-kolomeitsev/data-structure-protocol) | impact-analysis (reverse edges, why-per-edge) | Apache-2.0 |
 | [SuperClaude-Org/SuperClaude_Framework](https://github.com/SuperClaude-Org/SuperClaude_Framework) | confidence-check, design-critique panels, agent boundary sections | MIT |
 | [NguyenSiTrung/Conductor-Beads](https://github.com/NguyenSiTrung/Conductor-Beads) | the upstream Conductor+Beads toolkit (cloned at install time with `--with-conductor`, never vendored here) | Apache-2.0 |
 | [cowwoc/cat](https://github.com/cowwoc/cat) | subagent-delegation *concepts* only (no files) | source-available |
-| [Karpathy's *LLM Wiki* gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) | the `integrations/llm-wiki/` module — LLM-maintained markdown knowledge base (pure markdown, app-free) | (gist) |
-| [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | the `minimal-code` skill + `/devmode lean` — the "lazy senior dev" minimalism ladder (concept only; none of its Node hooks / multi-agent packaging) | MIT |
-| [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) | `frontend-ui-engineering` — the "escape the AI aesthetic" craft (brief-inference, design dials, concrete tell-bans, consistency locks, motivated motion, redesign audit, pre-flight) + `verification-before-completion`'s output-completeness rule | MIT |
-| [bybren-llc/safe-agentic-workflow](https://github.com/bybren-llc/safe-agentic-workflow) | `code-review` — the immutable gate-independence rule; `minimal-code` — the search-first / reuse-before-create rung | MIT |
-| [ruvnet/agent-harness-generator](https://github.com/ruvnet/agent-harness-generator) | `discovery` — the **readiness read** (test-safety-net + operational → a recommended first move, from its pre-scaffold `genome`); `security-hardening` — the scan-before-you-share secrets reflex (concepts only; none of its WASM kernel / witness-signing / multi-host infra) | MIT |
-| [vinilana/dotcontext](https://github.com/vinilana/dotcontext) | `verification-before-completion` — declare-and-confirm the task's promised deliverables before "done" (concept only; none of its MCP / runtime / tree-sitter / replay app) | MIT |
-| [stanford-oval/storm](https://github.com/stanford-oval/storm) | `grill-me` + `design-critique` — STORM/Co-STORM's perspective-guided, cite-everything research grounding, folded into existing skills (no new command; an equivalent deep-research capability already exists outside this pack) | MIT |
-| [bitjaru/styleseed](https://github.com/bitjaru/styleseed) | `ux-design` — the 2:1 proximity ratio (within-group spacing ≤ half the between-group gap, so grouping is checkable, not implied); concept only, none of its React/Tailwind component library or `npx` installer | MIT |
-| [context-labs/halo](https://github.com/context-labs/halo) | `systematic-debugging` — treat a diagnostic's claims as evidence, not directive (verify a tool/agent's path/line/"missing-X" assertions before acting; re-search by concept), from its `halo-loop` skill; concept only, none of its RLM engine / trace runtime / OTel-JSONL format | MIT |
-| [affaan-m/ecc](https://github.com/affaan-m/ecc) | `grill-me` — anti-anchoring context isolation (dispatch each perspective subagent with only the question + minimal context, never your running conversation or stated leaning, or it mirrors your position back), from its `council` skill; concept only, none of its continuous-learning runtime / scanner / panel app | MIT |
-| [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | `code-review` — independence is temporal (read the diff before the author's framing); `ux-design` — cap what the eye must hold (~4 items + progressive disclosure) | Apache-2.0 |
-| [NanoNets/Graft](https://github.com/NanoNets/Graft) | `documentation` — anchor code references on the durable symbol + excerpt, not `file:line`; `api-design` — design for the consumer's selection model (agents pick by name) | MIT |
-| [lopopolo/harness-engineering](https://github.com/lopopolo/harness-engineering) | `architecture-boundaries` — a boundary owns validity (parse, don't validate); `systematic-debugging` — fix the class, not just the line; `code-review` — the loop has to converge; `context-engineering` — latest-reliable-point + test the handoff cold; `feedback-loops` — never pre-pipe a gate through `head`/`tail`; `migration` — retired code is precedent, ratchet it out | **CC-BY-4.0** |
-| [Nutlope/hallmark](https://github.com/Nutlope/hallmark) | `ux-design` — content integrity (never fabricate a stat to fill a slot) + interface copy (buttons, errors, empty states, loading, placeholders); `security-hardening` — instructions-in-ingested-content, SSRF allow/deny | MIT |
-| [microsoft/SkillOpt](https://github.com/microsoft/SkillOpt) | `authoring-skills` — editing is not just adding (re-run a scenario the skill already handled; try an unseen case) + consolidate, don't just patch | MIT |
+| [Karpathy's *LLM Wiki* gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) | the `integrations/llm-wiki/` module: LLM-maintained markdown knowledge base (pure markdown, app-free) | (gist) |
+| [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | the `minimal-code` skill + `/devmode lean`: the "lazy senior dev" minimalism ladder (concept only; none of its Node hooks / multi-agent packaging) | MIT |
+| [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) | `frontend-ui-engineering`: the "escape the AI aesthetic" craft (brief-inference, design dials, concrete tell-bans, consistency locks, motivated motion, redesign audit, pre-flight) + `verification-before-completion`'s output-completeness rule | MIT |
+| [bybren-llc/safe-agentic-workflow](https://github.com/bybren-llc/safe-agentic-workflow) | `code-review`: the immutable gate-independence rule; `minimal-code`: the search-first / reuse-before-create rung | MIT |
+| [ruvnet/agent-harness-generator](https://github.com/ruvnet/agent-harness-generator) | `discovery`: the **readiness read** (test-safety-net + operational → a recommended first move, from its pre-scaffold `genome`); `security-hardening`: the scan-before-you-share secrets reflex (concepts only; none of its WASM kernel / witness-signing / multi-host infra) | MIT |
+| [vinilana/dotcontext](https://github.com/vinilana/dotcontext) | `verification-before-completion`: declare-and-confirm the task's promised deliverables before "done" (concept only; none of its MCP / runtime / tree-sitter / replay app) | MIT |
+| [stanford-oval/storm](https://github.com/stanford-oval/storm) | `grill-me` + `design-critique`: STORM/Co-STORM's perspective-guided, cite-everything research grounding, folded into existing skills (no new command; an equivalent deep-research capability already exists outside this pack) | MIT |
+| [bitjaru/styleseed](https://github.com/bitjaru/styleseed) | `ux-design`: the 2:1 proximity ratio (within-group spacing ≤ half the between-group gap, so grouping is checkable, not implied); concept only, none of its React/Tailwind component library or `npx` installer | MIT |
+| [context-labs/halo](https://github.com/context-labs/halo) | `systematic-debugging`: treat a diagnostic's claims as evidence, not directive (verify a tool/agent's path/line/"missing-X" assertions before acting; re-search by concept), from its `halo-loop` skill; concept only, none of its RLM engine / trace runtime / OTel-JSONL format | MIT |
+| [affaan-m/ecc](https://github.com/affaan-m/ecc) | `grill-me`: anti-anchoring context isolation (dispatch each perspective subagent with only the question + minimal context, never your running conversation or stated leaning, or it mirrors your position back), from its `council` skill; concept only, none of its continuous-learning runtime / scanner / panel app | MIT |
+| [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | `code-review`: independence is temporal (read the diff before the author's framing); `ux-design`; cap what the eye must hold (~4 items + progressive disclosure) | Apache-2.0 |
+| [NanoNets/Graft](https://github.com/NanoNets/Graft) | `documentation`: anchor code references on the durable symbol + excerpt, not `file:line`; `api-design`: design for the consumer's selection model (agents pick by name) | MIT |
+| [lopopolo/harness-engineering](https://github.com/lopopolo/harness-engineering) | `architecture-boundaries`: a boundary owns validity (parse, don't validate); `systematic-debugging`; fix the class, not just the line; `code-review`; the loop has to converge; `context-engineering`: latest-reliable-point + test the handoff cold; `feedback-loops`, never pre-pipe a gate through `head`/`tail`; `migration`; retired code is precedent, ratchet it out | **CC-BY-4.0** |
+| [Nutlope/hallmark](https://github.com/Nutlope/hallmark) | `ux-design`: content integrity (never fabricate a stat to fill a slot) + interface copy (buttons, errors, empty states, loading, placeholders); `security-hardening`: instructions-in-ingested-content, SSRF allow/deny | MIT |
+| [microsoft/SkillOpt](https://github.com/microsoft/SkillOpt) | `authoring-skills`, editing is not just adding (re-run a scenario the skill already handled; try an unseen case) + consolidate, don't just patch | MIT |
 | [clawnify/greybeard](https://github.com/clawnify/greybeard) | 9 senior-judgment maxims across `source-of-truth`, `impact-analysis`, `ubiquitous-language`, `grill-me` (disagree out loud), `minimal-code` (the surgical rule), `confidence-check`, `verification-before-completion`, `context-engineering`, `systematic-debugging` | MIT |
-| [UditAkhourii/adhd](https://github.com/UditAkhourii/adhd) | **`divergent-ideation.md`** (in `design-critique`) — generate a wide candidate set for an open decision before choosing (concept only; none of its library/CLI or 0–10 scoring) | MIT |
-| [AaravKashyap12/advise-project-approach](https://github.com/AaravKashyap12/advise-project-approach) | the **`prior-art`** skill — does it already exist? (buy/adopt/build), fit-over-stars comparable bias controls, cost at three horizons, and the "when this becomes wrong" trade-off; plus `discovery`'s read-only-inspection boundary (reviewing a repo ≠ permission to run its code) and its inspection scope note (also sharpened `design-critique` + `minimal-code`) | MIT |
-| [UditAkhourii/neuroarxiv](https://github.com/UditAkhourii/neuroarxiv) | `prior-art`'s escalation rung — when nothing shipped exists, read the research literature: a 3-question cost gate, one isolated reader per paper, converge on ONE path with citations | MIT |
+| [UditAkhourii/adhd](https://github.com/UditAkhourii/adhd) | **`divergent-ideation.md`** (in `design-critique`): generate a wide candidate set for an open decision before choosing (concept only; none of its library/CLI or 0–10 scoring) | MIT |
+| [AaravKashyap12/advise-project-approach](https://github.com/AaravKashyap12/advise-project-approach) | the **`prior-art`** skill: does it already exist? (buy/adopt/build), fit-over-stars comparable bias controls, cost at three horizons, and the "when this becomes wrong" trade-off; plus `discovery`'s read-only-inspection boundary (reviewing a repo ≠ permission to run its code) and its inspection scope note (also sharpened `design-critique` + `minimal-code`) | MIT |
+| [UditAkhourii/neuroarxiv](https://github.com/UditAkhourii/neuroarxiv) | `prior-art`'s escalation rung, when nothing shipped exists, read the research literature: a 3-question cost gate, one isolated reader per paper, converge on ONE path with citations | MIT |
 
 devmode and [mattpocock/skills](https://github.com/mattpocock/skills) are
 **siblings**: both were distilled from the thesis in Matt Pocock's *"Claude Code
-for real engineers"* talk — that AI is a brilliant tactician with no strategy, so
+for real engineers"* talk, that AI is a brilliant tactician with no strategy, so
 *you* must supply it. devmode generalized that thesis into a tool-agnostic process
 (32 skills, agents, enforced gates, memory, scorecard/dashboard) combined with the
 reading list above.
@@ -551,11 +551,11 @@ reading list above.
 ## Author
 
 devmode is written and maintained by **Gabriel Sorrentino**
-([LinkedIn](https://www.linkedin.com/in/gabriel-sorrentino/)) —
+([LinkedIn](https://www.linkedin.com/in/gabriel-sorrentino/)):
 [fluencerai.com](https://fluencerai.com) · <gabriel@fluencerai.com>.
 
 ## License
 
 [MIT](LICENSE). Adapted skills retain their original attributions in
-[`ATTRIBUTION.md`](ATTRIBUTION.md) — if you are an author there and want a
+[`ATTRIBUTION.md`](ATTRIBUTION.md), if you are an author there and want a
 correction, please open an issue.

@@ -19,7 +19,7 @@ Overlap and clipping come from eyeballing coordinates. Compute them:
   two boxes; with N=4, g=16, the center (x=340) sits in the gap between box 2
   (…332) and box 3 (348…). Verify, don't assume.
 
-### Copyable skeleton — a 3-tier structural diagram
+### Copyable skeleton: a 3-tier structural diagram
 
 This is the exact pattern behind a clean "layers → filter → output" architecture
 diagram. Adapt labels; keep the structure.

@@ -1,11 +1,11 @@
-# workspaces/ — disposable experiment space
+# workspaces/: disposable experiment space
 
 **The devmode base (everything outside this folder) is reused across projects and
 must stay clean.** Never experiment in the base directly. Do it here.
 
 ## How to use
 
-1. **Copy the base into a workspace** — easiest via the installer:
+1. **Copy the base into a workspace**: easiest via the installer:
    ```bash
    integrations/conductor-beads/install.sh workspaces/<experiment-name>
    ```
@@ -20,6 +20,6 @@ must stay clean.** Never experiment in the base directly. Do it here.
 
 ## Rules
 
-- Everything here is **gitignored** (see `.gitignore`) — scratch is never committed.
+- Everything here is **gitignored** (see `.gitignore`): scratch is never committed.
 - The source of truth is always the base, never a workspace copy.
 - One workspace per experiment; delete it when done.

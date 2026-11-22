@@ -12,7 +12,7 @@ disable-model-invocation: true
 
 A PRD here is not a wish list of features. It is where you **invest in the
 design of the system** (Kent Beck: do this every day). "Specs-to-code" fails
-because it divests from design — it describes behavior and lets the compiler
+because it divests from design: it describes behavior and lets the compiler
 invent the structure, which decays a little more every run. A good PRD does the
 opposite: it commits to *what behavior is needed* and *how the system's
 structure changes to support it*, so implementation has a spine to follow. The
@@ -39,7 +39,7 @@ the `tdd` loop drives.
 ## Structure
 
 Use this template (a ready-to-copy version lives at `assets/prd-template.md`).
-Keep each section tight — a PRD earns its length by being specific, not long.
+Keep each section tight: a PRD earns its length by being specific, not long.
 
 ```markdown
 # PRD: <feature name>
@@ -53,7 +53,7 @@ from grilling, stated plainly so a reader new to the conversation gets it.
 
 ## Scope
 - In scope: ...
-- Out of scope: ... (be explicit — boundaries prevent drift)
+- Out of scope: ... (be explicit: boundaries prevent drift)
 
 ## Behavior
 The observable behavior, written as concrete scenarios:
@@ -63,9 +63,9 @@ The observable behavior, written as concrete scenarios:
 
 ## Module & interface changes   <-- the heart of the PRD
 For each affected module (named by module, never by file path):
-- **<Module>** — purpose of the change. New or modified?
+- **<Module>**: purpose of the change. New or modified?
   - Interface: the public surface that changes (signatures, types, events,
-    endpoints). Design this carefully — it's the contract you'll test against.
+    endpoints). Design this carefully: it's the contract you'll test against.
   - Implementation notes: only what constrains the design (invariants,
     performance, data shape). Leave routine implementation to the builder.
   - Seam: what crosses in and out, and what stays hidden inside.
@@ -85,7 +85,7 @@ Anything still unresolved, and what would resolve it.
 ## Why the module & interface section matters most
 
 The AI is a strong tactical programmer but a weak strategist. If the PRD only
-describes user-facing behavior, the AI invents the structure — and it tends
+describes user-facing behavior, the AI invents the structure, and it tends
 toward shallow modules and entropy. By naming the modules that change and
 designing their **interfaces** here, you set the strategy and let the AI fill
 the implementation. This is the same idea as
@@ -108,23 +108,23 @@ part, and note that it came from a prototype.
 
 ## Working style
 
-- Write in the ubiquitous language, and work from its **module map** — the
+- Write in the ubiquitous language, and work from its **module map**: the
   PRD's module & interface section should reference the modules named there, and
   if the change adds or reshapes a module, update that map as part of this work.
   If a needed term isn't in the glossary, add it there too.
 - Prefer the smallest design that satisfies the concept. Don't pre-build for
-  hypothetical futures — that's its own form of entropy.
+  hypothetical futures: that's its own form of entropy.
 - Surface trade-offs rather than silently resolving them; if a decision is the
   user's to make, list it under open questions.
 - **Make every resolved decision land.** A trade-off you settled (or an ADR) isn't
-  done when it's *recorded* — it's done when the behavior or module/interface
+  done when it's *recorded*: it's done when the behavior or module/interface
   section actually reflects it. Before approving, confirm each decision is
   referenced somewhere downstream, not stranded in a log (the decision-coverage
   check in `feedback-loops`).
-- Before approving a high-stakes PRD, pressure-test it with `design-critique` —
+- Before approving a high-stakes PRD, pressure-test it with `design-critique`:
   review it through several expert lenses and surface the trade-offs while it's
   still cheap (on paper).
-- When the PRD is approved, it becomes the brief for implementation — typically
+- When the PRD is approved, it becomes the brief for implementation: typically
   handed to `tdd` and the `tdd-implementer` agent. When it is more than one
   context's work, slice it into blocking-ordered tracer-bullet tickets first:
   read `tickets.md` in this folder.

@@ -10,7 +10,7 @@ disable-model-invocation: true
 
 # Ubiquitous language
 
-Verbose, drifting AI output usually isn't a reasoning problem — it's a language
+Verbose, drifting AI output usually isn't a reasoning problem: it's a language
 problem. When you and the model don't share precise terms for the domain, the
 model pads its thinking with circumlocution and translates intent through fuzzy
 synonyms, so the implementation drifts from the plan. This is the same gap a
@@ -18,7 +18,7 @@ developer hits with a domain expert in microchips or insurance or logistics:
 without shared vocabulary, every exchange is a lossy translation.
 
 Domain-Driven Design's answer is a **ubiquitous language**: a single set of
-terms, defined once, used everywhere — in conversation with the user, in the
+terms, defined once, used everywhere, in conversation with the user, in the
 AI's reasoning, and in the code itself. When the language is shared, the model
 thinks more tightly and the code it produces lines up with what was planned.
 
@@ -39,7 +39,7 @@ sub-domain, of the terms that matter. Use markdown tables so it stays scannable:
 | Dunning | The retry process after a failed payment | `DunningRun` | Max 4 attempts over 14 days |
 ```
 
-The `In code as` column is what makes the language *ubiquitous* — it ties each
+The `In code as` column is what makes the language *ubiquitous*: it ties each
 domain word to the concrete type, function, or module that represents it, so
 the term means the same thing in a meeting and in a file.
 
@@ -54,7 +54,7 @@ architecture section, and it stays separate (below).
 
 1. **Scan the codebase first.** Read module names, type names, key function
    names, database tables, and existing docs. The vocabulary already in use is
-   the starting point — capture it before inventing anything.
+   the starting point: capture it before inventing anything.
 2. **Extract the real terms.** Pull out the nouns and verbs that carry domain
    meaning. Skip generic plumbing (`Controller`, `Service`, `Helper`) and general
    programming concepts (timeouts, error types) unless they carry a meaning
@@ -67,7 +67,7 @@ architecture section, and it stays separate (below).
    keep the best word and list the others as _Avoid_. Divergent terms for one
    concept are a smell worth surfacing to the user.
 5. **Note relationships.** Where one term is defined in relation to another
-   (a Seat belongs to a Subscription), say so — that's the domain model leaking
+   (a Seat belongs to a Subscription), say so: that's the domain model leaking
    through, which is exactly what you want.
 
 ## Sharpen it during the session
@@ -90,17 +90,17 @@ The glossary is built in conversation, not after it. While planning or grilling:
   glossary next to the terms it clarifies:
 
   > **Dev:** When a customer places an Order, do we create the Invoice then?
-  > **Expert:** No — an Invoice is only generated once a Shipment is confirmed. A
+  > **Expert:** No: an Invoice is only generated once a Shipment is confirmed. A
   > single Order can produce several Invoices if items ship separately.
   > **Dev:** So a Shipment cancelled before dispatch has no Invoice?
-  > **Expert:** Right — the Invoice is tied to the Shipment, not the Order.
+  > **Expert:** Right: the Invoice is tied to the Shipment, not the Order.
 
 - **Write it down inline.** Update the glossary the moment a term is resolved;
   don't batch.
 
 ## Don't let a primitive delete the domain concept
 
-Reusing a primitive one layer down — a token, a link, a session, a cache key — is
+Reusing a primitive one layer down (a token, a link, a session, a cache key) is
 a virtue right up until it erases the thing the feature is actually about. The
 trap is fusing a **property the feature requires** (email-binding, single-use,
 consent) with an **implementation that happens to carry it today** (an auth link,
@@ -113,10 +113,10 @@ key is not a job; a session is not an audit trail.
 
 The tell is **lifecycle**. When the concept must be revoked, resent, expired on
 its own clock, run several at once, or record who accepted and when, that
-lifecycle *is* a domain term — it belongs in the glossary as a first-class entry
+lifecycle *is* a domain term: it belongs in the glossary as a first-class entry
 with its own status invariant (e.g. `requested → active / declined`), not smuggled
 into a primitive that can't hold those states. Adding a well-chosen, durable term
-is the *deep* move here — the counterweight to reuse (`minimal-code`), not a
+is the *deep* move here: the counterweight to reuse (`minimal-code`), not a
 contradiction of it.
 
 ## The module map: the architecture side of the language

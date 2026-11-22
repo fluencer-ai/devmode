@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""devmode_phase_gate.py — devmode Stop hook that ENFORCES the devmode ceremony
+"""devmode_phase_gate.py: devmode Stop hook that ENFORCES the devmode ceremony
 that CLAUDE.md text alone loses under pressure (the "I skipped it" failure).
 
 Two enforcements, both keyed off the transcript (deterministic, not vibes):
@@ -7,7 +7,7 @@ Two enforcements, both keyed off the transcript (deterministic, not vibes):
   1) DASHBOARD AUTO-REFRESH (side effect, never blocks): if a project's
      `.devmode/scorecard.json` is newer than its `devmode-dashboard.html`
      (or the HTML is missing), regenerate the dashboard via `.devmode/dashboard.py`.
-     The agent can no longer "forget" to refresh it — the gate does it at turn end.
+     The agent can no longer "forget" to refresh it: the gate does it at turn end.
 
   2) ORCHESTRATOR DELEGATION on a full `/devmode` turn (blocks): if THIS turn's
      user prompt invoked `/devmode` in a phase-driving mode (blank resume,
@@ -18,7 +18,7 @@ Two enforcements, both keyed off the transcript (deterministic, not vibes):
 Stop-hook protocol: JSON on stdin {transcript_path, stop_hook_active, cwd, ...}.
   - Block: print {"decision":"block","reason":"..."} to stdout, exit 0.
   - Allow: exit 0 with no output.
-  - NEVER hard-fail: on any error, allow (exit 0) — a gate must not break sessions.
+  - NEVER hard-fail: on any error, allow (exit 0); a gate must not break sessions.
 """
 from __future__ import annotations
 
@@ -29,11 +29,11 @@ import subprocess
 import sys
 
 # /devmode invocation marker in a user message (command tag or injected body).
-CMD_MARK = re.compile(r"<command-name>/?devmode</command-name>|/devmode\s+—\s+guided mode")
+CMD_MARK = re.compile(r"<command-name>/?devmode</command-name>|/devmode\s*(?:\u2014|:)\s+guided mode")
 # Modes that run inline. Lean only runs inline for its goal/plan variants.
 # The token must END the argument or be followed by a space: `\b` also fires on
-# punctuation, so `wiki-like docs feature` and `goal: ship the beta` — bare ideas,
-# not modes — would silently skip the orchestrator gate.
+# punctuation, so `wiki-like docs feature` and `goal: ship the beta` (bare ideas,
+# not modes) would silently skip the orchestrator gate.
 INLINE = re.compile(r"^(c|do|wiki|update|goal|plan)(\s|$)", re.IGNORECASE)
 LEAN_INLINE = re.compile(r"^lean\s+(goal|plan)(\s|$)", re.IGNORECASE)
 OVERRIDE = re.compile(r"DEVMODE-OK:", re.IGNORECASE)
@@ -69,7 +69,7 @@ def iter_blocks(entry):
 
 
 def find_project(file_blobs, cwd):
-    """Locate the project dir that owns .devmode/scorecard.json — robust to the
+    """Locate the project dir that owns .devmode/scorecard.json: robust to the
     session being rooted somewhere else (the cwd-vs-project-root pitfall)."""
     cands = []
     if cwd:
@@ -159,7 +159,7 @@ def main() -> None:
                 elif typ == "assistant" and OVERRIDE.search(txt):
                     override_idx = i
 
-    # 1) keep the dashboard fresh — no excuses.
+    # 1) keep the dashboard fresh: no excuses.
     proj = find_project(file_blobs, cwd)
     if proj:
         refresh_dashboard(proj)
@@ -173,7 +173,7 @@ def main() -> None:
                 "🚦 devmode gate: you ran /devmode (phase-driving mode) and are "
                 "ending the turn WITHOUT having delegated to the devmode-orchestrator "
                 "agent. Drive the phase by delegating: "
-                "Task(subagent_type='devmode-orchestrator', ...) — do not embody the "
+                "Task(subagent_type='devmode-orchestrator', ...): do not embody the "
                 "process inline. If delegation genuinely does not apply this turn, "
                 "write in your text: DEVMODE-OK: <reason>."
             )

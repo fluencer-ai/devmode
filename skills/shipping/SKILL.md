@@ -37,20 +37,20 @@ project's ubiquitous language.
 
 ## Pre-launch checklist
 
-Before releasing, confirm (with evidence, not assumption —
+Before releasing, confirm (with evidence, not assumption:
 `verification-before-completion`):
 
-- **The gate passed** — build/types/lint/tests green in CI (`ci-cd.md`);
+- **The gate passed**: build/types/lint/tests green in CI (`ci-cd.md`);
   acceptance criteria met.
-- **Reviewed** — the `code-review` panel signed off; critical paths
+- **Reviewed**: the `code-review` panel signed off; critical paths
   (auth/money/security) reviewed in full.
-- **Config & secrets** — prod config set, secrets present and *not* in the
+- **Config & secrets**: prod config set, secrets present and *not* in the
   bundle/logs (`security-hardening`).
-- **Migrations ready** — schema changes are expand-contract and reversible
+- **Migrations ready**: schema changes are expand-contract and reversible
   (`migration`); backups exist.
-- **Observability** — logs, metrics, and alerts for the new path are in place, or
+- **Observability**: logs, metrics, and alerts for the new path are in place, or
   you're flying blind.
-- **Rollback plan** — you know *exactly* how to undo this (flag flip, redeploy
+- **Rollback plan**: you know *exactly* how to undo this (flag flip, redeploy
   previous, revert), and it's been thought through *before* you ship.
 
 ## Steps only a human can do
@@ -71,25 +71,25 @@ run unless it should become the repo's documented setup path.
 
 Don't expose 100% of users at once:
 
-- **Flag / canary / percentage rollout** — release to a small cohort first, watch,
+- **Flag / canary / percentage rollout**: release to a small cohort first, watch,
   then widen. Decouple deploy from release with a flag where you can.
-- **Define rollback thresholds up front** — the concrete error-rate / latency /
+- **Define rollback thresholds up front**: the concrete error-rate / latency /
   business-metric levels that trigger an automatic or immediate rollback. Decide
   them before launch, not during the incident.
-- **Watch the right signals** during ramp — not just "is it up", but the metrics
+- **Watch the right signals** during ramp, not just "is it up", but the metrics
   that show users are actually succeeding.
 
 ## After launch
 
-- **Verify in prod** — exercise the real path; confirm the metrics, don't assume.
+- **Verify in prod**: exercise the real path; confirm the metrics, don't assume.
 - **Tag + CHANGELOG** the release (`git-workflow`).
-- **Capture learnings** — what surprised you? Feed it back (the `self-scorecard`
+- **Capture learnings**: what surprised you? Feed it back (the `self-scorecard`
   retro, or an ADR).
 
 ## Red flags
 
 - Shipping straight to 100% with no canary/flag and no rollback.
-- "Tests pass, so ship" — skipping the prod-readiness checklist.
+- "Tests pass, so ship", skipping the prod-readiness checklist.
 - A PR with no before/after evidence, or a one-way door not called out as one.
 - No monitoring/alerts on the new path (can't tell if it's failing).
 - Rollback thresholds invented *during* the incident.

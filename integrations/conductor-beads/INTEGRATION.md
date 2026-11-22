@@ -1,30 +1,30 @@
-# devmode × Conductor-Beads — integration map
+# devmode × Conductor-Beads: integration map
 
 How the three pieces fit, and exactly where each devmode skill plugs into the
 Conductor lifecycle. Read this before running the combined flow.
 
-## The layering — devmode is the base, Conductor is the layer
+## The layering: devmode is the base, Conductor is the layer
 
 **devmode is the foundation.** It is the source of truth for *how* we build, and
-it is tool-agnostic — it stands alone with no Conductor and no Beads. **Conductor
+it is tool-agnostic: it stands alone with no Conductor and no Beads. **Conductor
 is mounted on top** to organize and persist that work. **Beads** optionally backs
 Conductor with durable memory. The layers stack on the base; they serve it, they
 do not replace it.
 
 ```
             ┌──────────────────────────────────────────────────────────┐
- memory     │  Beads — DAG, ready-tasks, notes survive compaction      │
+ memory     │  Beads: DAG, ready-tasks, notes survive compaction      │
  (optional) │  bd init · prime · ready · update · close · sync · dep   │
             └──────────────────────────────────────────────────────────┘
                               backs ▼
    ┌──────────────────────────────────────────────────────────────────┐
-   │  LAYER · Conductor — organizes & persists the work               │
+   │  LAYER · Conductor: organizes & persists the work               │
    │  tracks · spec/plan · /conductor-* lifecycle                     │
    │  conductor/workflow.md = task-lifecycle ADAPTER (defers to base) │
    └──────────────────────────────────────────────────────────────────┘
                               sits on ▼
  ┌═══════════════════════════════════════════════════════════════════════════┐
- ║ BASE · devmode — how we think, design, and test (source of truth)         ║
+ ║ BASE · devmode: how we think, design, and test (source of truth)         ║
  ║                                                                           ║
  ║ grill-me · ubiquitous-language · write-prd ·                              ║
  ║ prior-art · design-critique · functional-core-imperative-shell ·          ║
@@ -46,18 +46,18 @@ devmode = *design quality* (the base), Conductor = *execution organization* (the
 layer), Beads = *durable memory* (backing the layer). **When the layer's defaults
 conflict with the base, the base wins** (see "Frictions resolved" below).
 
-## Lifecycle map — devmode skill → Conductor phase → Beads action
+## Lifecycle map: devmode skill → Conductor phase → Beads action
 
 | # | Conductor phase | Run these devmode skills | Beads |
 |---|-----------------|--------------------------|-------|
 | 1 | `/conductor-setup` | Seed `UBIQUITOUS_LANGUAGE.md` (`ubiquitous-language`); fill `product.md`/`tech-stack.md` so feedback loops are real | `bd init` (or `--stealth`) |
-| 2 | **Before** `/conductor-newtrack` | **`grill-me`** — reach the shared design concept first. Do NOT let newtrack create an asset before alignment. | — |
-| 3 | `/conductor-newtrack` → `spec.md` | **`write-prd`** rigor: the spec's *module & interface* section is the heart; mark core/shell and gray-box/critical per `design-interface-delegate-implementation` + `functional-core-imperative-shell`. Before the spec, run **`prior-art`** on any load-bearing component — if it already exists as a product or an OSS project, that changes what the spec says. Pressure-test a high-stakes spec with **`design-critique`** before approving. | `bd create` epic + tasks; `bd dep add` for phase order (the design tree becomes a DAG) |
+| 2 | **Before** `/conductor-newtrack` | **`grill-me`**: reach the shared design concept first. Do NOT let newtrack create an asset before alignment. | - |
+| 3 | `/conductor-newtrack` → `spec.md` | **`write-prd`** rigor: the spec's *module & interface* section is the heart; mark core/shell and gray-box/critical per `design-interface-delegate-implementation` + `functional-core-imperative-shell`. Before the spec, run **`prior-art`** on any load-bearing component, if it already exists as a product or an OSS project, that changes what the spec says. Pressure-test a high-stakes spec with **`design-critique`** before approving. | `bd create` epic + tasks; `bd dep add` for phase order (the design tree becomes a DAG) |
 | 4 | → `plan.md` | Tasks fall out of the spec's modules; phase 1 = functional core, phase 2 = shell, critical paths flagged | tasks mapped in `metadata.json` |
 | 5 | `/conductor-implement` | **`confidence-check.md`** (in `verification-before-completion`) pre-flight → **`tdd`** + its **`testing-principles.md`** + **`feedback-loops`** per `workflow.md`; delegate gray-box implementations (**`subagent-driven-development`**, with **`external-cli.md`** for an external CLI); **`systematic-debugging`** when a test fails; **`verification-before-completion`** before any "done" | `bd prime`, `bd ready`, `bd update`/`close --continue`, `discovered-from` |
 | 6 | phase verification | **`feedback-loops`** (browser/types) + the **review panel** (`complexity-reviewer` leads; `code-quality-analyzer` / `security-scanner` / `test-coverage-analyzer` in parallel); record ADRs in `decisions.md` | epic notes (COMPLETED/IN PROGRESS/NEXT/KEY DECISIONS) + `bd sync` |
 | 7 | `/conductor-handoff` | WARM START: write the **design concept + ubiquitous-language/module-map deltas + next step** into the notes so a fresh session recovers strategy, not just status | `bd update --notes`, `bd sync` (beats the 30s debounce) |
-| 8 | `/conductor-revise` | When implementation reveals the design is wrong, fix the spec/interface — don't bend the implementation | `bd` status/dep updates |
+| 8 | `/conductor-revise` | When implementation reveals the design is wrong, fix the spec/interface: don't bend the implementation | `bd` status/dep updates |
 | 9 | `/conductor-refresh` / `/conductor-archive` | **`impact-analysis`** (blast radius) → **`improve-codebase-architecture`** to consolidate shallow modules; elevate learnings → `patterns.md` + `UBIQUITOUS_LANGUAGE.md` | `bd compact` |
 
 ## Guided mode: `/devmode` / `devmode` skill (the orchestrator)
@@ -66,8 +66,8 @@ You don't have to run the lifecycle by hand. The **`devmode-orchestrator`** agen
 invoked as `/devmode` in Claude Code and Codex Desktop (or selected as `devmode`
 through `/skills` in CLI/IDE), drives the entire map above for
 you:
-it does all the mechanical work — picking the phase, running the right
-skill/agent, the TDD loop, the review panel, bookkeeping, handoff — and pauses
+it does all the mechanical work (picking the phase, running the right
+skill/agent, the TDD loop, the review panel, bookkeeping, handoff) and pauses
 **only at the human decision gates**, which it presents as easy structured A/B/C
 choices with a recommendation.
 
@@ -82,7 +82,7 @@ choices with a recommendation.
   → REFACTOR  (impact-analysis → consolidate)  as needed
 ```
 
-It carries the **process**; you still make the **decisions** — but only the ones
+It carries the **process**; you still make the **decisions**, but only the ones
 that matter, made easy. It's a *thin conductor*: it delegates to the deep skills,
 never reimplements them (the imperative shell of the process). Definition lives in
 `agents/devmode-orchestrator.md`; the command in `commands/devmode.md`. Both are
@@ -143,7 +143,7 @@ Two cheap habits keep a long-horizon track resumable:
   fresh session both lean on this.
 - **WARM START handoff:** before stopping (or at a phase boundary / compaction),
   write a handoff that lets the next session resume *cold*: the design concept,
-  the current position, the single concrete next step, and any open decision —
+  the current position, the single concrete next step, and any open decision:
   into Beads notes (`bd update --notes … && bd sync`) or the file-based
   `STATE.md` digest. A good handoff carries *intent*, not just status, so the next
   session doesn't re-derive the plan.
@@ -152,7 +152,7 @@ Two cheap habits keep a long-horizon track resumable:
 
 devmode's skills *persuade* via prompts; that's right for design judgment but
 soft for hard safety rules. The optional **guardrails** add deterministic
-*enforcement* that survives prompt drift — Claude Code hooks plus a Codex hook
+*enforcement* that survives prompt drift: Claude Code hooks plus a Codex hook
 adapter that block a small set of dangerous operations regardless of what the
 agent intends.
 
@@ -167,17 +167,17 @@ agent intends.
   for Codex. `update.sh` re-wires every one of them, so a project installed
   before a gate existed gains it instead of carrying a refreshed-but-inert file.
 - **Rules** (first-match-wins, fail-open on any error):
-  - **deny** — `sudo`, force-push, `--no-verify`/hook bypass, `rm -rf /`~`*`,
+  - **deny**: `sudo`, force-push, `--no-verify`/hook bypass, `rm -rf /`~`*`,
     writes to `.git/`, `.env*`, `.ssh/`, `*.pem`, credentials/secrets.
-  - **ask** (user confirms) — `git reset --hard` / `clean -f` / `checkout .`,
+  - **ask** (user confirms): `git reset --hard` / `clean -f` / `checkout .`,
     scoped `rm -rf`, reading a likely secret file.
-  - **allow** (silent) — everything else; the common case stays frictionless.
+  - **allow** (silent), everything else; the common case stays frictionless.
 - **devmode-built, devmode-shaped:** the hook is a **pure functional core**
   (`evaluate(tool, input) -> decision`, tested in `hooks/test_guardrails.py`) +
-  a thin I/O shell — and was itself built test-first (the test caught a real
+  a thin I/O shell, and was itself built test-first (the test caught a real
   `.env`-detection bug). Adapted (lean, stdlib-only) from the R-rule engine in
-  `Chachamaru127/claude-code-harness` (MIT) — *patterns, not its Go binary*.
-- **Optional extension — agent-as-hook:** the harness also runs a cheap model on
+  `Chachamaru127/claude-code-harness` (MIT): *patterns, not its Go binary*.
+- **Optional extension: agent-as-hook:** the harness also runs a cheap model on
   every write to flag secrets/stubs. You can add that as a second `PreToolUse`
   hook that shells out to a fast model CLI; it's left out of the default install
   because it needs a model call (cost + a CLI dependency). Wire it only if you
@@ -186,7 +186,7 @@ agent intends.
 ## Prerequisites & honest costs
 
 - **Beads CLI** (`npm i -g @beads/bd`, or brew/go). bd ≥ 1.0 uses an **embedded
-  Dolt** engine by default — `bd init` just works, no server to run. (Only the
+  Dolt** engine by default: `bd init` just works, no server to run. (Only the
   opt-in `--server` mode needs an external `dolt sql-server`.) Verified on bd
   1.0.3: `bd init --stealth` initialized cleanly with no separate server.
 - Beads is **optional**: every Conductor command works without it (`enabled:false`
@@ -198,4 +198,4 @@ agent intends.
   that carries the design concept + position) instead of Beads. Use one or the
   other as the source of truth, not both.
 - The `conductor`/`beads`/`conductor-*` skills may already exist globally in your
-  environment — `install.sh` won't duplicate them unless you pass `--with-conductor`.
+  environment: `install.sh` won't duplicate them unless you pass `--with-conductor`.

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""devmode scorecard — render a self-evaluation across 5 criteria and track the
+"""devmode scorecard: render a self-evaluation across 5 criteria and track the
 trend across phases. The *agent* assigns the scores (its judgment, backed by the
-evidence it gathered — see skills/self-scorecard); this script renders them
+evidence it gathered: see skills/self-scorecard); this script renders them
 consistently, stores history in .devmode/scorecard.json, and shows the delta vs.
 the previous phase so progress is visible as numbers.
 
@@ -54,7 +54,7 @@ def delta(cur: float, prev: float | None) -> str:
         return f"{DIM}  · {OFF}"
     d = cur - prev
     if abs(d) < 0.05:
-        return f"{DIM} — {OFF}"
+        return f"{DIM} - {OFF}"
     return (f"{G}▲+{d:.0f}{OFF}" if d > 0 else f"{R}▼{d:.0f}{OFF}") if cur == int(cur) and prev == int(prev) \
         else (f"{G}▲+{d:.1f}{OFF}" if d > 0 else f"{R}▼{d:.1f}{OFF}")
 

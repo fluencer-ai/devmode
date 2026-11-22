@@ -10,7 +10,7 @@ disable-model-invocation: true
 
 # API & interface design
 
-An API is a promise. Once something consumes it, you own that promise — and
+An API is a promise. Once something consumes it, you own that promise, and
 **Hyrum's Law** guarantees that *every observable behavior* of your API will be
 depended on by someone, whether you documented it or not. So design the surface
 deliberately and keep it small; the inside you can change, the contract you
@@ -21,15 +21,15 @@ made concrete for wire/library contracts.
 ## Principles
 
 - **Contract-first.** Decide the request/response/error shapes (and write them
-  down — OpenAPI/GraphQL schema/types) before implementing. The contract is the
+  down: OpenAPI/GraphQL schema/types) before implementing. The contract is the
   design; the handler is the delegable implementation.
 - **Small, hard-to-misuse surface.** Few endpoints/functions, each doing a clear
   thing. Make the easy path the correct path; make illegal states impossible to
   express (see types below).
-- **Design for the consumer's selection model — agents included.** When an LLM
+- **Design for the consumer's selection model: agents included.** When an LLM
   agent drives the surface, the *name* is the interface: it often picks before any
   schema/description loads, and reliably chooses one well-named entry-with-flags
-  over several specialized variants — reconstructing the missing ones by hammering
+  over several specialized variants, reconstructing the missing ones by hammering
   the general path instead of finding the precise one. Collapse near-duplicate
   variants into a single entry parameterized by a flag (direction / depth / mode),
   and make every name state what it does.
@@ -39,20 +39,20 @@ made concrete for wire/library contracts.
 - **Explicit error semantics.** Define the error shape once (code + message +
   machine-readable detail), use correct status codes, and never leak internals
   or secrets in errors (see `security-hardening`).
-- **Validate at the boundary; trust inside.** All external input is untrusted —
+- **Validate at the boundary; trust inside.** All external input is untrusted,
   validate/parse it at the edge into typed domain values, so internal code can
-  assume validity (the imperative shell validates; the functional core trusts —
+  assume validity (the imperative shell validates; the functional core trusts,
   `functional-core-imperative-shell`).
 
 ## Make illegal states unrepresentable
 
 Push correctness into types so misuse fails at compile time, not runtime:
 
-- **Branded/opaque IDs** — a `UserId` is not interchangeable with an `OrderId`
+- **Branded/opaque IDs**: a `UserId` is not interchangeable with an `OrderId`
   even though both wrap a string. Stops whole classes of "passed the wrong id."
-- **Parse, don't validate** — turn raw input into a typed value once at the
+- **Parse, don't validate**: turn raw input into a typed value once at the
   boundary; carry the typed value, not the raw string, everywhere after.
-- **Sum types for states** — model "one of N" (pending | active | cancelled) as
+- **Sum types for states**: model "one of N" (pending | active | cancelled) as
   a tagged union, not a bag of optional booleans that allow impossible combos.
 
 ## Versioning & change
@@ -60,7 +60,7 @@ Push correctness into types so misuse fails at compile time, not runtime:
 - **One-Version Rule (where you can):** prefer evolving a single version
   additively over a sprawl of versions. Additive changes (new optional field,
   new endpoint) are safe; removing/renaming/retyping is breaking.
-- **Breaking changes get a deliberate path** — version the surface, deprecate
+- **Breaking changes get a deliberate path**: version the surface, deprecate
   with a window and migration notes (see `migration`),
   never silently change a contract consumers rely on.
 - **Default to backward-compatible.** New fields optional; tolerant readers,
@@ -69,7 +69,7 @@ Push correctness into types so misuse fails at compile time, not runtime:
 ## Process
 
 1. Name the consumers and what they need (grill if unclear).
-2. Draft the contract (schema/types) — happy path + error shape + edge cases.
+2. Draft the contract (schema/types): happy path + error shape + edge cases.
 3. Pressure-test it (`design-critique`): what's
    hard to misuse? what's the blast radius of a future change
    (`impact-analysis`)?

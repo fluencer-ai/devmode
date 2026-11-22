@@ -1,15 +1,15 @@
 # Wiki index
 
-> The catalog of this knowledge base — every page, grouped by type, each with a
+> The catalog of this knowledge base: every page, grouped by type, each with a
 > one-line summary. The LLM reads this FIRST on every query. Keep it current on
 > every ingest. (No frontmatter on this file.)
 
 ## Overview
-- [[overview]] — the project's global picture
+- [[overview]]: the project's global picture
 
 ## Entities
-<!-- people, organizations, products, places — one line each: [[slug]] — summary -->
-_(none yet — the first ingest fills this in)_
+<!-- people, organizations, products, places: one line each: [[slug]]; summary -->
+_(none yet; the first ingest fills this in)_
 
 ## Concepts
 <!-- frameworks, ideas, methodologies -->

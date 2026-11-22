@@ -1,4 +1,4 @@
-# Manual do devmode — programar de forma estruturada na era da IA
+# Manual do devmode: programar de forma estruturada na era da IA
 
 > Um guia prático, em português, para usar este conjunto de skills e agentes
 > e desenvolver software com a IA sem cair na armadilha do "specs-to-code".
@@ -16,7 +16,7 @@ Se algo estiver dando errado e você não souber qual skill usar, vá direto par
 
 Existe um mito de que, na era da IA, **"código é barato"**: bastaria escrever uma
 especificação, gerar o código e nunca mais olhar para ele. Na prática isso
-fracassa — você recompila e o código fica *pior* a cada rodada. A tese do devmode
+fracassa: você recompila e o código fica *pior* a cada rodada. A tese do devmode
 é o oposto:
 
 > **Código não é barato. Código ruim é a coisa mais cara que existe hoje.**
@@ -24,9 +24,9 @@ fracassa — você recompila e o código fica *pior* a cada rodada. A tese do de
 
 A divisão de papéis que sustenta tudo:
 
-- **A IA é a tática** — um excelente programador "no chão de fábrica", rápido e
+- **A IA é a tática**: um excelente programador "no chão de fábrica", rápido e
   preciso, mas **sem estratégia**.
-- **Você é a estratégia** — o conceito de design compartilhado, as fronteiras de
+- **Você é a estratégia**: o conceito de design compartilhado, as fronteiras de
   módulo, as interfaces e o investimento contínuo no design.
 
 O processo inteiro existe para fornecer à IA a estratégia que ela não tem.
@@ -46,7 +46,7 @@ Dentro de `devmode/` você tem quatro tipos de peça:
 | **templates + script** | Modelos (PRD, glossário) + auditor da pack (`scripts/audit_skills.py`) | `skills/*/assets/`, `scripts/` |
 
 E o [`CLAUDE.md`](CLAUDE.md) amarra tudo: é o manifesto + a tabela do fluxo.
-Várias skills foram **adaptadas** de projetos MIT — créditos em
+Várias skills foram **adaptadas** de projetos MIT: créditos em
 [`ATTRIBUTION.md`](ATTRIBUTION.md).
 
 ### As 17 skills de processo, agrupadas por fase (↳ = arquivo-irmão fundido)
@@ -61,7 +61,7 @@ Várias skills foram **adaptadas** de projetos MIT — créditos em
 4. ARQUITETAR   functional-core-imperative-shell . separar lógica pura de I/O (nível módulo)
                   ↳ system-boundaries.md (functional-core-imperative-shell): fronteiras de sistema (regras vs. infraestrutura)
                 design-interface-delegate-impl. .. desenhar interface, delegar implementação
-                design-patterns .................. padrões GoF — só quando aprofundam o módulo
+                design-patterns .................. padrões GoF, só quando aprofundam o módulo
 5. IMPLEMENTAR  feedback-loops ......... tipos, compilador, testes, browser + escada de gates
                 tdd .................... passos pequenos test-first
                   ↳ testing-principles.md (tdd): o que/como/quanto testar (+ anti-padrões)
@@ -81,25 +81,25 @@ META            authoring-skills ....... escrever/auditar as próprias skills (s
 
 O processo tem duplas projetadas para se reforçar:
 
-- **`functional-core-imperative-shell` ↔ `testing-principles.md` em `tdd`** — a arquitetura
+- **`functional-core-imperative-shell` ↔ `testing-principles.md` em `tdd`**: a arquitetura
   (núcleo puro / casca) torna o código fácil de testar; os princípios dizem
   *onde* colocar o limite.
-- **`functional-core-imperative-shell` ↔ `system-boundaries.md` em `functional-core-imperative-shell`** — o mesmo
+- **`functional-core-imperative-shell` ↔ `system-boundaries.md` em `functional-core-imperative-shell`**: o mesmo
   instinto em duas escalas: módulo e sistema.
-- **`tdd` ↔ `feedback-loops`** — o ritmo (vermelho-verde-refatora) e a
+- **`tdd` ↔ `feedback-loops`**: o ritmo (vermelho-verde-refatora) e a
   infraestrutura (tipos, testes, browser, escada de gates) que o sustenta.
 - **`design-interface-delegate-implementation` ↔ `subagent-driven-development` /
-  `external-cli.md` em `subagent-driven-development`** — a *estratégia* e o *como* da delegação gray-box.
-- **`systematic-debugging` ↔ `verification-before-completion`** — achar a
+  `external-cli.md` em `subagent-driven-development`**: a *estratégia* e o *como* da delegação gray-box.
+- **`systematic-debugging` ↔ `verification-before-completion`**: achar a
   causa-raiz e depois *provar* que a correção funcionou antes de concluir.
-- **`confidence-check.md` em `verification-before-completion` ↔ `verification-before-completion`** — os dois portões:
+- **`confidence-check.md` em `verification-before-completion` ↔ `verification-before-completion`**: os dois portões:
   prontidão *antes* de começar e evidência *depois* de terminar.
-- **`code-review` ↔ `verification-before-completion`** — o painel acha os
+- **`code-review` ↔ `verification-before-completion`**: o painel acha os
   buracos; cada correção é *re-verificada* antes de fechar (loop achar→corrigir→provar).
 
 ### As 12 skills de domínio (craft cross-cutting)
 
-Não são fases — são *expertise* que os agentes puxam **durante** as fases:
+Não são fases: são *expertise* que os agentes puxam **durante** as fases:
 
 - **Front-end & design:** `frontend-ui-engineering` (UI de produção, fuga da
   "estética de IA"), `ux-design.md` em `frontend-ui-engineering` (tokens, hierarquia, estados), `accessibility.md` em `frontend-ui-engineering`
@@ -110,17 +110,17 @@ Não são fases — são *expertise* que os agentes puxam **durante** as fases:
 - **Ops & entrega:** `ci-cd.md` em `shipping` (gate automático), `git-workflow`,
   `migration` (strangler/expand-contract), `shipping` (rollout + rollback).
 - **Práticas:** `documentation` (ADRs, o *porquê*), `doc-contracts.md` em `documentation` (árvore de
-  AGENTS.md — contratos locais por área, lidos antes de editar e atualizados no
+  AGENTS.md: contratos locais por área, lidos antes de editar e atualizados no
   mesmo commit), `prototyping` (spike descartável → captura → sai do `main` para um branch `prototype/`),
-  `minimal-code` (a escada do "dev sênior preguiçoso" — escrever só o necessário,
+  `minimal-code` (a escada do "dev sênior preguiçoso": escrever só o necessário,
   sem nunca cortar segurança; a disciplina do `/devmode lean`),
   `context-engineering`, `source-of-truth.md` em `context-engineering` (checar versão/docs, não a memória),
-  `visual-explainers` (visuais SVG/HTML inline no chat — temáticos, acessíveis).
+  `visual-explainers` (visuais SVG/HTML inline no chat: temáticos, acessíveis).
 
 Importadas de `addyosmani/agent-skills` (MIT), generalizadas para a base
 tool-agnostic; `ux-design.md` e `accessibility.md` (em `frontend-ui-engineering`) foram **escritas** para preencher a
 lacuna de design; `doc-contracts.md` em `documentation` adaptada de `agent0ai/dox` (MIT); `prototyping`
-adaptada de `mattpocock/skills` (MIT — o projeto-irmão do devmode); `minimal-code`
+adaptada de `mattpocock/skills` (MIT: o projeto-irmão do devmode); `minimal-code`
 adaptada de `DietrichGebert/ponytail` (MIT). A meta de cobertura cega foi
 reconciliada com a base.
 
@@ -149,14 +149,14 @@ Estas skills são "modos de trabalho". Há duas formas de usá-las:
 
 ## 4. O fluxo de ponta a ponta
 
-Vá de cima para baixo. **Nem toda mudança precisa de todas as fases** — uma
+Vá de cima para baixo. **Nem toda mudança precisa de todas as fases**: uma
 correção pequena pode pular direto para o TDD. Mas esta é a espinha do processo.
 
-### Fase 1 — Alinhar (`grill-me`)
+### Fase 1: Alinhar (`grill-me`)
 **Objetivo:** chegar a um *conceito de design compartilhado* antes de criar
 qualquer documento ou código.
 
-A IA vai te **entrevistar sem dó** — dezenas de perguntas — caminhando por cada
+A IA vai te **entrevistar sem dó** (dezenas de perguntas) caminhando por cada
 ramo da "árvore de design" e resolvendo as dependências entre decisões, uma a
 uma. Ela vai te devolver resumos do entendimento para você corrigir. **Não deixe
 ela escrever o PRD ainda.** O resultado desta fase é alinhamento, não documento.
@@ -165,7 +165,7 @@ ela escrever o PRD ainda.** O resultado desta fase é alinhamento, não document
 > que estava na sua cabeça. Ninguém sabe exatamente o que quer até ser obrigado a
 > articular.
 
-### Fase 2 — Linguagem (`ubiquitous-language`)
+### Fase 2: Linguagem (`ubiquitous-language`)
 **Objetivo:** um vocabulário único usado igual na conversa, no raciocínio da IA e
 no código.
 
@@ -177,51 +177,51 @@ tipo/módulo/função que o representa.
 
 > O glossário **não é só de termos de domínio**: ele também carrega o **mapa de
 > módulos** (os módulos profundos e suas interfaces públicas). Você e a IA
-> precisam conhecer esse mapa bem — uma fronteira de módulo é um conceito de
+> precisam conhecer esse mapa bem: uma fronteira de módulo é um conceito de
 > domínio, com nome, responsabilidade e contrato. É esse mapa que permite ao PRD
 > ser específico sobre *quais módulos e interfaces mudam*.
 
-### Fase 3 — Especificar (`write-prd`)
+### Fase 3: Especificar (`write-prd`)
 **Objetivo:** transformar o conceito alinhado num PRD escrito na linguagem ubíqua.
 
-O coração do PRD **não** é a lista de funcionalidades — é a seção de **mudanças de
+O coração do PRD **não** é a lista de funcionalidades: é a seção de **mudanças de
 módulos e interfaces**: assinaturas, tipos, fronteiras reais. É aqui que você
 *investe no design do sistema* (Kent Beck). Use o
 [`template de PRD`](skills/write-prd/assets/prd-template.md).
 
-### Fase 4 — Arquitetar
+### Fase 4: Arquitetar
 **Objetivo:** definir a estrutura antes de implementar.
 
-- **`functional-core-imperative-shell`** — separe a *lógica de decisão pura* (o
+- **`functional-core-imperative-shell`**: separe a *lógica de decisão pura* (o
   núcleo: sem I/O, determinístico) da *casca imperativa fina* (lê entradas, chama
   o núcleo, executa efeitos). Padrão: **a casca coleta → o núcleo decide → a casca
   age**. Isso torna o núcleo trivial de testar sem mocks.
-- **`design-interface-delegate-implementation`** — desenhe **você** a interface
+- **`design-interface-delegate-implementation`**: desenhe **você** a interface
   (o "contrato"), com cuidado, e **delegue a implementação** à IA como uma
   *gray box* (caixa cinza): você verifica por fora, pelos testes, sem ler cada
   linha. Exceção: módulos **críticos** (dinheiro, autenticação, segurança) você
   revisa por completo.
 
-### Fase 5 — Implementar
+### Fase 5: Implementar
 **Objetivo:** transformar contratos em código funcionando e testado.
 
-- **`feedback-loops`** — garanta que existam e sejam *rápidos*: tipos estáticos,
+- **`feedback-loops`**: garanta que existam e sejam *rápidos*: tipos estáticos,
   compilador/linter, testes automatizados rápidos e, para frontend, **acesso a um
   browser real** para a IA ver o resultado. *A taxa de feedback é seu limite de
   velocidade.*
-- **`tdd`** — vermelho (escreva um teste que falha) → verde (faça passar com o
+- **`tdd`**: vermelho (escreva um teste que falha) → verde (faça passar com o
   mínimo) → refatora (melhore o design com o teste te protegendo). **Um
   comportamento por vez.**
-- **`testing-principles.md` em `tdd`** — decida bem: testar no **limite estável mais
+- **`testing-principles.md` em `tdd`**: decida bem: testar no **limite estável mais
   profundo** (não cada função privada); **mockar só o que você não controla**
   (rede, relógio, disco, terceiros); asseverar **comportamento**, não
   implementação.
 
-### Fase 6 — Refatorar (`improve-codebase-architecture`)
+### Fase 6: Refatorar (`improve-codebase-architecture`)
 **Objetivo:** combater a entropia consolidando **módulos rasos** (muitos blocos
 pequenos, interface complexa, vazando internals) em **módulos profundos** (muita
 funcionalidade atrás de uma interface simples). Faça isso *antes* da complexidade
-se acumular — e sempre com os testes verdes.
+se acumular, e sempre com os testes verdes.
 
 ---
 
@@ -296,7 +296,7 @@ casca; `BillingGateway.charge(...)` é I/O e fica na casca.
 decide → a casca age:
 
 ```js
-// NÚCLEO (puro): decide o que deve acontecer — testável sem mocks
+// NÚCLEO (puro): decide o que deve acontecer: testável sem mocks
 function decideRenewal(sub, currentTime) {
   if (sub.status !== "active") return { kind: "noop" }
   if (currentTime <= sub.endsAt) return { kind: "noop" }
@@ -337,7 +337,7 @@ do merge.
 - **Alinhe antes de escrever qualquer asset.** O conceito de design vem primeiro.
 - **Mantenha o glossário aberto** e use os mesmos termos na conversa, no PRD, nos
   testes e no código.
-- **Seja específico sobre interfaces no PRD** — assinaturas e tipos reais, não
+- **Seja específico sobre interfaces no PRD**: assinaturas e tipos reais, não
   "criar um serviço para X".
 - **Um teste que falha por vez.** Veja-o falhar antes de fazê-lo passar. Nunca
   deixe a suíte vermelha "para depois".
@@ -345,7 +345,7 @@ do merge.
   fronteira errada → aplique núcleo/casca.
 - **Caixa cinza só com testes que a prendam.** Sem cobertura, você ainda não tem o
   direito de parar de ler o módulo. Módulos críticos nunca são caixas cinza.
-- **Se um teste dói de escrever, é sinal de design** — refatore a arquitetura
+- **Se um teste dói de escrever, é sinal de design**: refatore a arquitetura
   antes de empilhar mocks.
 - **Invista no design todos os dias.** Cada mudança é chance de melhorar o design,
   não só de adicionar funcionalidade.
@@ -357,34 +357,34 @@ do merge.
 
 ### Modos do `/devmode`, score e dashboard
 
-- **`/devmode start <nome> <ideia>`** — cria `workspaces/<nome>` (base+camada+guardrails+Beads), `git init`, e começa pela Fase 1.
-- **`/devmode adopt <pasta>`** — implanta o devmode num **projeto existente** e roda **discovery** (skill `discovery`, estilo reversa): varre o código, detecta stack, monta o **mapa de módulos** + glossário em `UBIQUITOUS_LANGUAGE.md` e um `DISCOVERY.md` (conceito de design provisório + arquitetura), com tags 🟢/🟡/🔴 — e a fase ALIGN ataca os 🔴 com você. Se a pasta já tem `CLAUDE.md`, o conteúdo existente permanece intacto e o instalador acrescenta apenas um ponteiro idempotente `@CLAUDE.devmode.md` (composição via import nativo; suas instruções continuam o host e têm precedência). Nada de reescrever; merge num arquivo só é opcional, se você pedir.
-- **`/devmode update <pasta>`** / **`/devmode update wiki <pasta>`** — **atualiza** os arquivos *devmode-managed* de um projeto existente para a base atual, **sem sobrescrever nada que o projeto possui**. O instalador registra em `.devmode/managed-files` somente os paths que realmente escreveu; o update usa esse manifesto, preserva colisões de mesmo nome e mantém o perfil `--no-skills`. O `.codex/config.toml` é **mesclado, não substituído**: só as chaves que o devmode declara (marcadas no próprio arquivo pela linha `devmode-managed`) são atualizadas — suas chaves, tabelas e comentários continuam intactos, e um arquivo sem esse marcador nunca tem valor reescrito. A forma `update wiki` refresca `KARPATHY.md` e os how-tos que o módulo possui, preserva o README do host e acrescenta apenas o ponteiro Codex idempotente ao `AGENTS.md`; nunca altera o conhecimento em `wiki/` ou `raw/sources/`. Revise com `git -C <pasta> status`.
-- **`/devmode goal <objetivo>`** (opt-in) — gera um comando **`/goal` pronto** (≤3800 chars) que referencia o `spec.md` em detalhe (passo-a-passo + testes + critérios de aceite), com o limite **garantido por script** (`.devmode/goal_brief.py`). Use `plan <objetivo>` para um `/plan` (planejar o goal — a recursão `/plan ↔ /goal`). Por contrato, o devmode **não inicia o `/goal` sozinho**; ele **te entrega o comando** para você rodar a cada iteração. Não fica embutido no fluxo normal — só quando você pede.
-- **`/devmode <ideia>`** — guia/retoma no projeto atual.
-- **`/devmode c [comentário]`** — o **gatilho de disciplina por turno**: aplica os
+- **`/devmode start <nome> <ideia>`**: cria `workspaces/<nome>` (base+camada+guardrails+Beads), `git init`, e começa pela Fase 1.
+- **`/devmode adopt <pasta>`**: implanta o devmode num **projeto existente** e roda **discovery** (skill `discovery`, estilo reversa): varre o código, detecta stack, monta o **mapa de módulos** + glossário em `UBIQUITOUS_LANGUAGE.md` e um `DISCOVERY.md` (conceito de design provisório + arquitetura), com tags 🟢/🟡/🔴, e a fase ALIGN ataca os 🔴 com você. Se a pasta já tem `CLAUDE.md`, o conteúdo existente permanece intacto e o instalador acrescenta apenas um ponteiro idempotente `@CLAUDE.devmode.md` (composição via import nativo; suas instruções continuam o host e têm precedência). Nada de reescrever; merge num arquivo só é opcional, se você pedir.
+- **`/devmode update <pasta>`** / **`/devmode update wiki <pasta>`**: **atualiza** os arquivos *devmode-managed* de um projeto existente para a base atual, **sem sobrescrever nada que o projeto possui**. O instalador registra em `.devmode/managed-files` somente os paths que realmente escreveu; o update usa esse manifesto, preserva colisões de mesmo nome e mantém o perfil `--no-skills`. O `.codex/config.toml` é **mesclado, não substituído**: só as chaves que o devmode declara (marcadas no próprio arquivo pela linha `devmode-managed`) são atualizadas; suas chaves, tabelas e comentários continuam intactos, e um arquivo sem esse marcador nunca tem valor reescrito. A forma `update wiki` refresca `KARPATHY.md` e os how-tos que o módulo possui, preserva o README do host e acrescenta apenas o ponteiro Codex idempotente ao `AGENTS.md`; nunca altera o conhecimento em `wiki/` ou `raw/sources/`. Revise com `git -C <pasta> status`.
+- **`/devmode goal <objetivo>`** (opt-in): gera um comando **`/goal` pronto** (≤3800 chars) que referencia o `spec.md` em detalhe (passo-a-passo + testes + critérios de aceite), com o limite **garantido por script** (`.devmode/goal_brief.py`). Use `plan <objetivo>` para um `/plan` (planejar o goal: a recursão `/plan ↔ /goal`). Por contrato, o devmode **não inicia o `/goal` sozinho**; ele **te entrega o comando** para você rodar a cada iteração. Não fica embutido no fluxo normal, só quando você pede.
+- **`/devmode <ideia>`**: guia/retoma no projeto atual.
+- **`/devmode c [comentário]`**: o **gatilho de disciplina por turno**: aplica os
   gates do devmode a um trabalho ad-hoc (ops, debug, uma pergunta solta) **sem**
   subir a máquina de fases. Contrato do turno: causa-raiz antes de qualquer
   mudança, backup antes de operação arriscada, e **nenhum "pronto" sem evidência
   end-to-end fresca** (o hook `Stop` bloqueia o turno se faltar). É o irmão mais
   leve do `/devmode do <tarefa>`.
-- **`/devmode lean <ideia>`** / **`/devmode lean goal <objetivo>`** — roda com a
+- **`/devmode lean <ideia>`** / **`/devmode lean goal <objetivo>`**: roda com a
   disciplina **`minimal-code`** (a escada "dev sênior preguiçoso" do ponytail) em
   primeiro plano: escrever só o que a tarefa precisa (stdlib/nativo/uma linha),
   **sem nunca cortar** validação, tratamento de erro, segurança ou acessibilidade.
   A forma `lean goal` emite um `/goal` com essa diretiva embutida. (Adaptado de
   `DietrichGebert/ponytail`, MIT.)
-- **`/devmode do <tarefa>`** — para **uma tarefa só** (não um projeto): roteia a
+- **`/devmode do <tarefa>`**, para **uma tarefa só** (não um projeto): roteia a
   frase para a(s) skill(s)+agente certos e roda um pipeline curto com gates de
   evidência (Entender → Planejar → Executar → Verificar → Entregar). É o irmão de
   tarefa única do `/devmode` (projeto inteiro) e do `/devmode c` (gates por turno);
   **todo comando começa com `/devmode`**, reusando as skills/agentes/gates
-  existentes — sem máquina nova. (Conceito adaptado do `/do` do
+  existentes, sem máquina nova. (Conceito adaptado do `/do` do
   `notque/vexjoy-agent`, MIT.)
-- **`/devmode wiki start <caminho>`** / **`/devmode wiki adopt <pasta>`** — implanta
+- **`/devmode wiki start <caminho>`** / **`/devmode wiki adopt <pasta>`**: implanta
   um **Karpathy LLM Wiki** (módulo opt-in `integrations/llm-wiki/`): uma base de
   conhecimento **em markdown puro** (sem app, sem banco, sem servidor) que o LLM
-  *mantém* — cada fonte é integrada a um grafo de páginas interligadas (ingest →
+  *mantém*; cada fonte é integrada a um grafo de páginas interligadas (ingest →
   query → lint sobre 7 tipos), então o conhecimento **acumula** em vez de ser
   re-derivado a cada pergunta. O `KARPATHY.md` implantado é o *schema* que torna o
   agente um mantenedor disciplinado. Roda **inline** (não é a máquina de fases de
@@ -392,8 +392,8 @@ do merge.
   instala o how-to em `.llm-wiki/README.md`. `CLAUDE.md` e `AGENTS.md` ativam o
   mesmo schema no Claude Code e no Codex. Conceito: o gist *LLM Wiki* do Andrej Karpathy.
 
-No **Codex Desktop** — a única superfície onde a forma com barra está
-**verificada** — invoque a skill de repositório diretamente como
+No **Codex Desktop** (a única superfície onde a forma com barra está
+**verificada**) invoque a skill de repositório diretamente como
 **`/devmode <args>`**. Em CLI/IDE, as skills chegam pelo seletor oficial: use
 `/skills` e selecione `devmode` (não prometemos a barra ali enquanto o Codex não
 oferecer suporte oficial). O launcher instalado
@@ -406,7 +406,7 @@ relativos para todas. A configuração Claude continua intacta.
 
 > **Retomada morna (SessionStart).** Com `--with-guardrails`, um hook
 > `session_resume.py` injeta no início de cada sessão um resumo curto (última
-> fase, score, track ativo, próxima ação) lido do `.devmode/scorecard.json` —
+> fase, score, track ativo, próxima ação) lido do `.devmode/scorecard.json`:
 > read-only, fail-open. Assim uma sessão nova **continua de onde o loop parou**
 > em vez de começar do zero (padrão do `notque/claude-code-starter-kit`, MIT).
 > O mesmo hook injeta até 8 linhas de **memória**: o que o orquestrador
@@ -415,16 +415,16 @@ relativos para todas. A configuração Claude continua intacta.
 > quando o Beads está ativo).
 
 Em **toda fase**, o orquestrador mostra um **score** (skill `self-scorecard`): resumo do que foi feito + nota 0–10 em 5 critérios (Correctness, Design, Testing, Safety, Clarity) com deltas (`.devmode/scorecard.py`), e atualiza um **dashboard visual** (`.devmode/dashboard.py` → `devmode-dashboard.html`, sem servidor nem registro). O dashboard traz uma **faixa de KPIs**, uma **esteira do workflow** (as fases Align→Refactor, alcançadas/atual), um **timeline por fase**, um **sparkline** da tendência de score, e um **painel de Gates** alimentado por `.devmode/gates.json` (emitido por um `ci/check.sh`). No fim, `--final` dá **recomendações por critério**. O dashboard é **zero-setup,
-sem servidor nem registro** — basta abrir o `devmode-dashboard.html`.
+sem servidor nem registro**: basta abrir o `devmode-dashboard.html`.
 
-Os 32 skills e 8 agentes são a **base agnóstica de ferramenta** — funcionam
+Os 32 skills e 8 agentes são a **base agnóstica de ferramenta**: funcionam
 sozinhos. Mas quando o trabalho dura muitas sessões, falta ao devmode uma espinha
 de **orquestração** (tracks, status, dependências) e de **memória persistente**
 (que sobrevive à compactação da conversa). É aí que entra a integração:
 
 > **devmode é a base; Conductor é a camada por cima; Beads é a memória opcional.**
 
-A hierarquia é deliberada — o Conductor **serve** o fluxo devmode, não o
+A hierarquia é deliberada: o Conductor **serve** o fluxo devmode, não o
 substitui. Tire o Conductor e você ainda tem um projeto devmode completo; tire o
 devmode e o Conductor vira um PM spec-first genérico. **Quando os defaults da
 camada conflitam com a base, a base vence.** A fiação fica isolada em
@@ -446,9 +446,9 @@ do Beads, não só o status. Detalhes:
 
 > O Beads é **opcional**: sem ele o fluxo devmode + Conductor funciona igual, só
 > sem o grafo persistente. Custo baixo no bd ≥ 1.0: usa **Dolt embutido** por
-> padrão — `bd init` funciona sem servidor (verificado no bd 1.0.3).
+> padrão; `bd init` funciona sem servidor (verificado no bd 1.0.3).
 
-### Modo guiado (`/devmode` / skill `devmode`) — ser levado pelo processo
+### Modo guiado (`/devmode` / skill `devmode`): ser levado pelo processo
 
 Se você não quer pensar em *qual* skill usar e *quando*, use o orquestrador:
 
@@ -463,28 +463,28 @@ No Codex desktop, use o mesmo slash command:
 ```
 
 O agente **`devmode-orchestrator`** (instalado pelo `install.sh`) conduz todas as
-fases — ALINHAR → LINGUAGEM → ESPECIFICAR → ARQUITETAR → IMPLEMENTAR → REVIEW →
-REFATORAR — fazendo todo o trabalho mecânico e **pausando só nos seus gates de
+fases (ALINHAR → LINGUAGEM → ESPECIFICAR → ARQUITETAR → IMPLEMENTAR → REVIEW →
+REFATORAR) fazendo todo o trabalho mecânico e **pausando só nos seus gates de
 decisão**, que ele apresenta como escolhas A/B/C com recomendação. A regra de
 ouro: você é **levado pelo *processo*, mas continua decidindo a *estratégia*** (o
 conceito de design, os trade-offs, aprovar a interface, dizer "pronto"). Ele é um
-*condutor fino* — delega às skills profundas, nunca as reimplementa. Detalhes:
+*condutor fino*: delega às skills profundas, nunca as reimplementa. Detalhes:
 [`INTEGRATION.md`](integrations/conductor-beads/INTEGRATION.md) → "Guided mode".
 
 ## 10. Para aprofundar
 
-- [`CLAUDE.md`](CLAUDE.md) — manifesto e tabela do fluxo.
-- [`AGENTS.md`](AGENTS.md) — adaptador Codex que aponta para as mesmas fontes de
+- [`CLAUDE.md`](CLAUDE.md): manifesto e tabela do fluxo.
+- [`AGENTS.md`](AGENTS.md): adaptador Codex que aponta para as mesmas fontes de
   verdade do Claude Code.
-- [`references/foundations.md`](references/foundations.md) — os princípios e a
+- [`references/foundations.md`](references/foundations.md): os princípios e a
   lista de leitura (Ousterhout, Brooks, Beck, Evans, Hunt & Thomas, Bernhardt).
-- [`references/failure-modes.md`](references/failure-modes.md) — diagnóstico
+- [`references/failure-modes.md`](references/failure-modes.md): diagnóstico
   completo sintoma → skill.
-- Os próprios `SKILL.md` em `skills/` — cada um explica o método e o porquê.
+- Os próprios `SKILL.md` em `skills/`: cada um explica o método e o porquê.
 
 ---
 
 ## Autor
 
-**Gabriel Sorrentino** — [LinkedIn](https://www.linkedin.com/in/gabriel-sorrentino/)
+**Gabriel Sorrentino**: [LinkedIn](https://www.linkedin.com/in/gabriel-sorrentino/)
 · [fluencerai.com](https://fluencerai.com) · <gabriel@fluencerai.com>

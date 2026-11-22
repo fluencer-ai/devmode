@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for scripts/memory.py — the durable memory the orchestrator keeps.
+"""Tests for scripts/memory.py: the durable memory the orchestrator keeps.
 
 Core (pure): make_record, fold, prime_lines, looks_secret. Shell: the CLI over a
 temp project + temp global home. Run: python3 scripts/test_memory.py

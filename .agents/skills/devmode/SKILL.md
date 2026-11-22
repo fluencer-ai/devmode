@@ -20,7 +20,7 @@ Codex adaptations:
    resolves that slash entry to this repo-shared `devmode` skill. That is the
    only Codex surface where the slash form is confirmed. On Codex CLI/IDE
    surfaces, reach the skill through the official picker instead: open
-   `/skills`, select `devmode`, and pass the same arguments — do not promise
+   `/skills`, select `devmode`, and pass the same arguments; do not promise
    Desktop-equivalent slash behavior there until Codex ships official support.
    Claude Code's `/devmode <args>` is unchanged and still owned by
    `.claude/commands/`.
@@ -35,7 +35,7 @@ Codex adaptations:
 5. When the flow calls for a `/conductor-*` lifecycle command (`/conductor-setup`,
    `/conductor-newtrack`, `/conductor-implement`, `/conductor-handoff`, …), read
    `.claude/commands/conductor-<name>.md` and execute it as the procedure. Those
-   files are the canonical procedures for both hosts — do not restate or fork
+   files are the canonical procedures for both hosts: do not restate or fork
    them into a Codex variant. If the project was installed without them, run the
    same phase directly from `conductor/workflow.md` and
    `conductor/.templates/track/`; a missing command file must not block the flow.

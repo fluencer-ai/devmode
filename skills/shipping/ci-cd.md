@@ -11,33 +11,33 @@ not in production.
 Run cheapest-first, fail fast (mirrors the verification ladder in
 `feedback-loops`):
 
-1. **Build / compile** — exit 0.
-2. **Types** — type-checker clean.
-3. **Lint / format** — clean.
-4. **Tests** — the suite green; cover contract/edges/invariants.
-5. **Security** — dependency audit triage, secret scan (`security-hardening`).
-6. **Budgets** — perf budgets, bundle size (`performance-optimization`).
+1. **Build / compile**: exit 0.
+2. **Types**: type-checker clean.
+3. **Lint / format**: clean.
+4. **Tests**: the suite green; cover contract/edges/invariants.
+5. **Security**: dependency audit triage, secret scan (`security-hardening`).
+6. **Budgets**: perf budgets, bundle size (`performance-optimization`).
 
 Keep it **fast** (cache deps, parallelize, run only what's affected where
-possible) — a slow pipeline gets bypassed, which defeats the purpose.
+possible): a slow pipeline gets bypassed, which defeats the purpose.
 
 ## No blind coverage gate
 
 devmode rejects a **blind coverage percentage** as a pass/fail gate (it pushes
-testing implementation details and over-mocking — see `testing-principles.md` in `tdd`). So
+testing implementation details and over-mocking: see `testing-principles.md` in `tdd`). So
 in CI:
 
 - **Gate on behavior**, not on a coverage number: build/types/lint/tests-green,
   acceptance-criteria coverage, and the **ratchet** (pre-existing tests must stay
   green so a trivial new test can't mask a regression).
-- Track coverage as a *reported diagnostic* if you like — but don't fail the
+- Track coverage as a *reported diagnostic* if you like, but don't fail the
   build solely because a percentage dipped.
 - The review panel (`code-review`) is for *judgment*; the pipeline is for the
   *machine-checkable* gates.
 
 ## Build and deploy discipline
 
-- **One source of truth for build/deploy steps** — scripted, reproducible, not a
+- **One source of truth for build/deploy steps**: scripted, reproducible, not a
   README of manual commands.
 - **Branch protection:** the gate must pass before merge; protected branches
   can't be force-pushed (the guardrails hook backs this locally too).

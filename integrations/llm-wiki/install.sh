@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
-# llm-wiki — scaffold a Karpathy LLM Wiki into a project (pure markdown).
+# llm-wiki: scaffold a Karpathy LLM Wiki into a project (pure markdown).
 #
 # An OPT-IN devmode module: the LLM maintains a persistent, interlinked markdown
-# knowledge base (Karpathy's LLM Wiki pattern). No app, no database, no server —
+# knowledge base (Karpathy's LLM Wiki pattern). No app, no database, no server:
 # browse it in any editor (Obsidian follows the wikilinks). Independent of
 # devmode's code process; deployed via `/devmode wiki start|adopt`.
 #
@@ -57,7 +57,7 @@ fi
 TARGET="$(cd "$TARGET" && pwd)"
 
 if [ "$ADOPT" -eq 1 ] && [ "$FORCE" -eq 0 ] && [ -f "$TARGET/KARPATHY.md" ] && \
-   ! grep -Fqx '# KARPATHY.md — the LLM Wiki schema for this project' "$TARGET/KARPATHY.md"; then
+   ! grep -Eqx '# KARPATHY\.md(:| [^ ]+) the LLM Wiki schema for this project' "$TARGET/KARPATHY.md"; then
   err "KARPATHY.md already exists but is not the LLM Wiki schema; refusing to shadow project content"
   err "rename that file, or rerun with --force only if replacing it is intentional"
   exit 1
@@ -141,9 +141,9 @@ case "$CODEX_PTR_ACTION" in
   *)        ok "created AGENTS.md pointing Codex at KARPATHY.md" ;;
 esac
 
-# 4. adopt: audit existing markdown (don't move anything — propose, human confirms)
+# 4. adopt: audit existing markdown (don't move anything: propose, human confirms)
 if [ "$ADOPT" -eq 1 ]; then
-  step "Adopt audit (non-destructive — nothing moved)"
+  step "Adopt audit (non-destructive, nothing moved)"
   info "$EXISTING_MD existing markdown file(s) outside wiki/ + raw/."
   warn "Migration is deliberate, not automatic: ask the LLM to read KARPATHY.md, then"
   warn "  ingest external material into raw/sources/ and compile curated wiki/ pages."

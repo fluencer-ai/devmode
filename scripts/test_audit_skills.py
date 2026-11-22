@@ -1,11 +1,11 @@
-"""Tests for audit_skills' count-drift core — pure values, no mocks, no live tree.
+"""Tests for audit_skills' count-drift core: pure values, no mocks, no live tree.
 
 Run:  python3 -m unittest test_audit_skills   (from the scripts/ directory)
 """
 import unittest
 
 from audit_skills import (count_drift, collect_subcounts, subcount_conflicts,
-                          PROVENANCE_RE)
+                          PROVENANCE_RE, em_dash_lines)
 
 
 def drift(text, skills=41, agents=8, rel="DOC.md"):
@@ -110,7 +110,7 @@ class SubCountConsistency(unittest.TestCase):
 
     def test_provenance_row_is_not_a_pack_subcount(self):
         # "12 domain skills came from <upstream>" counts one source's contribution,
-        # not what the pack holds — an external link marks it as provenance
+        # not what the pack holds: an external link marks it as provenance
         self.assertEqual(
             self.conflicts(("README.md", "| [x](https://github.com/x) | 12 domain skills | MIT |"),
                            ("README.md", "21 *process* + 18 *domain* + 3 *meta*")), [])
@@ -132,6 +132,19 @@ class ProvenanceInLoadedFiles(unittest.TestCase):
                      "reach for [`impact-analysis`](../impact-analysis/SKILL.md) first",
                      "keep within-group spacing at half the between-group spacing"):
             self.assertIsNone(PROVENANCE_RE.search(line), f"false positive: {line}")
+
+
+class EmDashTest(unittest.TestCase):
+    def test_clean_text_passes(self):
+        self.assertEqual(em_dash_lines("A.md", "a: b, c; d (e) - f\n1\u20133"), [])
+
+    def test_em_dash_is_flagged_with_its_line(self):
+        errs = em_dash_lines("A.md", "fine\nnot \u2014 fine\n")
+        self.assertEqual(len(errs), 1)
+        self.assertIn("A.md:2", errs[0])
+
+    def test_escaped_form_in_code_is_allowed(self):
+        self.assertEqual(em_dash_lines("x.py", 'RE = r"(?:\\u2014|:)"'), [])
 
 
 if __name__ == "__main__":

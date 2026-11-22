@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# devmode update — refresh the devmode-MANAGED files in an existing project to the
+# devmode update: refresh the devmode-MANAGED files in an existing project to the
 # current base, WITHOUT touching anything the project owns.
 #
 # Overwrites (devmode-owned, versioned in the base): .claude/skills/ (and removes
@@ -10,8 +10,8 @@
 # (scorecard/dashboard/goal_brief/beads_doctor/memory), the references, the conductor workflow
 # adapter + INTEGRATION.md + per-track templates, and CLAUDE.devmode.md /
 # AGENTS.devmode.md (only if present or needed as non-destructive pointers).
-# Merges (never replaces): the devmode-owned keys in .codex/config.toml — your
-# own keys, tables and comments in that file are preserved.
+# Merges (never replaces): the devmode-owned keys in .codex/config.toml (your
+# own keys, tables and comments in that file are preserved).
 #
 # NEVER touches (project-owned): CLAUDE.md, UBIQUITOUS_LANGUAGE.md, conductor
 # product/tech-stack/tracks/patterns/beads.json, your tracks/specs/code,
@@ -93,7 +93,7 @@ def table_header(line, index):
 
 
 def scan(lines):
-    """-> {(table, key): (index, line)} — first definition wins, as TOML does."""
+    """-> {(table, key): (index, line)}; first definition wins, as TOML does."""
     table, found = "", {}
     for index, line in enumerate(lines):
         header = table_header(line, index)
@@ -186,13 +186,13 @@ print(("" if owned else "user-owned: ") + ("; ".join(parts) or "already current"
 PY
   if ! summary="$(python3 "$script" "$src" "$dst")"; then
     rm -f "$script"
-    err ".codex/config.toml merge FAILED — file left untouched"
+    err ".codex/config.toml merge FAILED: file left untouched"
     return 1
   fi
   rm -f "$script"
   case "$summary" in
-    user-owned:*) warn ".codex/config.toml — ${summary#user-owned: } (no devmode marker)" ;;
-    *)            mark_managed "${dst#"$P"/}"; ok ".codex/config.toml — $summary" ;;
+    user-owned:*) warn ".codex/config.toml: ${summary#user-owned: } (no devmode marker)" ;;
+    *)            mark_managed "${dst#"$P"/}"; ok ".codex/config.toml: $summary" ;;
   esac
 }
 
@@ -274,7 +274,7 @@ P="${1:-}"
 [ -n "$P" ] || { err "usage: update.sh <project-dir>  (see --help)"; exit 1; }
 [ -d "$P" ] || { err "no such directory: $P"; exit 1; }
 P="$(cd "$P" && pwd)"
-[ -d "$P/.claude" ] || { err "$P has no .claude/ — not a devmode project. Run install.sh first."; exit 1; }
+[ -d "$P/.claude" ] || { err "$P has no .claude/, not a devmode project. Run install.sh first."; exit 1; }
 
 if [ -e "$P/.codex/config.toml" ] && ! cmp -s "$TPL/codex.config.toml" "$P/.codex/config.toml"; then
   if ! command -v python3 >/dev/null 2>&1 || ! python3 -c 'pass' >/dev/null 2>&1; then
@@ -397,7 +397,7 @@ for codex_copy in "$P"/.agents/skills/*; do
   fi
 done
 
-# 1. skills — refresh only directories installed by devmode. Unrelated and
+# 1. skills: refresh only directories installed by devmode. Unrelated and
 # same-name project skills are left in place.
 mkdir -p "$P/.claude/skills"
 WITH_SKILLS=1
@@ -443,7 +443,7 @@ if [ "$WITH_SKILLS" -eq 1 ]; then
   done
 fi
 # The `--with-conductor` skills are cloned from upstream into .claude/skills/,
-# not carried in the base's skills/ — so the loop over skills/ can never reach them.
+# not carried in the base's skills/, so the loop over skills/ can never reach them.
 for upstream_skill in conductor beads; do
   [ -d "$P/.claude/skills/$upstream_skill" ] && codex_targets="$codex_targets $upstream_skill"
 done
@@ -531,7 +531,7 @@ if ls "$DEVMODE_ROOT"/references/*.md >/dev/null 2>&1; then
   ok "references refreshed"
 fi
 
-# 5. .devmode scripts — NEVER the data (scorecard.json / gates.json)
+# 5. .devmode scripts, NEVER the data (scorecard.json / gates.json)
 mkdir -p "$P/.devmode"
 for script in scorecard.py dashboard.py goal_brief.py beads_doctor.py memory.py; do
   refresh_file "$DEVMODE_ROOT/scripts/$script" "$P/.devmode/$script" || true
@@ -551,11 +551,11 @@ if [ "$CLAUDE_DEVMODE_HOOKS" -eq 1 ]; then
   ok "hooks refreshed (incl. session_resume)"
   # Wire EVERY refreshed gate, not just the newest one. Refreshing a script
   # without wiring it is the worst possible state: the file is present and
-  # current, so the gate looks installed — and never runs. A project set up
+  # current, so the gate looks installed, and never runs. A project set up
   # before devmode_phase_gate.py existed used to get the file and no wiring,
   # while the Codex side (below) wired all five of its events.
   if [ -f "$P/.claude/settings.json" ]; then
-    python3 - "$P/.claude/settings.json" <<'PY' && ok "Claude gates wired in settings.json (PreToolUse guardrail, Stop verify+phase, SessionStart resume)" || err "FAILED to wire Claude gates in settings.json — they will NOT run; fix it by hand"
+    python3 - "$P/.claude/settings.json" <<'PY' && ok "Claude gates wired in settings.json (PreToolUse guardrail, Stop verify+phase, SessionStart resume)" || err "FAILED to wire Claude gates in settings.json: they will NOT run; fix it by hand"
 import json, sys
 path = sys.argv[1]
 base = 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/%s"'
@@ -641,14 +641,14 @@ if [ -d "$P/conductor" ]; then
   ok "conductor workflow adapter + INTEGRATION.md + track templates refreshed"
 fi
 
-# 8. CLAUDE.devmode.md — ONLY if the project uses the pointer variant. NEVER write CLAUDE.md.
+# 8. CLAUDE.devmode.md, ONLY if the project uses the pointer variant. NEVER write CLAUDE.md.
 if [ -f "$P/CLAUDE.devmode.md" ]; then
   if refresh_file "$TPL/CLAUDE.md" "$P/CLAUDE.devmode.md"; then
-    ok "CLAUDE.devmode.md (base declaration) refreshed — your CLAUDE.md left untouched"
+    ok "CLAUDE.devmode.md (base declaration) refreshed: your CLAUDE.md left untouched"
   fi
 else
-  warn "no CLAUDE.devmode.md (your CLAUDE.md holds devmode inline) — left untouched, as it should be"
+  warn "no CLAUDE.devmode.md (your CLAUDE.md holds devmode inline): left untouched, as it should be"
 fi
 
-step "Done — devmode updated; project content untouched"
+step "Done: devmode updated; project content untouched"
 ok "Review with: git -C \"$P\" status  (only devmode-managed files should appear)"

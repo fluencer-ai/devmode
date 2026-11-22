@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Prove the Beads memory layer is live in a project — or say so loudly.
+"""Prove the Beads memory layer is live in a project, or say so loudly.
 
 Beads is devmode's persistent memory: the notes that survive conversation
-compaction. Its failure mode is *silent* — if `bd` isn't installed the install
+compaction. Its failure mode is *silent*: if `bd` isn't installed the install
 still finishes, `conductor/beads.json` keeps saying `enabled: true`, and the
 session quietly falls back to the agent's own context. You find out much later,
 when a handoff you thought was durable turns out never to have been written.
@@ -79,10 +79,10 @@ def diagnose(f: dict) -> tuple[bool, list[tuple[str, str, str]], list[str]]:
 
     if f.get("bd_path") and f.get("beads_dir"):
         if f.get("ready_exit") == 0:
-            rows.append(("✓", "bd answers here", f"`bd ready` ok — {f.get('ready_lines', 0)} line(s)"))
+            rows.append(("✓", "bd answers here", f"`bd ready` ok: {f.get('ready_lines', 0)} line(s)"))
         else:
             rows.append(("✗", "bd answers here", f"`bd ready` exit {f.get('ready_exit')}"))
-            fix.append("bd is installed but not usable here — run `bd ready` and read the error.")
+            fix.append("bd is installed but not usable here: run `bd ready` and read the error.")
 
     c = f.get("counts")
     if c:
@@ -95,21 +95,21 @@ def diagnose(f: dict) -> tuple[bool, list[tuple[str, str, str]], list[str]]:
         f.get("bd_path") and f.get("beads_dir") and f.get("ready_exit") == 0)
 
     if not live and f.get("config_enabled") is True:
-        fix.append("conductor/beads.json still says enabled:true — it is lying about "
+        fix.append("conductor/beads.json still says enabled:true; it is lying about "
                    "this project. Fix the install or set enabled:false so the state "
                    "matches reality.")
     return live, rows, fix
 
 
 def render(live: bool, rows, fix, project: str) -> str:
-    out = [f"\n{DIM}== Beads memory doctor — {project} =={OFF}"]
+    out = [f"\n{DIM}== Beads memory doctor: {project} =={OFF}"]
     for status, label, detail in rows:
         col = GREEN if status == "✓" else (RED if status == "✗" else YELLOW)
         out.append(f"  {col}{status}{OFF} {label:<18} {DIM}{detail}{OFF}")
     if live:
-        out.append(f"\n{GREEN}✓ MEMORY IS LIVE{OFF} — handoffs written to bd survive compaction.")
+        out.append(f"\n{GREEN}✓ MEMORY IS LIVE{OFF}: handoffs written to bd survive compaction.")
     else:
-        out.append(f"\n{RED}✗ MEMORY IS NOT LIVE{OFF} — devmode will run with **no durable "
+        out.append(f"\n{RED}✗ MEMORY IS NOT LIVE{OFF}: devmode will run with **no durable "
                    f"memory**:\n  handoffs live only in the conversation and are LOST on "
                    f"compaction.\n  This fails silently, so fix it now or decide to accept it "
                    f"explicitly.")

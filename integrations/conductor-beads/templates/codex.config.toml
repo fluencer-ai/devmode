@@ -4,7 +4,7 @@
 # those are personal or environment policy. It only enables the surfaces devmode
 # needs when this project is trusted by Codex.
 #
-# devmode-managed: codex-config v1 — update.sh refreshes the devmode-owned keys below; delete this line to own the file.
+# devmode-managed: codex-config v1 (update.sh refreshes the devmode-owned keys below; delete this line to own the file).
 # Every other key, table, and comment you add to this file is preserved.
 
 # Reserve headroom for project and nested AGENTS.md instructions as the repo

@@ -22,26 +22,26 @@ refactor and sharper system boundaries
 
 Before changing an entity (function, module, type, endpoint, table), answer:
 
-1. **Recipients — who calls/imports this?** The direct dependents. Changing the
+1. **Recipients, who calls/imports this?** The direct dependents. Changing the
    behavior or signature affects all of them. (Reverse dependency: "find
    references", not "find definition".)
-2. **Transitive blast radius — who depends on the recipients?** Follow the
+2. **Transitive blast radius, who depends on the recipients?** Follow the
    reverse edges outward to the depth that matters. A leaf change is cheap; a
-   change near the root of the graph is expensive — know which you're making.
-3. **Cycles — is this part of a dependency cycle?** Cycles mean a change can loop
+   change near the root of the graph is expensive: know which you're making.
+3. **Cycles: is this part of a dependency cycle?** Cycles mean a change can loop
    back on itself; they're a refactoring hazard and a design smell to surface.
-4. **Orphans — does anything still use this at all?** If nothing depends on it,
+4. **Orphans: does anything still use this at all?** If nothing depends on it,
    the safest change is often *deletion* (cut the dead code rather than maintain it).
 
 ## How to trace it (use what you have)
 
-devmode is tool-agnostic — use the cheapest reliable source of reverse edges:
+devmode is tool-agnostic: use the cheapest reliable source of reverse edges:
 
 - **Language tooling first.** LSP "find all references", IDE call hierarchy, or
-  the type system — these are precise and cheap. Prefer them.
+  the type system: these are precise and cheap. Prefer them.
 - **Search as a fallback.** `grep`/ripgrep for the symbol, the import, the
   endpoint string, the event name. Watch for dynamic dispatch and string-based
-  wiring (reflection, DI containers, config) that static search misses — note
+  wiring (reflection, DI containers, config) that static search misses: note
   them explicitly as uncertainty.
 - **Git history** for "what changed with this before" (co-change is a dependency
   signal even when the code doesn't import directly).
@@ -67,29 +67,29 @@ devmode is tool-agnostic — use the cheapest reliable source of reverse edges:
 
 A rename is the most under-estimated change. Its blast radius includes the
 **test files and imports** (not just `src/`), and a naive find-replace will hit
-**substrings** — replacing `_period(` silently mangles `within_period(` too. So:
+**substrings**, replacing `_period(` silently mangles `within_period(` too. So:
 scope the rename precisely (whole-symbol, not substring), include tests in the
-sweep, and **re-run the full suite right after** — a rename isn't done until green
+sweep, and **re-run the full suite right after**; a rename isn't done until green
 (this is exactly what `verification-before-completion`
 catches: a broken import that "looks" like a clean rename).
 
 ## Reusing a state value inherits every behavior keyed on it
 
 The four questions trace an *entity* you're changing. But there's a blast radius
-with no symbol to "find references" on: **repurposing an existing state value** —
-a status, flag, enum case, or column value — to mean something new (`trialing` as
+with no symbol to "find references" on: **repurposing an existing state value**
+(a status, flag, enum case, or column value) to mean something new (`trialing` as
 a migration bridge, `pending` as "awaiting review", `archived` as "soft-deleted").
-You aren't changing the type's signature, so entity-tracing never fires — yet the
+You aren't changing the type's signature, so entity-tracing never fires, yet the
 value you write is read all over the system. Reusing it silently *inherits*
 everything already keyed on it: schedulers, event handlers, access gates,
 grant/cleanup sweeps, UI branches. The one behavior you wanted rides in with all
 the others.
 
 Before adopting the reuse, **grep every consumer of the value** (the value, not
-just the type) across every layer and list what each one does with it — the
+just the type) across every layer and list what each one does with it: the
 inherited behavior set is part of the decision, not a surprise. Then **verify by
-diffing the whole system's response** — side-effect records, related rows, any
-ledger/audit trail — before and after, not just the fields you predicted would
+diffing the whole system's response** (side-effect records, related rows, any
+ledger/audit trail) before and after, not just the fields you predicted would
 change. The tell that you skipped this: you validated the one behavior you wanted
 and discovered the rest one bug at a time.
 
@@ -103,6 +103,6 @@ accidental.
 
 ## Red flags
 
-- Renaming/deleting before tracing references ("nothing uses this" — verified?).
+- Renaming/deleting before tracing references ("nothing uses this": verified?).
 - Changing a signature near the graph root without checking the blast radius.
 - Trusting `grep` alone where dynamic dispatch or DI hides the real callers.

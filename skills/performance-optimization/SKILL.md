@@ -25,7 +25,7 @@ pointed at speed instead of correctness.
    throttled network/CPU for front-end). Get the *actual* breakdown.
 3. **Find the dominant cost** (Amdahl: optimizing a 2% slice is wasted effort).
 4. **Fix the one bottleneck**, test-first if it's logic, keeping behavior identical.
-5. **Re-measure** — did the target metric move? If not, revert; you guessed wrong.
+5. **Re-measure**: did the target metric move? If not, revert; you guessed wrong.
 6. **Lock it in** with a perf budget so it doesn't regress.
 
 ## Symptom → investigation
@@ -40,13 +40,13 @@ pointed at speed instead of correctness.
 
 ## Common, high-leverage fixes
 
-- **N+1 queries** — batch/join/eager-load; the single biggest backend win.
-- **Missing indexes** — confirm with the query plan, not a guess.
-- **Caching** — at the right layer (CDN, HTTP, query cache, memo). Cache *server
+- **N+1 queries**: batch/join/eager-load; the single biggest backend win.
+- **Missing indexes**: confirm with the query plan, not a guess.
+- **Caching**, at the right layer (CDN, HTTP, query cache, memo). Cache *server
   state*, with invalidation; don't hand-roll it into a global store.
-- **Bundle/asset weight (web)** — code-split, lazy-load, tree-shake; compress and
+- **Bundle/asset weight (web)**: code-split, lazy-load, tree-shake; compress and
   right-size images; defer non-critical work.
-- **Do less** — pagination, virtualization for long lists, debounce/throttle,
+- **Do less**: pagination, virtualization for long lists, debounce/throttle,
   avoid recomputation. The fastest work is the work you don't do.
 
 ## Core Web Vitals (front-end)
@@ -54,7 +54,7 @@ pointed at speed instead of correctness.
 Track and budget **LCP** (loading), **INP** (responsiveness), **CLS** (visual
 stability). Measure on real/throttled conditions, not a fast dev machine.
 
-## Perf budgets — keep the win
+## Perf budgets: keep the win
 
 Once you hit the target, encode it as a **budget** (bundle KB, p95 ms, query
 count) and check it in CI (`ci-cd.md` in `shipping`) so

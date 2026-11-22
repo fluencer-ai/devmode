@@ -15,6 +15,8 @@ in skills/authoring-skills/SKILL.md):
   - every written "N skills"/"N agents" total in tracked markdown matches the
     real directory counts (so a stale "38 skills" can't ship to the README/About)
   - every relative markdown link in the repo resolves (excluding workspaces/ scratch)
+  - no text file carries an em dash (house style: colon, comma, semicolon or
+    parentheses instead; code that must match one spells it as an escape)
 
 Exit code 0 = clean; 1 = at least one hard failure. Soft issues (line budget)
 are warnings and do not fail the run.
@@ -199,7 +201,7 @@ def audit_codex_skills(root: str = ROOT) -> list[str]:
             continue
         rel, link = f".agents/skills/{name}", os.path.join(codex_dir, name)
         if not os.path.islink(link):
-            errors.append(f"{rel}: a copy, not a link — Codex must not get a second physical skill")
+            errors.append(f"{rel}: a copy, not a link; Codex must not get a second physical skill")
         elif os.readlink(link) != os.path.join("../../skills", name):
             errors.append(f"{rel}: links to '{os.readlink(link)}', expected '../../skills/{name}'")
         elif not os.path.isfile(os.path.join(link, "SKILL.md")):
@@ -243,17 +245,17 @@ def audit_clashes(other: str | None = None) -> list[str]:
 # badges + "What's in the box" + the section headings, both manuals, INTEGRATION.md,
 # the /devmode command and the orchestrator agent). audit_skills/audit_agents
 # count the real folders but never checked those written numbers, so the docs
-# could drift silently — a stale "38 skills" nearly shipped to the GitHub About.
+# could drift silently: a stale "38 skills" nearly shipped to the GitHub About.
 #
 # A digit glued to skills/agents is a TOTAL claim. The nouns cover English
 # `skills`/`agents`, the README's `subagents`, and MANUAL-PT-BR.md's `agentes`.
 COUNT_RE = re.compile(r"(\d+)\s+(skills|subagents|agentes|agents)\b", re.I)
-# ...except a number qualified by a sub-category — "20 skills de processo",
-# "18 skills de domínio" — is a partial count, not the grand total, so it is
+# ...except a number qualified by a sub-category ("20 skills de processo",
+# "18 skills de domínio") is a partial count, not the grand total, so it is
 # left out of the comparison.
 BREAKDOWN_RE = re.compile(r"\s*(de\s+)?(process|processo|domains?|dom[íi]nio|meta)\b", re.I)
 # A sub-count has no filesystem ground truth (nothing marks a skill "process" vs
-# "domain"), so it can't be checked against reality — but every doc must at least
+# "domain"), so it can't be checked against reality, but every doc must at least
 # agree with every other doc. A stale "20 skills de processo" survived a 41→42
 # reconciliation precisely because the total check skips these; this catches the
 # contradiction instead.
@@ -263,7 +265,7 @@ SUBCOUNT_RE = re.compile(
 # ("21 *process* + 18 *domain*") that SUBCOUNT_RE matches, and the section heading
 # "<b>Process skills (21)</b>" where the digit trails the category. Only the first
 # was collected, so a stale "(20)" heading sat one screen from a correct "21" and
-# the audit still passed — exactly the drift this check exists to catch.
+# the audit still passed: exactly the drift this check exists to catch.
 SUBCOUNT_TRAILING_RE = re.compile(
     r"\b(process|processo|domains?|dom[íi]nio|meta)\b[^()\n]{0,20}\((\d+)\)", re.I)
 _CATEGORY = {"process": "process", "processo": "process", "domain": "domain",
@@ -285,7 +287,7 @@ def collect_subcounts(rel: str, text: str, seen: dict[str, dict[int, list[str]]]
     """Record every written per-category sub-count so conflicts can be reported."""
     for lineno, line in enumerate(text.splitlines(), 1):
         # An attribution/provenance row ("12 domain skills came from <source>") counts
-        # what one upstream contributed, not what the pack holds — different claim,
+        # what one upstream contributed, not what the pack holds: different claim,
         # so an external link on the line disqualifies it from the consistency check.
         if "](http" in line:
             continue
@@ -392,7 +394,7 @@ def _keywords(text: str) -> set:
 
 
 def audit_overlap(threshold: float = 0.40) -> list[str]:
-    """Flag skill pairs whose descriptions overlap heavily — a duplication smell.
+    """Flag skill pairs whose descriptions overlap heavily: a duplication smell.
 
     Informational (prints, never fails the build): legitimately-related skills
     share vocabulary, so high overlap is a *review* signal, not an error. Adapted
@@ -426,12 +428,12 @@ def audit_overlap(threshold: float = 0.40) -> list[str]:
             print(f"  {YELLOW}~{OFF} {jac:.0%}  {x}  ~  {y}")
     else:
         print(f"{DIM}No skill-description overlap above {threshold:.0%}.{OFF}")
-    return []  # informational only — never fails the run
+    return []  # informational only, never fails the run
 
 
 # A loaded file (skill, agent, command, deployed template) is re-read into context
 # on every use, so upstream provenance in it is attention spent on something the
-# agent cannot act on — and the pack lost that discipline twice before it was
+# agent cannot act on, and the pack lost that discipline twice before it was
 # written down. Credit belongs in README.md / ATTRIBUTION.md, which is also where a
 # licence's attribution condition is satisfied. Functional URLs (an XML namespace)
 # are not provenance and are allowed.
@@ -469,10 +471,42 @@ def audit_provenance() -> list[str]:
                     if m:
                         errors.append(
                             f"{os.path.relpath(mf, ROOT)}:{lineno}: provenance in a "
-                            f"loaded file ('{m.group(0)[:40]}') — move it to "
+                            f"loaded file ('{m.group(0)[:40]}'): move it to "
                             f"README.md / ATTRIBUTION.md")
     flag = f"{RED}✗{OFF}" if errors else f"{GREEN}✓{OFF}"
     print(f"  {flag} {scanned} loaded files scanned, {len(errors)} provenance leak(s)")
+    return errors
+
+
+EM_DASH = "\u2014"
+TEXT_EXT = (".md", ".py", ".sh", ".toml", ".json", ".yaml", ".yml", ".txt", ".html")
+
+
+def em_dash_lines(rel: str, text: str) -> list[str]:
+    """`rel:line` for every line of `text` holding an em dash (pure)."""
+    return [f"{rel}:{n}: em dash (use a colon, comma, semicolon or parentheses)"
+            for n, line in enumerate(text.splitlines(), 1) if EM_DASH in line]
+
+
+def audit_em_dash() -> list[str]:
+    """Fail if any text file in the pack carries an em dash (house style)."""
+    errors: list[str] = []
+    scanned = 0
+    for dp, dn, fns in os.walk(ROOT):
+        dn[:] = [d for d in dn if d not in (".git", "workspaces", "node_modules")
+                 and not (d == "worktrees" and dp.endswith(".claude"))]
+        for f in fns:
+            if not (f.endswith(TEXT_EXT) or f in ("setup", ".gitignore")):
+                continue
+            mf = os.path.join(dp, f)
+            try:
+                text = open(mf, encoding="utf-8").read()
+            except (UnicodeDecodeError, OSError):
+                continue
+            scanned += 1
+            errors += em_dash_lines(os.path.relpath(mf, ROOT), text)
+    flag = f"{RED}✗{OFF}" if errors else f"{GREEN}✓{OFF}"
+    print(f"  {flag} {scanned} text files scanned, {len(errors)} em dash line(s)")
     return errors
 
 
@@ -526,8 +560,10 @@ def main() -> int:
     audit_overlap()
     print()
     link_errors = audit_links()
+    print()
+    dash_errors = audit_em_dash()
     errors = (skill_errors + agent_errors + codex_agent_errors + codex_skill_errors + index_errors
-              + count_errors + mirror_errors + prov_errors + link_errors)
+              + count_errors + mirror_errors + prov_errors + link_errors + dash_errors)
     print()
     if errors:
         print(f"{RED}✗ {len(errors)} issue(s):{OFF}")
@@ -535,7 +571,7 @@ def main() -> int:
             print(f"  {RED}-{OFF} {e}")
         return 1
     print(f"{GREEN}✓ skills + Claude/Codex agents are consistent "
-          f"(frontmatter, adapters, names, counts, provenance, links).{OFF}")
+          f"(frontmatter, adapters, names, counts, provenance, links, style).{OFF}")
     return 0
 
 

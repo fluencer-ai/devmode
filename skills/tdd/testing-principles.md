@@ -13,7 +13,7 @@ it.
 
 ## The three interdependent decisions
 
-These decisions depend on each other — choosing a unit size constrains what you
+These decisions depend on each other, choosing a unit size constrains what you
 must mock, which constrains which behaviors you can sanely assert. Decide them
 together, not in isolation.
 
@@ -21,7 +21,7 @@ together, not in isolation.
 
 Test at the **deepest stable interface you can**, not at every internal
 function. A deep module (lots of logic behind a simple interface) should be
-tested *through that interface* — that's the boundary that won't churn. Testing
+tested *through that interface*: that's the boundary that won't churn. Testing
 each private helper individually couples your tests to the implementation and
 makes every refactor a test rewrite.
 
@@ -37,13 +37,13 @@ makes every refactor a test rewrite.
 ### 2. What do you mock?
 
 Mock at architectural seams, not inside your own logic. The reliable rule:
-**mock what you don't own and can't make fast or deterministic** — the network,
+**mock what you don't own and can't make fast or deterministic**: the network,
 the clock, the filesystem, third-party services, randomness. Don't mock your own
 domain logic; if you find yourself doing that, the unit boundary is wrong or the
 code needs the functional-core/imperative-shell split so the logic is pure.
 
 - Every mock is an assumption about how a collaborator behaves. Mocks that
-  drift from reality give you green tests over broken code — the worst outcome,
+  drift from reality give you green tests over broken code: the worst outcome,
   because it destroys trust in the suite.
 - Prefer real objects for things you own and that are fast. Prefer a single
   fake/stub at the boundary over deeply nested mock chains, which are a smell
@@ -55,22 +55,22 @@ code needs the functional-core/imperative-shell split so the logic is pure.
 
 Test behaviors a caller depends on, prioritized by risk:
 
-- **The contract** — the documented happy-path behavior of the interface.
-- **The edges** — empty, boundary, max, concurrent, and failure inputs. This is
+- **The contract**: the documented happy-path behavior of the interface.
+- **The edges**: empty, boundary, max, concurrent, and failure inputs. This is
   where real bugs live.
-- **The invariants** — properties that must always hold (from the
+- **The invariants**: properties that must always hold (from the
   `ubiquitous-language`: "a seat is assigned or free, never both").
-- **Regressions** — every fixed bug gets a test that would have caught it.
+- **Regressions**: every fixed bug gets a test that would have caught it.
 
 Don't assert on internal call order, private state, or incidental details. Each
 test should have one clear reason to fail; if you can't name what behavior a
 test protects, delete it.
 
-### Make edge coverage auditable — the edge probe
+### Make edge coverage auditable: the edge probe
 
 "Did you handle the edges?" is too easy to wave through. Turn it into an
 **auditable probe**: enumerate the edge categories that apply and give each an
-explicit verdict — never leave one silently unconsidered.
+explicit verdict, never leave one silently unconsidered.
 
 | Edge category | Ask |
 |---|---|
@@ -80,24 +80,24 @@ explicit verdict — never leave one silently unconsidered.
 | **Ordering / concurrency** | out-of-order, races, idempotency on retry |
 | **Failure / adversarial** | I/O error, partial write, hostile input (see below) |
 
-Mark each: **covered** (a test pins it) · **dismissed** (genuinely N/A — say why) ·
+Mark each: **covered** (a test pins it) · **dismissed** (genuinely N/A, say why) ·
 **backstop** (held by a type/constraint/guard, not a test) · **unresolved** (a
-real gap — track it, don't bury it). An `unresolved` edge is a *known* risk, not a
-silent one — the same ratchet as "every acceptance criterion has a passing test",
+real gap, track it, don't bury it). An `unresolved` edge is a *known* risk, not a
+silent one: the same ratchet as "every acceptance criterion has a passing test",
 applied to edges. The categories are a starting checklist, not a straitjacket: add
 the ones your domain needs; the discipline is the per-edge *verdict*, not the list.
 
 ## Properties of a test worth keeping
 
-- **Behavioral** — asserts *what*, not *how*. Survives refactors.
-- **Deterministic** — same result every run. No real clocks, no real network,
+- **Behavioral**: asserts *what*, not *how*. Survives refactors.
+- **Deterministic**: same result every run. No real clocks, no real network,
   no order dependence between tests. Flaky tests get muted, and muted tests
   protect nothing.
-- **Fast** — the suite's speed is your feedback rate, which is your speed limit.
+- **Fast**: the suite's speed is your feedback rate, which is your speed limit.
   Push slow dependencies behind seams.
-- **Readable as a spec** — the test name and body state the behavior in domain
+- **Readable as a spec**: the test name and body state the behavior in domain
   language. A new reader should learn what the code does by reading its tests.
-- **Independent** — no shared mutable state; any test can run alone or in any
+- **Independent**: no shared mutable state; any test can run alone or in any
   order.
 
 ## Common failure modes and the fix
@@ -125,22 +125,22 @@ the ones your domain needs; the discipline is the per-edge *verdict*, not the li
    assumption about how a collaborator behaves; if you don't understand the
    collaborator, the mock will drift from reality and give you green tests over
    broken code. Understand it, or use the real thing.
-4. **Tautological tests — the expected value comes from the code itself.** When
+4. **Tautological tests: the expected value comes from the code itself.** When
    the assertion recomputes the expected value the same way the code does
    (`expect(add(a, b)).toBe(a + b)`, a snapshot baselined from whatever the code
    just produced, a constant asserted equal to itself), the test passes *by
-   construction* — it can never disagree with the code, so it survives every
+   construction*: it can never disagree with the code, so it survives every
    regression and proves nothing. The expected value must come from an
    **independent source of truth**: a known-good literal, a worked example
    computed by hand, or the spec. Before asserting, ask: *"where did this expected
-   value come from — the spec, or the code's own logic?"*
+   value come from: the spec, or the code's own logic?"*
 
 ## Trace acceptance criteria to tests
 
 When a spec/PRD lists acceptance criteria, make each one **traceable to a test**.
 Tag the test (or its name) with the criterion it covers, so coverage is judged by
-*behaviors a caller depends on*, not by a line-percentage. A simple convention —
-referencing the AC id in the test name or a comment — lets you (or a check) see
+*behaviors a caller depends on*, not by a line-percentage. A simple convention
+(referencing the AC id in the test name or a comment) lets you (or a check) see
 which criteria are unproven. This is the right kind of "coverage": every promised
 behavior has a test that would fail if the promise broke. It feeds the
 verification gate ladder in `feedback-loops`.
@@ -156,7 +156,7 @@ only protected by a test that exercises `now == exp` exactly.)
 ## "Not observed" is not "absent"
 
 Don't conclude a behavior is fine just because you didn't see it fail. *No test
-covering a case* means **unknown**, not **safe** — and an absent log line or
+covering a case* means **unknown**, not **safe**, and an absent log line or
 metric means you didn't look, not that nothing happened. Say "not observed" (and
 add the test) rather than silently treating an untested path as passing. The
 `test-coverage-analyzer` exists precisely to surface the *unknowns* a green suite
@@ -165,18 +165,18 @@ of contrary evidence.
 
 ## Pin invariants you can't directly observe
 
-Some invariants aren't visible to a unit test — timing/constant-time behavior,
+Some invariants aren't visible to a unit test, timing/constant-time behavior,
 concurrency, randomness, "never logs the secret". A `==` swapped for a
 constant-time compare produces identical functional results, so no assertion can
 catch it directly. Don't fake it (a bogus "constant-time" assertion) and don't
 skip it. Instead, pin it three ways:
 
-1. **An adjacent observable proxy** — test the closest thing you *can* observe
+1. **An adjacent observable proxy**: test the closest thing you *can* observe
    (e.g. "the secret never appears in the output/Verdict/error"), so a whole
    class of regressions still fails a test.
-2. **A recorded decision (ADR)** — capture the invariant and its rationale so it
+2. **A recorded decision (ADR)**: capture the invariant and its rationale so it
    isn't silently undone later.
-3. **A review lane** — the `security-scanner` (or the relevant reviewer) confirms
+3. **A review lane**: the `security-scanner` (or the relevant reviewer) confirms
    the invariant holds in the code, since the test can't.
 
 ## Test security-relevant code under *adversarial* input
@@ -186,7 +186,7 @@ limiter, auth check, validator, anything enforcing a limit or a permission). Its
 invariant must hold under **hostile or corrupt** input too: negative/zero/huge
 values, a `cost` of `0` or `-1`, a stored value that's already out of range, a
 clock that runs backwards. These are exactly the inputs a happy-path test suite
-misses and an attacker reaches for — in practice the review panel finds them when
+misses and an attacker reaches for, in practice the review panel finds them when
 the author's tests don't. For invariant-bearing code, add a test class that
 *attacks* the invariant (assert it raises, clamps, or rejects), not just one that
 exercises the nominal path. The control checklist lives in `security-hardening`.
@@ -198,6 +198,6 @@ logic is entangled with I/O, you're forced into heavy mocking, which makes tests
 brittle and slow. The fix is usually structural: separate a **functional core**
 (pure, deterministic logic you test directly with no mocks) from an
 **imperative shell** (thin I/O you cover with a few integration tests). If
-writing a test is painful, treat that as the design telling you to refactor —
+writing a test is painful, treat that as the design telling you to refactor:
 reach for `functional-core-imperative-shell` or `improve-codebase-architecture`
 before adding more mocks.

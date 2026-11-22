@@ -13,11 +13,11 @@ disable-model-invocation: true
 This is the *operational mechanism* for the strategy in
 `design-interface-delegate-implementation`: design the interface yourself, then
 delegate the implementation as a **gray box** verified from the outside. That
-skill says *why*; this one says *how* — dispatch a fresh worker per ticket,
+skill says *why*; this one says *how*: dispatch a fresh worker per ticket,
 review its output on two axes, merge, and keep your own context for coordination.
 
 **Why a fresh worker per ticket:** you construct exactly the context each ticket
-needs — it never inherits your session's history, so it stays focused and you
+needs: it never inherits your session's history, so it stays focused and you
 preserve your own context for orchestration. **Core loop:** ready ticket → fresh
 implementer in its own worktree → Spec and Standards review → merger → next
 ready tickets.
@@ -57,7 +57,7 @@ If tasks are tightly coupled, or the design isn't settled, stop and `grill-me` /
 4. **Per ready ticket, dispatch an implementer** in **its own worktree on its own
    branch**, based on the integration branch tip. Run the ready set concurrently.
    The brief: pointers to the ticket and notes, the interface/contract it must
-   hit, the constraints/invariants, and the done-criterion — *not* the
+   hit, the constraints/invariants, and the done-criterion, *not* the
    implementation steps. The implementer confirms its worktree base (resets onto
    the integration tip if not), works test-first (`tdd`), self-reviews, commits,
    and merges the integration tip into its branch before reporting.
@@ -81,7 +81,7 @@ If tasks are tightly coupled, or the design isn't settled, stop and `grill-me` /
 
 ## Handling implementer status
 
-Implementers report one of four states — never ignore an escalation:
+Implementers report one of four states, never ignore an escalation:
 
 - **DONE** → only if it came with an **evidence-backed self-review** (each claim
   + the actual command output, per the `tdd-implementer`'s evidence-gated
@@ -97,12 +97,12 @@ Implementers report one of four states — never ignore an escalation:
 ## Parallelize with isolation, not luck
 
 The fresh-implementer / separate-reviewer split *is* the maker/checker discipline
-of loop engineering — never let the model that wrote the code be the one that
+of loop engineering, never let the model that wrote the code be the one that
 grades it. Concurrency comes from the ready set, safety from isolation: one
 worktree (or branch/clone) per ticket so parallel writes can't collide, and one
 merger that integrates after each ticket passes review. Dispatching parallel
 implementers into the *same* working tree on overlapping files is the classic
-conflict — isolation, not hope, is what makes the fan-out safe.
+conflict: isolation, not hope, is what makes the fan-out safe.
 
 ## Model selection (cost/speed)
 
@@ -113,7 +113,7 @@ Use the least powerful model that can do the role:
 
 ## Delegation discipline (the gray-box contract)
 
-- **Fix the interface and the tests first** — that's what lets you *not* read
+- **Fix the interface and the tests first**: that's what lets you *not* read
   every line. A gray box is only safe when its boundary is pinned.
 - **Critical modules are never gray boxes.** Money, auth, security, irreversible
   effects → review in full regardless of the worker's report.

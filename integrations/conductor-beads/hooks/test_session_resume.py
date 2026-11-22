@@ -1,4 +1,4 @@
-"""Tests for session_resume.py — the SessionStart hook that prints a compact
+"""Tests for session_resume.py: the SessionStart hook that prints a compact
 warm-resume hint from .devmode/scorecard.json, and FAILS OPEN (prints nothing,
 exit 0) on any missing or malformed input.
 

@@ -47,7 +47,7 @@ class Diagnose(unittest.TestCase):
         self.assertFalse(any("lying" in f for f in fix))
 
     def test_empty_store_is_not_a_failure(self):
-        # a fresh `bd init` has no export-state.json yet — that must stay green
+        # a fresh `bd init` has no export-state.json yet: that must stay green
         live, rows, _fix = diagnose({**LIVE, "counts": None})
         self.assertTrue(live)
         self.assertTrue(any(s == "!" for s, _, _ in rows))

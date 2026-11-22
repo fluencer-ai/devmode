@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""goal-brief — turn a devmode spec into a ready-to-run `/goal` (or `/plan`)
+"""goal-brief: turn a devmode spec into a ready-to-run `/goal` (or `/plan`)
 launch command that references the spec file in detail, and GUARANTEE it fits the
 character budget.
 
@@ -76,7 +76,7 @@ def build_brief(
     verb = "Plan" if kind == "plan" else "Build"
     header = (
         f"{kind.upper()}: {title}\n\n"
-        f"Read `{ref}` IN FULL — it has the step-by-step, the tests, and the "
+        f"Read `{ref}` IN FULL: it has the step-by-step, the tests, and the "
         f"acceptance criteria. Work the devmode way: align on the spec, then "
         f"{'produce a phased plan' if kind == 'plan' else 'implement test-first (red→green→refactor)'}, "
         f"verify every claim with fresh evidence, review critical modules (auth/"
@@ -101,8 +101,8 @@ def build_brief(
     brief = header + ac_block + plan_block + footer
     if len(brief) <= budget:
         return brief.strip(), True
-    ac_summary = (f"\nAcceptance criteria: {len(acs)} items — see `{ref}`.\n" if acs else "")
-    plan_summary = (f"\nPlan: {len(plan_steps)} steps — read the supplied plan file in full.\n"
+    ac_summary = (f"\nAcceptance criteria: {len(acs)} items; see `{ref}`.\n" if acs else "")
+    plan_summary = (f"\nPlan: {len(plan_steps)} steps; read the supplied plan file in full.\n"
                     if plan_steps else "")
     brief = header + ac_summary + plan_summary + footer
     return brief.strip(), len(brief) <= budget
@@ -114,7 +114,7 @@ def emit(brief: str, kind: str, budget: int) -> int:
     over = n > budget
     print(f"--- ready-to-run command ({n} chars of brief; budget {budget}) ---\n")
     print(cmd)
-    print(f"\n--- {'OK ✓ within budget' if not over else f'OVER by {n-budget} — condense before running'} ---")
+    print(f"\n--- {'OK ✓ within budget' if not over else f'OVER by {n-budget}: condense before running'} ---")
     return 1 if over else 0
 
 
@@ -153,7 +153,7 @@ def main() -> int:
             text = sys.stdin.read()
         n = len(text)
         over = n > args.budget
-        print(f"{n}/{args.budget} chars — {'OVER by ' + str(n-args.budget) if over else 'PASS'}")
+        print(f"{n}/{args.budget} chars: {'OVER by ' + str(n-args.budget) if over else 'PASS'}")
         return 1 if over else 0
 
     # scaffold
@@ -173,7 +173,7 @@ def main() -> int:
     brief, ok = build_brief(spec, ref, args.kind, args.budget, plan)
     rc = emit(brief, args.kind, args.budget)
     if not ok:
-        print("note: even the pointer-only brief exceeds the budget — raise --budget or shorten the title/ACs.",
+        print("note: even the pointer-only brief exceeds the budget; raise --budget or shorten the title/ACs.",
               file=sys.stderr)
     return rc
 

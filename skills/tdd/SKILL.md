@@ -12,14 +12,14 @@ disable-model-invocation: true
 
 The rate of feedback is your speed limit. The classic AI failure mode is
 **outrunning your headlights**: the model emits a large pile of code and only
-*then* thinks to type-check or test it — by which point a small early mistake
+*then* thinks to type-check or test it, by which point a small early mistake
 has propagated everywhere. TDD fixes this structurally. It forces small,
 deliberate steps where every step ends in a passing test, so feedback arrives
 constantly and mistakes stay tiny.
 
 TDD also does something subtler: writing the test first forces you to design
 the interface from the *caller's* point of view before you write the
-implementation. That pressure produces simpler, more usable interfaces — which
+implementation. That pressure produces simpler, more usable interfaces, which
 is exactly the design investment this whole process is about.
 
 **Absorbed: `testing-principles`.** TDD sets the rhythm; the principles decide
@@ -47,15 +47,15 @@ section is the starting proposal for the seams.
 ## The loop: red → green → refactor
 
 Do this one behavior at a time, at an agreed seam. Never skip the refactor
-step — it's where the design investment happens.
+step: it's where the design investment happens.
 
-1. **Red — write one failing test.** Pick the smallest next behavior. Write a
+1. **Red: write one failing test.** Pick the smallest next behavior. Write a
    test that asserts it and watch it fail *for the right reason* (the behavior
    is missing, not a typo). A test you never saw fail is a test you don't trust.
-2. **Green — make it pass simply.** Write the least code that turns the test
+2. **Green: make it pass simply.** Write the least code that turns the test
    green. Resist building ahead of the test; the goal is a passing bar, not a
    finished feature.
-3. **Refactor — improve the design.** With the test green as a safety net,
+3. **Refactor: improve the design.** With the test green as a safety net,
    clean up: remove duplication, sharpen names (use the `ubiquitous-language`),
    consolidate toward deep modules. Run the tests again. This is where you
    *invest in the design of the system*.
@@ -69,7 +69,7 @@ is how the design investment gets skipped.
 
 ## Why small steps matter with AI
 
-The AI's instinct is to do too much at once — generate a whole feature, then
+The AI's instinct is to do too much at once: generate a whole feature, then
 verify. That maximizes the blast radius of any error and makes failures hard to
 localize. By gating every increment behind a test, you cap how far a mistake can
 travel and you give the model a crisp, frequent signal. Slower-looking steps
@@ -89,7 +89,7 @@ speed limit.
   without mocks. If tests are painful to write, treat it as a design signal and
   consider `improve-codebase-architecture` before pushing harder.
 - When a test fails for a reason you don't understand, switch to
-  `systematic-debugging` (find the root cause) rather than guessing — and before
+  `systematic-debugging` (find the root cause) rather than guessing, and before
   claiming green, apply `verification-before-completion`.
 
 ## Working rules

@@ -101,6 +101,13 @@ Measured with `./setup --report` against a scratch HOME (4 chars ≈ 1 token).
 - `argument-hint` lists `plan <objective>`; README credits name the sibling
   files that replaced the fused skills.
 
+### Style (2026-11-22)
+
+- No em dashes in the pack: docs, skills, agents, templates, scripts and their
+  messages use a colon, comma, semicolon or parentheses instead.
+  `scripts/audit_skills.py` now fails on any em dash, so it can't creep back.
+  Installer checks still recognize project files written by older versions.
+
 ### Migration from v1
 
 - **Projects:** run `/devmode update <folder>` (or

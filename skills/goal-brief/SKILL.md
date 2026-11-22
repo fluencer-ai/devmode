@@ -15,7 +15,7 @@ compatibility). The hard part is that a great
 `/goal` needs a *lot* of detail (steps, tests, acceptance criteria) that won't
 fit. devmode already solves that: the **`spec.md` + `plan.md`** of a track *are*
 that detailed objective doc. This skill turns them into a **compact launch brief
-that references the file** — so the long detail lives in the spec, and the
+that references the file**, so the long detail lives in the spec, and the
 `/goal` command stays small.
 
 ## Key fact: devmode emits the command; you run it
@@ -29,7 +29,7 @@ user asks.
 ## Opt-in only
 
 This is **not** part of the normal Align→…→Review flow. Only reach for it when the
-user explicitly wants a `/goal` (or `/plan`) — typically via `/devmode goal
+user explicitly wants a `/goal` (or `/plan`): typically via `/devmode goal
 <objective>`. Don't auto-emit `/goal` during a normal build.
 
 ## The recursion (`/plan` ↔ `/goal`)
@@ -46,7 +46,7 @@ user explicitly wants a `/goal` (or `/plan`) — typically via `/devmode goal
 
 1. **Ensure the objective doc exists.** Reuse the track's `spec.md` (+`plan.md`).
    If there's no spec yet, produce one first (`write-prd`,
-   after `grill-me`) — it must carry the **step-by-step,
+   after `grill-me`): it must carry the **step-by-step,
    the testing strategy, and the acceptance criteria**, because the brief points
    at it for the detail.
 2. **Scaffold the brief** from the spec:
@@ -59,7 +59,7 @@ user explicitly wants a `/goal` (or `/plan`) — typically via `/devmode goal
    objective, acceptance criteria, plan steps, and test line, wraps them with
    devmode execution rules, references the file, and reports the char count.
 3. **Refine** so the brief *references the file in detail* (the spec path, what
-   it contains, the acceptance criteria to meet) while staying terse — the file
+   it contains, the acceptance criteria to meet) while staying terse: the file
    holds the depth; the brief is the pointer + the must-knows.
 4. **Guarantee the limit** (the feedback loop):
    ```bash
@@ -75,7 +75,7 @@ user explicitly wants a `/goal` (or `/plan`) — typically via `/devmode goal
 ## What a good brief contains (compact)
 
 - **Objective** in one or two lines.
-- **"Read `<spec path>` IN FULL"** — the step-by-step, tests, acceptance criteria.
+- **"Read `<spec path>` IN FULL"**: the step-by-step, tests, acceptance criteria.
 - The **acceptance criteria** (or, if too long, a count + the file pointer).
 - The **devmode execution rules** condensed: test-first, verify with evidence,
   critical modules reviewed in full, don't claim done without running checks,
@@ -86,7 +86,7 @@ user explicitly wants a `/goal` (or `/plan`) — typically via `/devmode goal
 
 - Emitting a `/goal` without a spec to reference (the brief becomes a vague wish).
 - Handing over a brief that hasn't passed `goal_brief.py check` (may exceed the limit).
-- Wiring `/goal` into the default flow (it's opt-in — only on explicit request).
+- Wiring `/goal` into the default flow (it's opt-in, only on explicit request).
 - Pretending devmode started `/goal`; this mode's explicit contract is to emit it.
 
 > `/goal` and `/plan` are cross-host commands (referenced, not

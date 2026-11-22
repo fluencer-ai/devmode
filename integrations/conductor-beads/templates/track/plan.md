@@ -2,7 +2,7 @@
 
 > Phased task list that `/conductor-implement` executes against `workflow.md`.
 > Tasks are derived from the spec's **module & interface** section. Keep tasks
-> small — one behavior each — so the red→green→refactor loop stays tight.
+> small (one behavior each) so the red→green→refactor loop stays tight.
 >
 > Annotations the implementer reads:
 > - `<!-- depends: phaseN -->` on a phase header → phase dependency (omit = sequential)
@@ -11,17 +11,17 @@
 > - `<!-- core -->` / `<!-- shell -->` → marks functional core vs. imperative shell work
 > - `<!-- gray-box -->` / `<!-- critical -->` → review depth for this task
 
-## Phase 1: <name — usually the functional core>
+## Phase 1: <name, usually the functional core>
 <!-- depends: -->
 
 - [ ] Define the interface for `<Module>` (signatures/types, named in ubiquitous language)
   <!-- core -->
-- [ ] Test-first: pure core behavior — happy path
+- [ ] Test-first: pure core behavior: happy path
   <!-- core --> <!-- files: src/<module>/<core>.ts, src/<module>/<core>.test.ts -->
 - [ ] Test-first: core edge cases (empty, boundary, failure, invariants)
   <!-- core -->
 
-## Phase 2: <name — the imperative shell wiring>
+## Phase 2: <name, the imperative shell wiring>
 <!-- depends: phase1 -->
 
 - [ ] Wire the imperative shell: gather inputs → call core → perform effects
@@ -29,10 +29,10 @@
 - [ ] Integration test for the shell (a couple, at the seam)
   <!-- shell -->
 
-## Phase 3: <name — critical paths reviewed in full, if any>
+## Phase 3: <name, critical paths reviewed in full, if any>
 <!-- depends: phase2 -->
 
-- [ ] <task touching money/auth/security — implementation reviewed fully>
+- [ ] <task touching money/auth/security: implementation reviewed fully>
   <!-- critical -->
 
 ---

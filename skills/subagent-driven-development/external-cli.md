@@ -1,7 +1,7 @@
 # Delegating to an external model CLI
 
 Sometimes the right worker isn't a subagent in this session but an external
-model CLI — `codex exec`, `gemini`, etc. It is the same gray-box contract as
+model CLI: `codex exec`, `gemini`, etc. It is the same gray-box contract as
 `SKILL.md` and `design-interface-delegate-implementation`, just with a different
 worker: **you own the interface and the tests; the CLI fills the implementation;
 you verify from the outside.**
@@ -14,7 +14,7 @@ you verify from the outside.**
 - The interface and acceptance checks already exist, so you can verify the result
   without reading every line.
 
-If the task isn't bounded, or the design isn't settled, don't delegate — align
+If the task isn't bounded, or the design isn't settled, don't delegate: align
 first (`grill-me`, `write-prd`).
 
 ## The contract
@@ -25,7 +25,7 @@ first (`grill-me`, `write-prd`).
    grant write access only when edits are the point; never grant broad/network
    access casually.
 3. **Hand over constraints, not steps.** Give the CLI the contract, invariants,
-   and acceptance criteria — let it choose how.
+   and acceptance criteria: let it choose how.
 4. **Verify from the outside.** Apply `verification-before-completion`: run the
    tests/types/build on the result. The CLI's summary is not evidence.
 5. **Critical code is never a gray box.** Money, auth, security, irreversible
@@ -36,19 +36,19 @@ first (`grill-me`, `write-prd`).
 These are illustrative; check each CLI's current flags before relying on them.
 
 ```bash
-# Codex — read-only analysis (suppress thinking tokens on stderr)
+# Codex: read-only analysis (suppress thinking tokens on stderr)
 codex exec --skip-git-repo-check --sandbox read-only "Review src/billing for race conditions" 2>/dev/null
 
-# Codex — apply local edits to a bounded task
+# Codex: apply local edits to a bounded task
 codex exec --skip-git-repo-check --sandbox workspace-write --full-auto \
   "Refactor parseDate to return Result<Date, ParseError>; keep the public signature" 2>/dev/null
 
-# Gemini — analysis
+# Gemini: analysis
 gemini -p "Explain the data flow through the renewal pipeline in src/billing"
 ```
 
 Capture stdout, then **run your own verification** on the working tree. Summarize
-the outcome and the evidence — not the CLI's self-report.
+the outcome and the evidence, not the CLI's self-report.
 
 ## Red flags
 

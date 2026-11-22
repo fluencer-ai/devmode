@@ -2,7 +2,7 @@
 
 devmode's core process is original, but several skills and enhancements were
 **adapted** from third-party open-source projects after an evaluation pass. We
-reframed each in the devmode voice and wired it to devmode's existing skills —
+reframed each in the devmode voice and wired it to devmode's existing skills:
 these are not verbatim copies. Credit and licenses below.
 
 All sources marked MIT permit reuse and modification with attribution; this file
@@ -20,45 +20,45 @@ reused (no files copied), as noted.
 | `.agents/complexity-reviewer` (prover/verifier, Done-When evidence) | `post-gate-agent` | ryanthedev/code-foundations | MIT |
 | `skills/testing-principles` (anti-patterns) | `test-driven-development/testing-anti-patterns` | obra/superpowers | MIT |
 | `skills/testing-principles` (AC↔test traceability), `skills/feedback-loops` (gate ladder, ratchet) | `df-ac-coverage`, `commands/df/verify` | [saidwafiq/deepflow](https://github.com/saidwafiq/deepflow) | MIT |
-| `skills/feedback-loops` (gate taxonomy + the decision-coverage gate), `skills/testing-principles` (the edge-coverage probe — per-edge covered/dismissed/backstop/unresolved verdict), `skills/security-hardening` (the *vet-before-you-add* package-legitimacy / slopsquat awareness) | `references/gates` + the gate suite (decision-coverage, edge-coverage, package-legitimacy) | [gsd-build/get-shit-done](https://github.com/gsd-build/get-shit-done) → now [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) | MIT |
+| `skills/feedback-loops` (gate taxonomy + the decision-coverage gate), `skills/testing-principles` (the edge-coverage probe, per-edge covered/dismissed/backstop/unresolved verdict), `skills/security-hardening` (the *vet-before-you-add* package-legitimacy / slopsquat awareness) | `references/gates` + the gate suite (decision-coverage, edge-coverage, package-legitimacy) | [gsd-build/get-shit-done](https://github.com/gsd-build/get-shit-done) → now [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) | MIT |
 | `skills/authoring-skills` | `writing-skills` + `skill-judge` + `skill-auditor` | obra/superpowers; [softaworks/agent-toolkit](https://github.com/softaworks/agent-toolkit); [glittercowboy/taches-cc-resources](https://github.com/glittercowboy/taches-cc-resources) | MIT |
 | `skills/delegate-to-cli` | `codex` / `gemini` skills | softaworks/agent-toolkit | MIT |
 | `skills/code-review` | `requesting-code-review` + `receiving-code-review` (+ panel lanes from claude-conductor) | obra/superpowers; rbarcante/claude-conductor | MIT; Apache-2.0 |
 | `.agents/tdd-implementer` (evidence-gated handoff), `skills/verification-before-completion` (evidence packs), `skills/testing-principles` ("not observed ≠ absent") | `worker-report.v1`, evidence scripts, unknown-data contract | [Chachamaru127/claude-code-harness](https://github.com/Chachamaru127/claude-code-harness) | MIT |
-| `integrations/.../hooks/guardrails.py` (+ test) — deterministic PreToolUse gates-as-code | R-rule guardrail engine (`go/internal/guardrail`) — *patterns only, not the Go binary* | Chachamaru127/claude-code-harness | MIT |
+| `integrations/.../hooks/guardrails.py` (+ test): deterministic PreToolUse gates-as-code | R-rule guardrail engine (`go/internal/guardrail`): *patterns only, not the Go binary* | Chachamaru127/claude-code-harness | MIT |
 | Domain skills: `frontend-ui-engineering`, `api-design`, `security-hardening`, `performance-optimization`, `browser-testing`, `ci-cd-automation`, `documentation`, `git-workflow`, `migration`, `shipping`, `context-engineering`, `source-of-truth` | the corresponding `agent-skills` skills (generalized off their web stack; coverage-gate reconciled to devmode's base) | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | MIT |
 | `skills/accessibility`, `skills/ux-design` | authored for devmode; a11y from `references/accessibility-checklist.md` (agent-skills) | addyosmani/agent-skills (a11y ref) + devmode-original (ux-design) | MIT |
-| `skills/ux-design` (the **2:1 proximity ratio** — within-group spacing ≤ half the between-group spacing, making the qualitative proximity rule mechanically checkable) | the DESIGN-LANGUAGE proximity rule (concept only — none of the React/Tailwind/Vite component library, JSON tokens, Framer-Motion "seeds" engine, brand skins, or `npx` installer) | [bitjaru/styleseed](https://github.com/bitjaru/styleseed) | MIT © 2026 StyleSeed Contributors |
-| `scripts/audit_skills.py` — description-overlap detector + trigger-word lint | `scripts/detect_dupes.sh` (Jaccard) + `scripts/lint.sh` (trigger/length) | [khendzel/skills-janitor](https://github.com/khendzel/skills-janitor) | MIT |
-| `skills/discovery` — codebase reverse-engineering for `/devmode adopt` | Scout/Soul/Detective/Architect prompt pipeline + 🟢/🟡/🔴 confidence scale | [sandeco/reversa](https://github.com/sandeco/reversa) | MIT |
-| `skills/doc-contracts` — hierarchical AGENTS.md doc-contract tree (pre-edit traversal + post-edit doc pass) | the `AGENTS.md` framework file | [agent0ai/dox](https://github.com/agent0ai/dox) | MIT |
-| `skills/prototyping` — throwaway spike → capture → off `main` to a `prototype/` branch; `skills/context-engineering` (handoff: reference-don't-duplicate, suggested-skills, redact, temp-dir) | `prototype` + `handoff` skills | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT © Matt Pocock |
-| `/devmode do` — the plain-English task-router mode (Route→…→Deliver, evidence-gated) in `commands/devmode.md` | the `/do` command | [notque/vexjoy-agent](https://github.com/notque/vexjoy-agent) | MIT |
-| `integrations/.../hooks/session_resume.py` — SessionStart warm-resume hook | the SessionStart lifecycle-hook pattern | [notque/claude-code-starter-kit](https://github.com/notque/claude-code-starter-kit) | MIT |
-| `integrations/llm-wiki/` — the `/devmode wiki` module (LLM-maintained markdown knowledge base: 3 layers, 7 page types, ingest/query/lint) | the *LLM Wiki* pattern (concept only — no app/code) | [Andrej Karpathy's gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) | gist (concept) |
-| `skills/minimal-code` + `/devmode lean` — the lazy-senior-dev minimalism ladder, safety floor, intensity levels, deliberate-simplification comment, audit/review lenses | the `ponytail` skill (concept/prose only — none of its Node hooks or multi-agent packaging) | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | MIT © Dietrich Gebert |
-| `skills/visual-explainers` | — devmode-original — (the `visualize`/`show_widget` usage is environment-specific; the legibility/theming/a11y rules are tool-agnostic) | (none) | — |
+| `skills/ux-design` (the **2:1 proximity ratio**: within-group spacing ≤ half the between-group spacing, making the qualitative proximity rule mechanically checkable) | the DESIGN-LANGUAGE proximity rule (concept only: none of the React/Tailwind/Vite component library, JSON tokens, Framer-Motion "seeds" engine, brand skins, or `npx` installer) | [bitjaru/styleseed](https://github.com/bitjaru/styleseed) | MIT © 2026 StyleSeed Contributors |
+| `scripts/audit_skills.py`: description-overlap detector + trigger-word lint | `scripts/detect_dupes.sh` (Jaccard) + `scripts/lint.sh` (trigger/length) | [khendzel/skills-janitor](https://github.com/khendzel/skills-janitor) | MIT |
+| `skills/discovery`: codebase reverse-engineering for `/devmode adopt` | Scout/Soul/Detective/Architect prompt pipeline + 🟢/🟡/🔴 confidence scale | [sandeco/reversa](https://github.com/sandeco/reversa) | MIT |
+| `skills/doc-contracts`: hierarchical AGENTS.md doc-contract tree (pre-edit traversal + post-edit doc pass) | the `AGENTS.md` framework file | [agent0ai/dox](https://github.com/agent0ai/dox) | MIT |
+| `skills/prototyping`: throwaway spike → capture → off `main` to a `prototype/` branch; `skills/context-engineering` (handoff: reference-don't-duplicate, suggested-skills, redact, temp-dir) | `prototype` + `handoff` skills | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT © Matt Pocock |
+| `/devmode do`: the plain-English task-router mode (Route→…→Deliver, evidence-gated) in `commands/devmode.md` | the `/do` command | [notque/vexjoy-agent](https://github.com/notque/vexjoy-agent) | MIT |
+| `integrations/.../hooks/session_resume.py`: SessionStart warm-resume hook | the SessionStart lifecycle-hook pattern | [notque/claude-code-starter-kit](https://github.com/notque/claude-code-starter-kit) | MIT |
+| `integrations/llm-wiki/`: the `/devmode wiki` module (LLM-maintained markdown knowledge base: 3 layers, 7 page types, ingest/query/lint) | the *LLM Wiki* pattern (concept only: no app/code) | [Andrej Karpathy's gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) | gist (concept) |
+| `skills/minimal-code` + `/devmode lean`: the lazy-senior-dev minimalism ladder, safety floor, intensity levels, deliberate-simplification comment, audit/review lenses | the `ponytail` skill (concept/prose only: none of its Node hooks or multi-agent packaging) | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | MIT © Dietrich Gebert |
+| `skills/visual-explainers` | devmode-original (the `visualize`/`show_widget` usage is environment-specific; the legibility/theming/a11y rules are tool-agnostic) | (none) | - |
 | `skills/frontend-ui-engineering` (brief-inference, design dials, concrete AI-tell bans, consistency locks, motivated motion + reduced-motion, mechanical pre-flight, image-first prototyping, audit-first redesign) + `skills/verification-before-completion` (output-completeness: no `// …` truncation; count + pause cleanly) | the `taste-skill` / `redesign-skill` / `output-skill` skills | [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) | MIT |
-| `skills/code-review` (immutable gate-independence — the implementer never self-certifies a critical quality/security gate) + `skills/minimal-code` (search-first / reuse-before-create) | the vNext gate contract + the "Pattern Discovery Protocol" | [bybren-llc/safe-agentic-workflow](https://github.com/bybren-llc/safe-agentic-workflow) | MIT © J. Scott Graham / ByBren LLC |
-| `skills/discovery` (the **readiness read** — test-safety-net + operational readiness → a recommended first move) + `skills/security-hardening` (the *scan-before-you-share* secrets reflex) | the pre-scaffold `genome` analysis + the `validate` credential-exposure gate (concepts only — none of the WASM kernel / witness-signing / multi-host infra) | [ruvnet/agent-harness-generator](https://github.com/ruvnet/agent-harness-generator) (MetaHarness) | MIT |
-| `skills/systematic-debugging` (diagnostic-evidence-not-directive — verify a tool's/agent's file/line/"missing-X" claims against the real repo before acting; re-search by concept, not its path guess) | the `halo-loop` skill's "treat engine output as evidence, not a directive; verify before you edit" discipline (concept only — none of the RLM engine / trace runtime / OTel-JSONL format / CLI) | [context-labs/halo](https://github.com/context-labs/halo) | MIT (by classification; LICENSE file unreadable) |
-| `skills/verification-before-completion` (declare-and-confirm the task's concrete deliverables before "done") | the task-contract `requiredArtifacts`/`expectedOutputs` gate (concept only — none of the MCP server / runtime / tree-sitter / replay engine) | [vinilana/dotcontext](https://github.com/vinilana/dotcontext) | MIT |
-| `skills/grill-me` + `skills/design-critique` (perspective-guided, cite-everything external grounding: diverse personas → grounded multi-turn questioning → surface unknown-unknowns — folded into existing skills, **no** new `/devmode research` command) | STORM / Co-STORM's methodology (concept only — none of the dspy/retriever app) | [stanford-oval/storm](https://github.com/stanford-oval/storm) | MIT |
-| `skills/grill-me` (anti-anchoring context isolation — dispatch each perspective subagent with only the question + minimal context, never your running conversation or stated leaning, or the voice mirrors your position back) | the `council` skill's fresh-subagent anti-anchoring mechanic (concept only — none of the panel app / persistence runtime) | [affaan-m/ecc](https://github.com/affaan-m/ecc) | MIT |
-| `skills/testing-principles` (tautological tests), `skills/git-workflow` (resolving conflicts), `skills/authoring-skills` (leading words, steer-by-the-positive), `skills/systematic-debugging` (red-capable loop, minimise the repro, tagged `[DEBUG-]` cleanup, no-correct-seam-is-the-finding), `skills/improve-codebase-architecture` (the deletion test, git-hotspot scoping), `skills/design-interface-delegate-implementation` (design the interface twice), `skills/context-engineering` (hand off before the context degrades; a handoff forks, compaction summarizes), `skills/ubiquitous-language` (terms-in-use dialogue), `skills/grill-me` (ask in rounds — work the settled *frontier* with a recommended answer per question; facts are your job, decisions are the user's) | the `engineering/*` + `productivity/*` + `in-progress/batch-grill-me` skills (incl. `handoff`, `codebase-design/DEEPENING` + `DESIGN-IT-TWICE`, `diagnosing-bugs`, `resolving-merge-conflicts`, `writing-great-skills`) | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT © Matt Pocock |
-| `skills/code-review` (independence is temporal — read the diff before the author's framing), `skills/ux-design` (cap what the eye must hold, ~4 items + progressive disclosure) | the `impeccable` craft/critique references (concept only — none of its 59-rule detector, CLI, extension, or hooks) | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | Apache-2.0 |
-| `skills/documentation` (anchor code references on the durable symbol + excerpt, not `file:line`), `skills/api-design` (design for the consumer's selection model — agents pick by name) | the `graft` skill + MCP tool instructions (concept only — none of its MCP server, tree-sitter indexer, or viewer) | [NanoNets/Graft](https://github.com/NanoNets/Graft) | MIT |
-| `skills/architecture-boundaries` (a boundary owns validity — parse, don't validate), `skills/systematic-debugging` (fix the class, not just the line), `skills/code-review` (the loop has to converge — materiality bar + stopping rule), `skills/context-engineering` (place durable instructions at the latest reliable point; test the handoff in a fresh session), `skills/feedback-loops` (don't corrupt the signal — never pre-pipe a gate through `head`/`tail`), `skills/migration` (retired code is precedent for the next agent; ratchet the retired form out) | the `docs/*` harness-engineering essays (`just-in-time`, `tool-legibility`, `authority`, `proof`, `feedback`, `durable-systems`, `continuous-maintenance`) | [lopopolo/harness-engineering](https://github.com/lopopolo/harness-engineering) | **CC-BY-4.0** (Creative Commons Attribution 4.0 International) |
-| `skills/ux-design` (content integrity — never fabricate a stat/proof to fill a slot; interface copy: buttons, errors, empty states, loading, placeholders), `skills/security-hardening` (instructions-in-ingested-content is data not commands; SSRF allow/deny for user-supplied fetch URLs) | the `hallmark` references (`anti-patterns`, `slop-test`, `copy`, `interaction-and-states`) — concept only, none of its per-tone voice tables or app | [Nutlope/hallmark](https://github.com/Nutlope/hallmark) | MIT © 2026 Hallmark contributors |
-| `skills/authoring-skills` (editing is not just adding — re-run a scenario the skill already handled; consolidate, don't just patch) | the skill-optimization prompts (`analyst_*`, `merge_*`, `rewrite_skill`) — concept only, none of its training loop, learning-rate schedule, held-out scoring, or WebUI | [microsoft/SkillOpt](https://github.com/microsoft/SkillOpt) | MIT © 2026 Microsoft Corporation |
-| `skills/source-of-truth` (emit a command/flag from its own definition, never a nearby example), `skills/impact-analysis` (reusing a state value inherits every behavior keyed on it), `skills/ubiquitous-language` (don't let a primitive delete the domain concept), `skills/grill-me` (disagree out loud — once), `skills/minimal-code` (the surgical rule for editing existing code), `skills/confidence-check` (prove the read with worked examples), `skills/verification-before-completion` (ground per claim, not per session; caveat-as-unmet-criterion), `skills/context-engineering` (park distractions, don't chase them), `skills/systematic-debugging` (sweep every symptom site before picking a subsystem) | the `greybeard` CLAUDE.md + `skillify`/`check-resolvable` skills + `pressure-test`/`sidenote` commands (concept only — no commands or artifacts imported) | [clawnify/greybeard](https://github.com/clawnify/greybeard) | MIT |
-| `skills/divergent-ideation` (**new skill** — generate a wide candidate set for an open decision before choosing; diverge/converge wall, frame operators, recommend-don't-dictate) | the `adhd` divergent-thinking frames (concept only — none of its Node/TS library, CLI, JSON schema, eval harness, or 0–10 novelty/viability/fit scoring, which devmode rejects as gameable) | [UditAkhourii/adhd](https://github.com/UditAkhourii/adhd) | MIT © 2026 ADHD contributors |
-| `skills/prior-art` (**new skill** — does it already exist? buy/adopt/build; comparable-bias controls (stars are a bookmark count, state what transfers *and* what must not be copied); cost at three horizons (prototype/launch/growth); the evidence ledger with an explicit "what it does not establish"; the gain / give-up / harder-later / **when this becomes wrong** trade-off) + `skills/design-critique` (name the invalidation condition) + `skills/minimal-code` (point the reuse ladder outward) | the `advise-project-approach` skill — incl. its read-only permission boundary and repo-inspection scope note, folded into `skills/discovery` (concept only — none of its output templates, Agent-Reach adapter, eval harness, or output scoring) | [AaravKashyap12/advise-project-approach](https://github.com/AaravKashyap12/advise-project-approach) | MIT © 2026 Aarav |
-| `skills/prior-art` (the escalation rung — when nothing shipped exists, read the research literature: a 3-question gate so the expensive tier never fires on CRUD, one isolated reader per paper, then commit to ONE path with citations, a first step, and known failure modes) | the `neuroarxiv` skill's pre-flight gate + divergent-read/converge loop (concept only — none of its TypeScript CLI, arXiv HTTP client, Agent SDK, or its 0–10 relevance/practicality/rigor scoring, which devmode rejects as gameable) | [UditAkhourii/neuroarxiv](https://github.com/UditAkhourii/neuroarxiv) | MIT © 2026 NeuroArxiv contributors |
+| `skills/code-review` (immutable gate-independence: the implementer never self-certifies a critical quality/security gate) + `skills/minimal-code` (search-first / reuse-before-create) | the vNext gate contract + the "Pattern Discovery Protocol" | [bybren-llc/safe-agentic-workflow](https://github.com/bybren-llc/safe-agentic-workflow) | MIT © J. Scott Graham / ByBren LLC |
+| `skills/discovery` (the **readiness read**: test-safety-net + operational readiness → a recommended first move) + `skills/security-hardening` (the *scan-before-you-share* secrets reflex) | the pre-scaffold `genome` analysis + the `validate` credential-exposure gate (concepts only: none of the WASM kernel / witness-signing / multi-host infra) | [ruvnet/agent-harness-generator](https://github.com/ruvnet/agent-harness-generator) (MetaHarness) | MIT |
+| `skills/systematic-debugging` (diagnostic-evidence-not-directive: verify a tool's/agent's file/line/"missing-X" claims against the real repo before acting; re-search by concept, not its path guess) | the `halo-loop` skill's "treat engine output as evidence, not a directive; verify before you edit" discipline (concept only: none of the RLM engine / trace runtime / OTel-JSONL format / CLI) | [context-labs/halo](https://github.com/context-labs/halo) | MIT (by classification; LICENSE file unreadable) |
+| `skills/verification-before-completion` (declare-and-confirm the task's concrete deliverables before "done") | the task-contract `requiredArtifacts`/`expectedOutputs` gate (concept only: none of the MCP server / runtime / tree-sitter / replay engine) | [vinilana/dotcontext](https://github.com/vinilana/dotcontext) | MIT |
+| `skills/grill-me` + `skills/design-critique` (perspective-guided, cite-everything external grounding: diverse personas → grounded multi-turn questioning → surface unknown-unknowns: folded into existing skills, **no** new `/devmode research` command) | STORM / Co-STORM's methodology (concept only: none of the dspy/retriever app) | [stanford-oval/storm](https://github.com/stanford-oval/storm) | MIT |
+| `skills/grill-me` (anti-anchoring context isolation: dispatch each perspective subagent with only the question + minimal context, never your running conversation or stated leaning, or the voice mirrors your position back) | the `council` skill's fresh-subagent anti-anchoring mechanic (concept only: none of the panel app / persistence runtime) | [affaan-m/ecc](https://github.com/affaan-m/ecc) | MIT |
+| `skills/testing-principles` (tautological tests), `skills/git-workflow` (resolving conflicts), `skills/authoring-skills` (leading words, steer-by-the-positive), `skills/systematic-debugging` (red-capable loop, minimise the repro, tagged `[DEBUG-]` cleanup, no-correct-seam-is-the-finding), `skills/improve-codebase-architecture` (the deletion test, git-hotspot scoping), `skills/design-interface-delegate-implementation` (design the interface twice), `skills/context-engineering` (hand off before the context degrades; a handoff forks, compaction summarizes), `skills/ubiquitous-language` (terms-in-use dialogue), `skills/grill-me` (ask in rounds: work the settled *frontier* with a recommended answer per question; facts are your job, decisions are the user's) | the `engineering/*` + `productivity/*` + `in-progress/batch-grill-me` skills (incl. `handoff`, `codebase-design/DEEPENING` + `DESIGN-IT-TWICE`, `diagnosing-bugs`, `resolving-merge-conflicts`, `writing-great-skills`) | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT © Matt Pocock |
+| `skills/code-review` (independence is temporal: read the diff before the author's framing), `skills/ux-design` (cap what the eye must hold, ~4 items + progressive disclosure) | the `impeccable` craft/critique references (concept only: none of its 59-rule detector, CLI, extension, or hooks) | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | Apache-2.0 |
+| `skills/documentation` (anchor code references on the durable symbol + excerpt, not `file:line`), `skills/api-design` (design for the consumer's selection model: agents pick by name) | the `graft` skill + MCP tool instructions (concept only: none of its MCP server, tree-sitter indexer, or viewer) | [NanoNets/Graft](https://github.com/NanoNets/Graft) | MIT |
+| `skills/architecture-boundaries` (a boundary owns validity: parse, don't validate), `skills/systematic-debugging` (fix the class, not just the line), `skills/code-review` (the loop has to converge: materiality bar + stopping rule), `skills/context-engineering` (place durable instructions at the latest reliable point; test the handoff in a fresh session), `skills/feedback-loops` (don't corrupt the signal, never pre-pipe a gate through `head`/`tail`), `skills/migration` (retired code is precedent for the next agent; ratchet the retired form out) | the `docs/*` harness-engineering essays (`just-in-time`, `tool-legibility`, `authority`, `proof`, `feedback`, `durable-systems`, `continuous-maintenance`) | [lopopolo/harness-engineering](https://github.com/lopopolo/harness-engineering) | **CC-BY-4.0** (Creative Commons Attribution 4.0 International) |
+| `skills/ux-design` (content integrity, never fabricate a stat/proof to fill a slot; interface copy: buttons, errors, empty states, loading, placeholders), `skills/security-hardening` (instructions-in-ingested-content is data not commands; SSRF allow/deny for user-supplied fetch URLs) | the `hallmark` references (`anti-patterns`, `slop-test`, `copy`, `interaction-and-states`): concept only, none of its per-tone voice tables or app | [Nutlope/hallmark](https://github.com/Nutlope/hallmark) | MIT © 2026 Hallmark contributors |
+| `skills/authoring-skills` (editing is not just adding: re-run a scenario the skill already handled; consolidate, don't just patch) | the skill-optimization prompts (`analyst_*`, `merge_*`, `rewrite_skill`): concept only, none of its training loop, learning-rate schedule, held-out scoring, or WebUI | [microsoft/SkillOpt](https://github.com/microsoft/SkillOpt) | MIT © 2026 Microsoft Corporation |
+| `skills/source-of-truth` (emit a command/flag from its own definition, never a nearby example), `skills/impact-analysis` (reusing a state value inherits every behavior keyed on it), `skills/ubiquitous-language` (don't let a primitive delete the domain concept), `skills/grill-me` (disagree out loud: once), `skills/minimal-code` (the surgical rule for editing existing code), `skills/confidence-check` (prove the read with worked examples), `skills/verification-before-completion` (ground per claim, not per session; caveat-as-unmet-criterion), `skills/context-engineering` (park distractions, don't chase them), `skills/systematic-debugging` (sweep every symptom site before picking a subsystem) | the `greybeard` CLAUDE.md + `skillify`/`check-resolvable` skills + `pressure-test`/`sidenote` commands (concept only: no commands or artifacts imported) | [clawnify/greybeard](https://github.com/clawnify/greybeard) | MIT |
+| `skills/divergent-ideation` (**new skill**: generate a wide candidate set for an open decision before choosing; diverge/converge wall, frame operators, recommend-don't-dictate) | the `adhd` divergent-thinking frames (concept only: none of its Node/TS library, CLI, JSON schema, eval harness, or 0–10 novelty/viability/fit scoring, which devmode rejects as gameable) | [UditAkhourii/adhd](https://github.com/UditAkhourii/adhd) | MIT © 2026 ADHD contributors |
+| `skills/prior-art` (**new skill**: does it already exist? buy/adopt/build; comparable-bias controls (stars are a bookmark count, state what transfers *and* what must not be copied); cost at three horizons (prototype/launch/growth); the evidence ledger with an explicit "what it does not establish"; the gain / give-up / harder-later / **when this becomes wrong** trade-off) + `skills/design-critique` (name the invalidation condition) + `skills/minimal-code` (point the reuse ladder outward) | the `advise-project-approach` skill: incl. its read-only permission boundary and repo-inspection scope note, folded into `skills/discovery` (concept only: none of its output templates, Agent-Reach adapter, eval harness, or output scoring) | [AaravKashyap12/advise-project-approach](https://github.com/AaravKashyap12/advise-project-approach) | MIT © 2026 Aarav |
+| `skills/prior-art` (the escalation rung, when nothing shipped exists, read the research literature: a 3-question gate so the expensive tier never fires on CRUD, one isolated reader per paper, then commit to ONE path with citations, a first step, and known failure modes) | the `neuroarxiv` skill's pre-flight gate + divergent-read/converge loop (concept only: none of its TypeScript CLI, arXiv HTTP client, Agent SDK, or its 0–10 relevance/practicality/rigor scoring, which devmode rejects as gameable) | [UditAkhourii/neuroarxiv](https://github.com/UditAkhourii/neuroarxiv) | MIT © 2026 NeuroArxiv contributors |
 | `skills/code-review` ("comprehension debt", maker/checker), `skills/subagent-driven-development` (worktree isolation) | the *loop-engineering* essays | [Osmani](https://addyosmani.com/blog/loop-engineering/) · [Autocomplete](https://medium.com/autocomplete-real-world-ai/wtf-is-a-agentic-coding-loop-and-how-to-build-one-58eedb7cbcae) · [Greyling](https://cobusgreyling.medium.com/loop-engineering-62926dd6991c) | essays (concepts) |
-| `skills/code-review` (the *green-by-deletion* tripwire — a fix that disables/comments the very test it was meant to satisfy is an automatic finding) | the `loop-verifier` "no-cheating" gate (concept only — none of the npm CLIs / MCP server / scheduler / readiness-score) | [cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering) | MIT |
-| `skills/self-scorecard`, `scripts/scorecard.py`, `scripts/dashboard.py` | — devmode-original — | (none) | — |
-| `skills/goal-brief`, `scripts/goal_brief.py` | — devmode-original — (emits Claude Code `/goal` & `/plan` commands; the commands are referenced, not vendored) | (none) | — |
+| `skills/code-review` (the *green-by-deletion* tripwire: a fix that disables/comments the very test it was meant to satisfy is an automatic finding) | the `loop-verifier` "no-cheating" gate (concept only: none of the npm CLIs / MCP server / scheduler / readiness-score) | [cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering) | MIT |
+| `skills/self-scorecard`, `scripts/scorecard.py`, `scripts/dashboard.py` | devmode-original | (none) | - |
+| `skills/goal-brief`, `scripts/goal_brief.py` | devmode-original (emits Claude Code `/goal` & `/plan` commands; the commands are referenced, not vendored) | (none) | - |
 | `integrations/conductor-beads` (STATE.md memory pattern) | `templates/state.md` | [gsd-build/get-shit-done](https://github.com/gsd-build/get-shit-done) → now [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) | MIT |
 | `.agents/code-quality-analyzer`, `.agents/security-scanner`, `.agents/test-coverage-analyzer` (parallel review panel) | `agents/code-quality-analyzer`, `agents/security-scanner`, `agents/test-coverage-analyzer` | [rbarcante/claude-conductor](https://github.com/rbarcante/claude-conductor) | Apache-2.0 |
 | `integrations/.../templates/track/decisions.md` (ADR), INTEGRATION WARM START handoff | `protocols/decision-capture`, `commands/implement` | rbarcante/claude-conductor | Apache-2.0 |
@@ -88,7 +88,7 @@ reused (no files copied), as noted.
 - **Apache-2.0 sources** (`rbarcante/claude-conductor`,
   `k-kolomeitsev/data-structure-protocol`) permit reuse and modification; this
   file preserves the required attribution. We adapted *patterns and prose*
-  (review-agent roles, ADR/decision-capture, impact-analysis technique) — no
+  (review-agent roles, ADR/decision-capture, impact-analysis technique): no
   source code was copied verbatim.
 - **cowwoc/cat** is under a source-available *commercial* license (CAT Source-
   Available License v1.0), not OSI open-source. We reused only *concepts* (the
@@ -97,10 +97,10 @@ reused (no files copied), as noted.
   its license.
 - **get-shit-done** (by TÂCHES) is MIT but **archived** (2026-06-26); the
   maintained successor is **`open-gsd/gsd-core`** (MIT). We mined prose patterns
-  only — the gate taxonomy + STATE.md memory from the original, and (from gsd-core)
+  only: the gate taxonomy + STATE.md memory from the original, and (from gsd-core)
   the **edge-coverage probe** (`testing-principles`), the **decision-coverage gate**
   (`feedback-loops`), and the **package-legitimacy / slopsquat awareness**
-  (`security-hardening`, as a one-line *practice* — none of gsd-core's external
+  (`security-hardening`, as a one-line *practice*: none of gsd-core's external
   `slopcheck` tool or registry calls); we did not depend on its code/engine. ("GSD
   Redux" was the early provisional name, since renamed to gsd-core.)
 - **NguyenSiTrung/Conductor-Beads** (Apache-2.0) is the upstream toolkit the
@@ -115,61 +115,61 @@ reused (no files copied), as noted.
   the same thesis and four failure modes. It is the single most-drawn-from
   sibling: `prototype` became `skills/prototyping` and `handoff` folded into
   `skills/context-engineering`, and the practice-level deltas listed in the table
-  above reach nine further skills. The table is the record — this note only names
+  above reach nine further skills. The table is the record: this note only names
   the lineage. devmode generalized the thesis into a tool-agnostic process rather
   than a TypeScript/web skill set.
 - The **loop-engineering essays** (Osmani; Autocomplete/Real-World-AI; Greyling)
-  are prose, not code — we reused *concepts* (maker/checker split, comprehension
+  are prose, not code: we reused *concepts* (maker/checker split, comprehension
   debt, worktree isolation, "design loops, don't prompt turn-by-turn"); they
   validated devmode's existing architecture more than they changed it. The
   **`cobusgreyling/loop-engineering`** *repo* (MIT) turns that essay into npm CLIs +
-  an MCP server + a scheduler — all of which devmode refuses (app/runtime,
+  an MCP server + a scheduler: all of which devmode refuses (app/runtime,
   human-in-the-loop by design); the one markdown-shaped delta its `loop-verifier`
   added beyond the essay is the **green-by-deletion** tripwire now in `code-review`.
   (Its Loop Readiness Score is a 0–100 rubric already covered by `self-scorecard`'s
   0–10; its `loop-constraints.md` is enforced harder by devmode's deterministic hooks.)
 - **Evaluated and absorbed nothing** (recorded so it isn't re-litigated):
-  **`safishamsi/graphify`** (MIT) — a tree-sitter parser + NetworkX/Neo4j graph
+  **`safishamsi/graphify`** (MIT): a tree-sitter parser + NetworkX/Neo4j graph
   engine + MCP server; the graph-as-markdown methodology is already devmode's
   (`ubiquitous-language` dep-map, `impact-analysis` blast-radius + why-per-edge,
   parser-free `discovery`, the `llm-wiki` [[wikilink]] graph), and the parser/graph-DB
   is the class devmode refuses. A verbatim re-read of the shipped `skill.md` (1204
-  lines) confirmed every behavioral maxim is already covered — provenance tagging
+  lines) confirmed every behavioral maxim is already covered: provenance tagging
   (EXTRACTED/INFERRED/AMBIGUOUS) ≈ `discovery`'s 🟢/🟡/🔴 confidence scale; "never
   hallucinate an edge; if the graph lacks info, say so" ≈ `verification-before-completion`
   + `systematic-debugging`; the rest (graph.json, cohesion scores, exports, the
   skip-chunk/>50%-fail threshold) is app mechanics or a gameable numeric gate.
-- **`lopopolo/harness-engineering` is CC-BY-4.0**, not MIT — attribution is a
+- **`lopopolo/harness-engineering` is CC-BY-4.0**, not MIT: attribution is a
   *license condition*, not a courtesy. Creator: **Ryan Lopopolo**; source:
   <https://github.com/lopopolo/harness-engineering>; license:
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). We reused **ideas
-  from its prose essays** (no files copied) and **modified** them — reframed in the
+  from its prose essays** (no files copied) and **modified** them: reframed in the
   devmode voice and rewritten to devmode's own vocabulary. This notice, plus the
   table row above and the README acknowledgment, is the required attribution.
-- **`pbakaus/impeccable` is Apache-2.0** — permits reuse and modification with
+- **`pbakaus/impeccable` is Apache-2.0**: permits reuse and modification with
   attribution, provided here. We took two prose maxims only; none of its
   59-rule detector, CLI, VS Code extension, or hooks.
-- **Evaluated and absorbed nothing — `ayghri/i-have-adhd`** (MIT): an output-style
+- **Evaluated and absorbed nothing: `ayghri/i-have-adhd`** (MIT): an output-style
   accommodation skill (shorter answers, less scrolling) orthogonal to the process
   spine; each of its ten rules is already covered deeper by `minimal-code`,
   `verification-before-completion`, or `systematic-debugging`'s 3-fix rule. Honest
-  empty — read verbatim, nothing to take.
-- **`affaan-m/ecc`** (MIT) — an app-heavy sibling (continuous-learning JSONL
+  empty: read verbatim, nothing to take.
+- **`affaan-m/ecc`** (MIT): an app-heavy sibling (continuous-learning JSONL
   runtime, a Node security scanner, a `council` decision panel); nearly every novel
   piece is an app/DB/runtime and its markdown ideas are otherwise already covered
   (`design-critique`, `minimal-code`, `discovery`, the supersede-the-ADR spine,
   `verification-before-completion`). The **one** markdown-shaped delta a verbatim
-  re-read surfaced — `council`'s anti-anchoring rule ("launch each voice as a fresh
+  re-read surfaced, `council`'s anti-anchoring rule ("launch each voice as a fresh
   subagent with **only the question and relevant context**, not the full ongoing
-  conversation") — is now folded into `grill-me`'s perspective-guided-research step
+  conversation"), is now folded into `grill-me`'s perspective-guided-research step
   (attributed in the table above); none of the panel app / persistence runtime.
 - **Andrej Karpathy's *LLM Wiki* gist** is the concept behind the
   `integrations/llm-wiki/` module. We implemented it as **pure, app-free
-  markdown** (3 layers, 7 canonical page types, ingest/query/lint) — deliberately
+  markdown** (3 layers, 7 canonical page types, ingest/query/lint): deliberately
   **not** tied to any specific wiki app or database; no third-party code was used,
   only the published pattern.
 - **DietrichGebert/ponytail** (MIT) is the source of the `minimal-code` skill and
-  the `/devmode lean` mode — its "lazy senior dev" minimalism ladder, the
+  the `/devmode lean` mode: its "lazy senior dev" minimalism ladder, the
   lazy-not-negligent safety floor, the intensity levels, the deliberate-
   simplification comment, and the benchmark evidence. We absorbed the **concept**
   as a single markdown skill; we did **not** port its Node lifecycle hooks, MCP
@@ -182,82 +182,82 @@ reused (no files copied), as noted.
   reduced-motion, the mechanical pre-flight, the image-first "prototype the look",
   and the audit-first redesign protocol. Its `output-skill` (no `// …` truncation;
   count deliverables; pause cleanly under a token limit) became a rule in
-  `verification-before-completion`. Concept/prose only — no JS/CLI code reused, and
+  `verification-before-completion`. Concept/prose only: no JS/CLI code reused, and
   taste-skill's Tailwind/React-specific class names are illustrative, not prescribed
   (devmode stays tool-agnostic).
 - **bybren-llc/safe-agentic-workflow** (MIT) is a SAFe multi-agent team harness.
   Its core safety ideas (blocking gates, evidence-over-trust, independent review,
   stop-the-line before work) already exist in devmode; we absorbed the two sharper
-  framings — **immutable gate independence** (a critical quality/security gate is
+  framings: **immutable gate independence** (a critical quality/security gate is
   never self-certified by the implementer) in `code-review`, and the **Pattern
   Discovery Protocol** (search the repo for prior art / reuse before creating) as a
   rung in `minimal-code`. We did **not** adopt its 11 SAFe roles, 24 commands, or
   tmux "dark factory" (devmode stays lean).
 - **ruvnet/agent-harness-generator** (MetaHarness, MIT) is a *factory* for branded
-  agent harnesses — overwhelmingly **infrastructure devmode deliberately rejects**
+  agent harnesses: overwhelmingly **infrastructure devmode deliberately rejects**
   (a Rust/WASM kernel, Ed25519 witness-signing, SBOM/SLSA provenance, multi-host
   adapters, a model router, "Darwin" self-mutation, a marketplace). We absorbed only
   two **process** ideas that fit devmode's markdown, app-free base: its pre-scaffold
   `genome` readiness analysis became the qualitative **readiness read** in
   `discovery` (test-safety-net + operational readiness → a recommended first move,
-  tagged 🟢🟡🔴 — *not* its 0–100 score, which devmode rejects as gameable), and its
+  tagged 🟢🟡🔴, *not* its 0–100 score, which devmode rejects as gameable), and its
   `validate` credential-exposure gate reinforced the **scan-before-you-share**
-  secrets reflex in `security-hardening` (kept as a *practice* — the `guardrails.py`
+  secrets reflex in `security-hardening` (kept as a *practice*: the `guardrails.py`
   hook already denies writes to secret paths; a fuzzy content-scanner in the hook
   would trade false positives for little real gain). We took none of the kernel,
   signing, provenance, host adapters, router, or self-evolving machinery.
 - **vinilana/dotcontext** (MIT) is a TypeScript app (MCP server + CLI + runtime).
-  Almost all of it — the declarative policy engine, the replay / failure-signature
-  datasets, the tree-sitter/LSP semantic maps, the 17-tool bidirectional sync — is
+  Almost all of it (the declarative policy engine, the replay / failure-signature
+  datasets, the tree-sitter/LSP semantic maps, the 17-tool bidirectional sync) is
   the *runtime* devmode deliberately refuses (markdown + Python-stdlib only). We
   absorbed exactly one markdown-shaped idea: its task contract's *declare-then-check
   the required deliverables* discipline, folded into `verification-before-completion`.
   No app/code reused.
-- **stanford-oval/storm** (MIT) is Stanford OVAL's STORM / Co-STORM — a Python/dspy
+- **stanford-oval/storm** (MIT) is Stanford OVAL's STORM / Co-STORM: a Python/dspy
   app that writes cited, Wikipedia-style reports via *perspective-guided question
   asking* (diverse personas → grounded multi-turn questioning → outline → cited
   synthesis; Co-STORM adds a moderator for *unknown unknowns*). devmode can't vendor
   the app, and an equivalent deep-research capability already exists outside this
   pack, so we **did not** add a `/devmode research` command. We folded the *methodology* into `grill-me`
   (ground a knowledge gap with diverse, cited web investigation before guessing) and
-  `design-critique` (a lens grounds with a citation, not a hunch) — mapped onto
+  `design-critique` (a lens grounds with a citation, not a hunch): mapped onto
   primitives devmode already has (subagent fan-out, evidence-over-assertion).
 
 - **bitjaru/styleseed** (MIT © 2026 StyleSeed Contributors) is a "design engine +
-  methodology" for AI coding tools — a hybrid of a substantive markdown knowledge
+  methodology" for AI coding tools: a hybrid of a substantive markdown knowledge
   base and a **web app** (48 React components, JSON design tokens, a Vite scaffold,
   a Framer-Motion "seeds" animation engine, 7 brand skins, 15 `/ss-*` slash-skills,
   an `npx` installer). We absorbed exactly one tool-agnostic, markdown-shaped idea:
   the **2:1 proximity ratio** (within-group spacing ≤ half the between-group
   spacing), folded into `ux-design` to make its existing qualitative proximity rule
-  mechanically checkable — the ratio only, none of the web-flavored pixel form-ladder.
+  mechanically checkable: the ratio only, none of the web-flavored pixel form-ladder.
   We took **none** of the React/Tailwind component library, tokens, motion engine,
   skins, or installer (all app/runtime devmode refuses). Rejected as already-covered:
   the "10 coherence axes" table (a longer restatement of `frontend-ui-engineering`'s
   consistency locks, plus framework-specific values), an ordered "why does this look
   off?" diagnosis probe (its dimensions already live in `frontend-ui-engineering`'s
-  tell table + pre-flight scan — a second overlapping checklist would be bloat), and
+  tell table + pre-flight scan: a second overlapping checklist would be bloat), and
   `ss-score`'s weighted 0–100 visual rubric (collides with `self-scorecard`'s 0–10
   process scorecard and is keyed to Tailwind-specific deductions). Its single-accent
   / one-radius / one-theme locks, emoji-as-icons ban, all-states rule, contrast and
   reduced-motion rules are already at or below devmode's `frontend-ui-engineering` /
   `ux-design` / `accessibility` coverage.
 - **context-labs/halo** (HALO / `halo-engine`, MIT by classification; the exact
-  copyright string was unreadable — LICENSE/LICENSE.md returned 404 on GitHub — so
+  copyright string was unreadable: LICENSE/LICENSE.md returned 404 on GitHub, so
   treat the holder as unconfirmed) is an **app + runtime + trace-parser**, precisely
   the class devmode refuses: a specialized LLM "RLM" runtime that ingests OTel/
   OpenInference JSONL trace spans, explores them with a bundled toolkit (a Deno JS
-  sandbox + ripgrep), and emits a findings report — shipped as a desktop app
+  sandbox + ripgrep), and emits a findings report: shipped as a desktop app
   (`curl | sh`), a Typer CLI (`pip install halo-engine`), and a Python streaming API
   (openai / openai-agents / pydantic / numpy / pandas). We took **none** of that
   machinery, nor its OTel/JSONL schema + `setup_tracing()` (a data format + vendored
   instrumentation, not a document). But on a second, closer read of its `halo-loop`
   SKILL.md we *did* absorb **one** genuinely markdown-shaped principle it states more
-  sharply than devmode had — *treat a diagnostic's output as evidence, not a
+  sharply than devmode had: *treat a diagnostic's output as evidence, not a
   directive: a tool/agent that can't see the code asserts file paths, line numbers,
   and "X is missing" from convention, so verify each claim against the real repo
   before acting, and re-search by the concept (error string, symbol name), not its
-  path guess* — folded into `systematic-debugging` (Phase 1). The rest of its loop
+  path guess*: folded into `systematic-debugging` (Phase 1). The rest of its loop
   (diagnose → verify → minimal-change → re-measure) is already `self-scorecard` +
   `verification-before-completion` + `impact-analysis` + `minimal-code`.
 

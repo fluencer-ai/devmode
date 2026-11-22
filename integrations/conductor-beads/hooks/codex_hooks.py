@@ -63,7 +63,7 @@ GUARDRAIL_OVERRIDE = "DEVMODE-GUARDRAIL-OK"
 # the bare name. Requiring the slash left the gate inert exactly where the docs
 # send those users. Anchored to a line start so prose ("the devmode gate…") misses.
 DEVMODE_MARK_RE = re.compile(r"(?m)^\s*/?devmode\b", re.IGNORECASE)
-# The token must END the argument or be followed by a space — see the note in
+# The token must END the argument or be followed by a space: see the note in
 # devmode_phase_gate.py: `\b` also fires on punctuation, so `wiki-like docs
 # feature` and `goal: ship the beta` would be misread as inline modes.
 INLINE_RE = re.compile(r"^(c|do|wiki|update|goal|plan)(\s|$)", re.IGNORECASE)
@@ -407,7 +407,7 @@ def _warm_resume(root: str) -> str:
     if not hist:
         return ""
     last = hist[-1]
-    lines = ["[devmode] Warm resume - pick up where the loop left off:"]
+    lines = ["[devmode] Warm resume, pick up where the loop left off:"]
     overall = _overall(last)
     suffix = f" ({overall}/10)" if overall is not None else ""
     if last.get("summary"):

@@ -4,28 +4,28 @@ Read this when using an unfamiliar or fast-moving library, framework, or API, wh
 code calls a deprecated or invented method, or when behavior doesn't match what
 you "remember."
 
-The AI's most dangerous failure isn't "I don't know" — it's confidently writing a
+The AI's most dangerous failure isn't "I don't know": it's confidently writing a
 plausible API call that doesn't exist, or a pattern that was correct two major
 versions ago. Training data is a frozen, blurry snapshot; the **installed version
-and the official docs are the truth.** When in doubt, look it up — don't recall.
+and the official docs are the truth.** When in doubt, look it up: don't recall.
 
 ## Establish the actual ground truth
 
 - **Check the installed version**, not the latest you remember:
   `package.json`/lockfile, `pip show`, `go.mod`, etc. APIs differ across majors;
   code for v5 silently breaks on v4.
-- **Read the real source/docs for what you're calling** — the official docs, or
+- **Read the real source/docs for what you're calling**: the official docs, or
   the actual code in `node_modules`/site-packages. If you're following a pattern,
   read the reference implementation *completely* (this is also a
   `systematic-debugging` rule).
 - **Prefer primary sources** (official docs, the source, the changelog) over
-  blog posts, Stack Overflow, and your own memory — and over a confident guess.
+  blog posts, Stack Overflow, and your own memory, and over a confident guess.
 
 ## Signals you're hallucinating an API
 
 - A method/option that "should" exist but you haven't verified.
 - Code that matches a *different* major version's style.
-- "I'm pretty sure the signature is…" — uncertainty about a contract is a
+- "I'm pretty sure the signature is…": uncertainty about a contract is a
   look-it-up trigger, not a guess trigger.
 - Behavior that doesn't match what you expected → the docs changed, or you
   misremembered. Check before "fixing."
@@ -33,7 +33,7 @@ and the official docs are the truth.** When in doubt, look it up — don't recal
 ## How it fits
 
 - It's the input side of `confidence-check.md` in `verification-before-completion`: you aren't ready to build against a
-  library until you've confirmed its real, current contract — not the one in your
+  library until you've confirmed its real, current contract, not the one in your
   memory.
 - It feeds `api-design` (design against the real upstream contract) and
   `migration` (a version bump means re-checking what changed, via the changelog).
@@ -55,8 +55,8 @@ and the official docs are the truth.** When in doubt, look it up — don't recal
 - Trusting a blog/SO snippet over the official docs.
 - "Fixing" surprising behavior by guessing instead of reading the docs/source.
 - **Emitting a command, flag, query, or config by copying a nearby example
-  instead of its own definition.** The mundane call detail — a flag name, arg
-  order, whether auth is a `--flag` or an env var — feels beneath verifying, so it
+  instead of its own definition.** The mundane call detail (a flag name, arg
+  order, whether auth is a `--flag` or an env var) feels beneath verifying, so it
   ships unchecked and wrong; and topic-grouped docs quietly invite cross-applying
   a *sibling* command's flags onto yours. Check the invocation against the
   authoritative definition (the command's own `--help`/option list, the API

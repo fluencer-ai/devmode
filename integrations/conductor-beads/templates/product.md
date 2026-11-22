@@ -11,10 +11,10 @@
 
 ## Goals / non-goals
 - **Goals:** <...>
-- **Non-goals:** <... — explicit boundaries prevent scope drift>
+- **Non-goals:** <... explicit boundaries prevent scope drift>
 
 ## Success
-<How we'll know it's working — observable signals, not vanity metrics.>
+<How we'll know it's working: observable signals, not vanity metrics.>
 
 ## Working agreement (devmode)
 This project develops with the devmode process: reach a shared **design concept**

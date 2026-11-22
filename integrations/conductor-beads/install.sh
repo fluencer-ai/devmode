@@ -79,17 +79,17 @@ PROJECT_DIR="$(cd "$PROJECT_DIR" && pwd)"
 
 info "devmode base:   $DEVMODE_ROOT"
 info "project target: $PROJECT_DIR"
-[ -d "$PROJECT_DIR/.git" ] || warn "target is not a git repo — Conductor commits locally; consider 'git init'."
+[ -d "$PROJECT_DIR/.git" ] || warn "target is not a git repo: Conductor commits locally; consider 'git init'."
 
-# Preflight: every enforcing part of devmode is Python — all five hooks, the
-# scorecard, the dashboard, the doctors. Without python3 they install but can
+# Preflight: every enforcing part of devmode is Python (all five hooks, the
+# scorecard, the dashboard, the doctors). Without python3 they install but can
 # never run, and the gates would be inert while the output claimed otherwise.
 # Say it once, loudly, up front rather than emitting a warning nobody reads.
 HAVE_PY3=0
 if command -v python3 >/dev/null 2>&1; then
   HAVE_PY3=1
 else
-  err "python3 NOT FOUND — devmode's enforcement layer cannot run."
+  err "python3 NOT FOUND: devmode's enforcement layer cannot run."
   err "  the hooks (guardrails / verify-gate / phase-gate / session-resume),"
   err "  the scorecard, the dashboard and the doctors are all Python."
   err "  Install python3, then re-run this installer (it is idempotent)."
@@ -200,7 +200,7 @@ fi
 
 if [ "$FORCE" -eq 0 ]; then
   if [ -e "$PROJECT_DIR/CLAUDE.md" ] && \
-     ! grep -q '^# <Project> — built on devmode$' "$PROJECT_DIR/CLAUDE.md" 2>/dev/null && \
+     ! grep -Eq '^# <Project>(:| [^ ]+) built on devmode$' "$PROJECT_DIR/CLAUDE.md" 2>/dev/null && \
      ! adapter_target_is_safe \
        "$PROJECT_DIR/CLAUDE.devmode.md" "$TEMPLATES_DIR/CLAUDE.md" \
        'This project uses **devmode as its base**'; then
@@ -233,19 +233,19 @@ printf 'skills=%s\n' "$WITH_SKILLS" > "$PROJECT_DIR/.devmode/install-profile"
 mark_managed ".devmode/install-profile"
 
 # =============================================================================
-# 1. BASE — devmode (the foundation: how we think, design, and test)
+# 1. BASE: devmode (the foundation: how we think, design, and test)
 # =============================================================================
 step "Establishing the devmode base"
 
-# 1a. Project CLAUDE.md — declares devmode-as-base, Conductor-as-layer.
+# 1a. Project CLAUDE.md: declares devmode-as-base, Conductor-as-layer.
 CLAUDE_DST="$PROJECT_DIR/CLAUDE.md"
 if [ -e "$CLAUDE_DST" ] && [ "$FORCE" -eq 0 ]; then
-  if grep -q '^# <Project> — built on devmode$' "$CLAUDE_DST" 2>/dev/null; then
+  if grep -Eq '^# <Project>(:| [^ ]+) built on devmode$' "$CLAUDE_DST" 2>/dev/null; then
     ok "devmode-owned CLAUDE.md already installed"
   else
     copy_template "$TEMPLATES_DIR/CLAUDE.md" "$PROJECT_DIR/CLAUDE.devmode.md"
     # Non-destructive: leave the project's CLAUDE.md untouched except for one idempotent
-    # pointer import. Composition over rewriting — your instructions stay the host.
+    # pointer import. Composition over rewriting: your instructions stay the host.
     if grep -q "@CLAUDE.devmode.md" "$CLAUDE_DST" 2>/dev/null; then
       ok "project CLAUDE.md already imports @CLAUDE.devmode.md (left untouched)"
     else
@@ -257,7 +257,7 @@ else
   copy_template "$TEMPLATES_DIR/CLAUDE.md" "$CLAUDE_DST"
 fi
 
-# 1a2. Project AGENTS.md — Codex reads this natively. Keep any existing project
+# 1a2. Project AGENTS.md: Codex reads this natively. Keep any existing project
 # AGENTS.md as the host and add only a small pointer to AGENTS.devmode.md.
 AGENTS_DST="$PROJECT_DIR/AGENTS.md"
 if [ -e "$AGENTS_DST" ] && [ "$FORCE" -eq 0 ]; then
@@ -353,7 +353,7 @@ else
 fi
 
 # =============================================================================
-# 2. LAYER — Conductor (organizes & persists the devmode flow)
+# 2. LAYER: Conductor (organizes & persists the devmode flow)
 # =============================================================================
 step "Mounting the Conductor layer"
 mkdir -p "$PROJECT_DIR/conductor/tracks" "$PROJECT_DIR/conductor/archive"
@@ -383,7 +383,7 @@ copy_template "$DEVMODE_ROOT/.codex/agents/devmode-orchestrator.toml" \
               "$PROJECT_DIR/.codex/agents/devmode-orchestrator.toml"
 ok "installed the shared /devmode launcher and Codex orchestrator adapter"
 
-# 2b. Conductor-Beads commands/skills (optional — skip if global)
+# 2b. Conductor-Beads commands/skills (optional: skip if global)
 if [ "$WITH_CONDUCTOR" -eq 1 ]; then
   step "Fetching Conductor-Beads commands + skills"
   tmp="$(mktemp -d)"
@@ -412,7 +412,7 @@ else
   info "skipping Conductor-Beads copy (use --with-conductor, or rely on global install)"
 fi
 
-# 2c. Guardrails — deterministic PreToolUse enforcement hook (optional)
+# 2c. Guardrails: deterministic PreToolUse enforcement hook (optional)
 if [ "$GUARDRAILS" -eq 1 ] && [ "$HAVE_PY3" -eq 0 ]; then
   step "Installing guardrails (gates-as-code)"
   err "--with-guardrails requested but python3 is missing: the hooks would be"
@@ -481,9 +481,9 @@ VERIFY
     warn "guardrails block: sudo, force-push, --no-verify, rm -rf /, writes to .env/.git/secrets; ask: reset --hard, scoped rm -rf, reading secrets."
     warn "verify-gate (Stop): blocks ending a turn after rebuild/docker build/deploy/.env without a fresh end-to-end check (override: write 'VERIFY-OK: <reason>')."
     warn "phase-gate (Stop): auto-refreshes devmode-dashboard.html from .devmode/scorecard.json, and blocks ending a full /devmode turn that did NOT delegate to the devmode-orchestrator agent (override: write 'DEVMODE-OK: <reason>')."
-    warn "session-resume (SessionStart): injects a warm-resume hint (last phase, score, active track, next action) from .devmode/scorecard.json — read-only, fail-open."
+    warn "session-resume (SessionStart): injects a warm-resume hint (last phase, score, active track, next action) from .devmode/scorecard.json; read-only, fail-open."
   else
-    err "settings.json wiring FAILED or is incomplete — the gates are NOT active."
+    err "settings.json wiring FAILED or is incomplete: the gates are NOT active."
     err "  Fix it by hand (.claude/settings.json) or re-run; do not assume the gates bite."
   fi
 
@@ -524,29 +524,29 @@ PY
     ok "wired Codex hooks in .codex/hooks.json: guardrails, verify/phase gates, SessionStart resume"
     warn "Codex users must trust this project and review/trust hooks with /hooks before project hooks run."
   else
-    err "Codex hooks wiring FAILED — .codex/hooks.json is not active."
+    err "Codex hooks wiring FAILED: .codex/hooks.json is not active."
   fi
 else
   info "skipping guardrails (use --with-guardrails to enable deterministic enforcement)"
 fi
 
 # =============================================================================
-# 3. MEMORY — Beads (optional)
+# 3. MEMORY: Beads (optional)
 # =============================================================================
 if [ "$BEADS" -eq 1 ] || [ "$BEADS_STEALTH" -eq 1 ]; then
   step "Initializing Beads (memory layer)"
   if command -v bd >/dev/null 2>&1; then
     ( cd "$PROJECT_DIR"
       if [ "$BEADS_STEALTH" -eq 1 ]; then bd init --stealth; else bd init; fi
-    ) && ok "Beads initialized" || warn "bd init returned non-zero — check Dolt server (bd dolt start) on v0.56+"
+    ) && ok "Beads initialized" || warn "bd init returned non-zero: check Dolt server (bd dolt start) on v0.56+"
   else
-    err "'bd' not found on PATH — the memory layer will NOT work."
+    err "'bd' not found on PATH: the memory layer will NOT work."
     err "Install:  brew install beads   (or: npm i -g @beads/bd), then: bd init --stealth"
   fi
 
   # Prove it, don't assume it. A silent Beads failure is the expensive one: the
   # install still "succeeds", beads.json keeps claiming enabled:true, and the
-  # session falls back to the agent's own context — discovered only much later,
+  # session falls back to the agent's own context: discovered only much later,
   # when a handoff that was supposed to be durable turns out never to exist.
   if command -v python3 >/dev/null 2>&1 && [ -f "$PROJECT_DIR/.devmode/beads_doctor.py" ]; then
     if python3 "$PROJECT_DIR/.devmode/beads_doctor.py" "$PROJECT_DIR"; then
@@ -580,7 +580,7 @@ else
 fi
 
 # =============================================================================
-# 4. VISUALIZATION — native dashboard (no server, no registration)
+# 4. VISUALIZATION: native dashboard (no server, no registration)
 # =============================================================================
 step "Generating the dashboard"
 if command -v python3 >/dev/null 2>&1; then
@@ -634,17 +634,17 @@ elif [ "${CODEX_WIRED:-0}" -eq 1 ]; then
   - .codex/hooks.json wired (trust the project + /hooks before it runs)"
 else
   CODEX_SUMMARY="$CODEX_SUMMARY
-  - .codex/hooks.json NOT wired (the wiring FAILED above — fix it by hand)"
+  - .codex/hooks.json NOT wired (the wiring FAILED above: fix it by hand)"
 fi
 
-step "Done — next steps"
+step "Done: next steps"
 cat <<EOF
 BASE established (devmode) · LAYER mounted (Conductor)${BEADS_STATUS} ${GATES_STATUS}
 
 Codex compatibility (what THIS run installed):
 ${CODEX_SUMMARY}
 
-${c_green}Easiest path — guided mode:${c_off}
+${c_green}Easiest path, guided mode:${c_off}
   Claude Code:  ${c_green}/devmode "<what you want to build>"${c_off}
   Codex Desktop:${c_green} /devmode "<what you want to build>"${c_off}  (verified surface)
   Codex CLI/IDE: /skills → select devmode

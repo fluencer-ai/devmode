@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""devmode session-resume — a SessionStart hook that injects a *warm* resume
+"""devmode session-resume: a SessionStart hook that injects a *warm* resume
 context so a fresh session doesn't start cold (context-engineering: survive
 compaction; loop-engineering: maintain external state and resume from it).
 
@@ -56,15 +56,15 @@ def resume_block(root):
         with open(os.path.join(root, ".devmode", "scorecard.json")) as fh:
             hist = json.load(fh)
     except Exception:
-        return []  # no devmode state here — nothing to resume
+        return []  # no devmode state here, nothing to resume
     if not isinstance(hist, list) or not hist or not isinstance(hist[-1], dict):
         return []
     last = hist[-1]
-    lines = ["[devmode] Warm resume — pick up where the loop left off:"]
+    lines = ["[devmode] Warm resume, pick up where the loop left off:"]
     o = _overall(last)
     lines.append(f"  • Last phase: {last.get('phase', '?')}"
                  + (f" ({o}/10)" if o is not None else "")
-                 + (f" — {last['summary']}" if last.get("summary") else ""))
+                 + (f": {last['summary']}" if last.get("summary") else ""))
     # active track: the most recently touched track dir with a spec
     tracks = [d for d in glob.glob(os.path.join(root, "conductor", "tracks", "*"))
               if os.path.isdir(d) and os.path.exists(os.path.join(d, "spec.md"))]

@@ -3,7 +3,7 @@
 # Shared host-instruction pointers for the Karpathy LLM Wiki.
 #
 # Sourced by install.sh and update.sh so the idempotency marker can never drift
-# between them — a drifted marker would silently append a SECOND pointer to a
+# between them: a drifted marker would silently append a SECOND pointer to a
 # wiki the installer had already wired up.
 #
 # Claude Code reads CLAUDE.md and supports the `@file` import syntax; Codex reads

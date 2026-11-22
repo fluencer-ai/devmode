@@ -11,12 +11,12 @@ disable-model-invocation: true
 # Design patterns (Gang of Four)
 
 A catalog of 23 proven solutions to recurring design problems. Used well, a
-pattern hides complexity behind a simpler interface — it makes a module
+pattern hides complexity behind a simpler interface: it makes a module
 *deeper*. Used badly, it adds indirection and ceremony that make the system
 *harder* to change, which is the opposite of the devmode goal.
 
 **The devmode rule for patterns:** a pattern is justified only when it reduces
-complexity (Ousterhout) — fewer special cases, a simpler caller-facing
+complexity (Ousterhout): fewer special cases, a simpler caller-facing
 interface, a deeper module. If a pattern adds a layer without removing
 complexity, don't use it. Prefer the simplest thing that works; reach for a
 pattern when a *real* smell appears, not preemptively.
@@ -42,7 +42,7 @@ pattern when a *real* smell appears, not preemptively.
 | What you want | Pattern |
 |---|---|
 | Hide how objects are created | Factory Method, Abstract Factory, Builder, Prototype |
-| One instance globally (use sparingly — it's global state) | Singleton |
+| One instance globally (use sparingly: it's global state) | Singleton |
 | Make incompatible interfaces work together | Adapter |
 | Decouple an abstraction from its implementation | Bridge |
 | Treat single objects and groups uniformly | Composite |
@@ -65,25 +65,25 @@ pattern when a *real* smell appears, not preemptively.
 3. **Apply test-first.** Patterns change structure; pin behavior with tests at
    the interface before refactoring (`tdd` and its `testing-principles.md`).
 4. **Keep the seam pure where you can.** A Strategy/State often *is* a functional
-   core decision — combine with
+   core decision: combine with
    `functional-core-imperative-shell`.
 5. **Name it in the ubiquitous language** so the pattern's role is shared
    vocabulary, not hidden cleverness.
 
 ## Patterns easily confused
 
-- **Strategy vs. State** — Strategy swaps an *algorithm* chosen by the caller;
+- **Strategy vs. State**: Strategy swaps an *algorithm* chosen by the caller;
   State changes behavior as the object's *own* state transitions.
-- **Decorator vs. Proxy** — Decorator *adds* behavior; Proxy *controls access*
+- **Decorator vs. Proxy**: Decorator *adds* behavior; Proxy *controls access*
   to the same behavior.
-- **Factory Method vs. Abstract Factory** — one product via subclass vs. a
+- **Factory Method vs. Abstract Factory**: one product via subclass vs. a
   family of related products.
-- **Adapter vs. Facade** — Adapter makes one interface fit another; Facade
+- **Adapter vs. Facade**: Adapter makes one interface fit another; Facade
   simplifies a whole subsystem.
 
 ## Anti-patterns
 
 - Pattern-for-pattern's-sake (Singletons everywhere, a factory for one class).
-- Indirection that hides *no* complexity — that's entropy with a fancy name; the
+- Indirection that hides *no* complexity: that's entropy with a fancy name; the
   `complexity-reviewer` should flag it.
 - Reaching for a pattern before the smell exists ("we might need it").

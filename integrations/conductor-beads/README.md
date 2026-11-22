@@ -17,7 +17,7 @@
 
 Remove Conductor and you still have a complete devmode project. Remove devmode
 and Conductor becomes just a generic spec-first PM. **When the layer's defaults
-conflict with the base, the base wins** — and devmode's skills were **not
+conflict with the base, the base wins**, and devmode's skills were **not
 modified** (they remain the tool-agnostic core). All the wiring lives here, in
 the shell.
 
@@ -27,10 +27,10 @@ the shell.
 |---------|----------|
 | `INTEGRATION.md` | The **map**: every devmode skill → Conductor phase → Beads action. Read it first. |
 | `agents/devmode-orchestrator.md` | The **orchestrator**: drives the whole process phase by phase, pausing only at the decision gates. |
-| `commands/devmode.md` | The **`/devmode`** slash command — the front door to guided mode. Includes **`/devmode c [comment]`** (Mode C-lite): a per-turn discipline trigger for ops/debug (root-cause-before-touching, evidence-before-done) without spinning up the phase machine. |
+| `commands/devmode.md` | The **`/devmode`** slash command: the front door to guided mode. Includes **`/devmode c [comment]`** (Mode C-lite): a per-turn discipline trigger for ops/debug (root-cause-before-touching, evidence-before-done) without spinning up the phase machine. |
 | `hooks/guardrails.py` (+ test) | **Guardrails (gates-as-code)**: a deterministic PreToolUse hook that blocks dangerous operations. Optional (`--with-guardrails`). |
 | `hooks/verify_gate.py` | **Verify-gate (gates-as-code)**: a **Stop** hook that **blocks ending the turn** after a rebuild/docker build/deploy/restart/`.env` write with no end-to-end verification after it (override: write `VERIFY-OK: <reason>`). Deterministic enforcement of `verification-before-completion`. Optional (`--with-guardrails`). |
-| `hooks/devmode_phase_gate.py` | **Phase-gate (gates-as-code)**: a **Stop** hook that (1) **auto-refreshes `devmode-dashboard.html`** from `.devmode/scorecard.json` (the dashboard can no longer go stale — it used to depend on remembering to run `dashboard.py`); and (2) **blocks ending a full `/devmode` turn** that **did not delegate** to the `devmode-orchestrator` agent (override: `DEVMODE-OK: <reason>`). Robust to the wrong cwd: it finds the project's `.devmode` through the transcript. Deterministic enforcement of the **ceremony** (delegation + dashboard) that prose alone loses under pressure. Optional (`--with-guardrails`). |
+| `hooks/devmode_phase_gate.py` | **Phase-gate (gates-as-code)**: a **Stop** hook that (1) **auto-refreshes `devmode-dashboard.html`** from `.devmode/scorecard.json` (the dashboard can no longer go stale; it used to depend on remembering to run `dashboard.py`); and (2) **blocks ending a full `/devmode` turn** that **did not delegate** to the `devmode-orchestrator` agent (override: `DEVMODE-OK: <reason>`). Robust to the wrong cwd: it finds the project's `.devmode` through the transcript. Deterministic enforcement of the **ceremony** (delegation + dashboard) that prose alone loses under pressure. Optional (`--with-guardrails`). |
 | `hooks/codex_hooks.py` | Codex adapter for the same gates: guardrails, verify-gate, phase-gate, and warm resume. It is wired into `.codex/hooks.json` when `--with-guardrails` is used. |
 | `install.sh` | Bootstrap: establishes the **devmode base** and mounts the **Conductor layer** in a real project. |
 | `templates/CLAUDE.md` | The **project CLAUDE.md**: declares devmode as the base and Conductor as the layer. It is what makes devmode the foundation. |
@@ -49,18 +49,18 @@ By default the installer **establishes the devmode base** (CLAUDE.md + AGENTS.md
 skills + agents + references + ubiquitous language) and then **mounts the
 Conductor layer**.
 
-### Option A — base + layer + commands + memory (full)
+### Option A: base + layer + commands + memory (full)
 ```bash
 cd <devmode-repo>/integrations/conductor-beads
 ./install.sh /path/to/the/project --with-conductor --beads-stealth
 ```
 
-### Option B — local devmode base + Conductor layer (no Beads)
+### Option B: local devmode base + Conductor layer (no Beads)
 ```bash
 ./install.sh /path/to/the/project
 ```
 
-### Option C — global base (skills not copied) + Conductor layer + memory
+### Option C: global base (skills not copied) + Conductor layer + memory
 ```bash
 ./install.sh /path/to/the/project --no-skills --beads-stealth
 ```
@@ -94,11 +94,11 @@ agent, reference, or script with the same name is not overwritten.
 
 ## Prerequisites and honest costs
 
-- **Beads is optional.** Without it, the whole devmode + Conductor flow works —
+- **Beads is optional.** Without it, the whole devmode + Conductor flow works:
   you only lose the persistent graph and survival across compaction.
   (`enabled:false` in `beads.json`, or simply don't run `bd init`.)
 - **Beads CLI:** `npm i -g @beads/bd` (or brew/go). bd ≥ 1.0 uses **embedded Dolt**
-  by default — `bd init` works on its own, with no server to bring up. (Only the
+  by default: `bd init` works on its own, with no server to bring up. (Only the
   optional `--server` mode needs an external `dolt sql-server`.) Verified on bd
   1.0.3: `bd init --stealth` initialized cleanly, with no separate server.
 - The `conductor`/`beads`/`conductor-*` skills may **already exist globally** in
@@ -142,6 +142,6 @@ Full details: [`INTEGRATION.md`](INTEGRATION.md).
 
 > **Credits:** the layer mounts the upstream toolkit
 > [NguyenSiTrung/Conductor-Beads](https://github.com/NguyenSiTrung/Conductor-Beads)
-> (Apache-2.0), cloned at install time with `--with-conductor` — never vendored
+> (Apache-2.0), cloned at install time with `--with-conductor`, never vendored
 > here. ADR / review-panel patterns adapted from `rbarcante/claude-conductor`
 > (Apache-2.0). Full map: [`ATTRIBUTION.md`](../../ATTRIBUTION.md).

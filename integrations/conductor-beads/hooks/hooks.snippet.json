@@ -1,5 +1,5 @@
 {
-  "_comment": "devmode gates — merge this into .claude/settings.json (install.sh --with-guardrails does it for you, and update.sh re-wires all four). These are the SAME four hooks the installer writes: hand-merging only the PreToolUse entry leaves the verify gate, the phase gate and the warm resume inert. Codex users merge hooks/codex.hooks.json into .codex/hooks.json instead.",
+  "_comment": "devmode gates: merge this into .claude/settings.json (install.sh --with-guardrails does it for you, and update.sh re-wires all four). These are the SAME four hooks the installer writes: hand-merging only the PreToolUse entry leaves the verify gate, the phase gate and the warm resume inert. Codex users merge hooks/codex.hooks.json into .codex/hooks.json instead.",
   "hooks": {
     "PreToolUse": [
       {

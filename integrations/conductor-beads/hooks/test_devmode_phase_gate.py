@@ -1,8 +1,8 @@
-"""Tests for devmode_phase_gate.py — the Stop hook that enforces the devmode
+"""Tests for devmode_phase_gate.py: the Stop hook that enforces the devmode
 ceremony. Two behaviors, both keyed off the transcript:
 
-  1) DASHBOARD AUTO-REFRESH — a pure side effect that must NEVER block.
-  2) ORCHESTRATOR DELEGATION — blocks ending a FULL `/devmode` turn (a
+  1) DASHBOARD AUTO-REFRESH: a pure side effect that must NEVER block.
+  2) ORCHESTRATOR DELEGATION: blocks ending a FULL `/devmode` turn (a
      phase-driving mode, including blank resume/start/adopt/lean idea)
      that never spawned the `devmode-orchestrator` subagent. Override: DEVMODE-OK.
 
@@ -95,7 +95,13 @@ class PhaseGateTest(unittest.TestCase):
 
     def test_raw_input_full_form_blocks(self):
         # the other recognized form: the injected guided-mode body + "Raw input: **...**".
-        body = "/devmode — guided mode\nRaw input: **build a dashboard**"
+        body = "/devmode: guided mode\nRaw input: **build a dashboard**"
+        proc = self.run_gate([user(body)])
+        self.assertBlocked(proc)
+
+    def test_raw_input_form_from_an_older_command_still_blocks(self):
+        # projects installed before the heading changed carry a dash there.
+        body = "/devmode \u2014 guided mode\nRaw input: **build a dashboard**"
         proc = self.run_gate([user(body)])
         self.assertBlocked(proc)
 
@@ -161,7 +167,7 @@ class PhaseGateTest(unittest.TestCase):
                         "dashboard refresh should have produced the html artifact")
 
     def test_dashboard_refresh_failure_never_blocks(self):
-        # a dashboard.py that crashes must be swallowed — the gate still allows.
+        # a dashboard.py that crashes must be swallowed: the gate still allows.
         proj = self.make_project("proj_boom", "import sys\nsys.exit(2)\n")
         proc = self.run_gate([user("just chatting")], cwd=proj)
         self.assertAllowed(proc)
@@ -169,7 +175,7 @@ class PhaseGateTest(unittest.TestCase):
     def test_dashboard_refresh_runs_even_when_turn_blocks(self):
         # refresh (enforcement #1) is independent of delegation (enforcement #2):
         # a full /devmode turn with no orchestrator still blocks, AND the dashboard
-        # is refreshed first — the block is about delegation, not the refresh.
+        # is refreshed first; the block is about delegation, not the refresh.
         proj = self.make_project(
             "proj_block",
             "import os, sys\n"

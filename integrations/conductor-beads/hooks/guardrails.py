@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""devmode guardrails — a deterministic PreToolUse hook (gates-as-code).
+"""devmode guardrails: a deterministic PreToolUse hook (gates-as-code).
 
 devmode's skills *persuade* via prompts; this hook *enforces* a small set of
 safety rules deterministically, so a few dangerous operations are blocked even
@@ -205,14 +205,14 @@ def evaluate(tool_name: str, tool_input: dict) -> Tuple[str, str]:
             return "deny", "R03: refuse --no-verify / hook bypass"
         if re.search(r"git\s+reset\s+--hard", low) or re.search(r"git\s+clean\s+-\w*f", low) \
            or re.search(r"git\s+(checkout|restore)\s+--?\s*\.", low):
-            return "ask", "R04: destructive git op — confirm before running"
+            return "ask", "R04: destructive git op; confirm before running"
         if re.search(r"\brm\s+-\w*r\w*f\w*|\brm\s+-\w*f\w*r\w*", low):
             if re.search(r"\s(/|~|\$home|\*)(\s|/|$)", low):
                 return "deny", "R05: refuse rm -rf on / ~ or wildcard root"
             if deletes_outside_temp(cmd):
-                return "ask", "R05: recursive force delete outside temp — confirm the scope"
+                return "ask", "R05: recursive force delete outside temp; confirm the scope"
         if reads_secret(cmd):
-            return "ask", "R06: reading a possible secret file — confirm"
+            return "ask", "R06: reading a possible secret file; confirm"
         return "allow", ""
     if tool_name in ("Write", "Edit", "MultiEdit", "NotebookEdit"):
         path = str(tool_input.get("file_path") or tool_input.get("path") or "").lower()
@@ -236,7 +236,7 @@ def main() -> int:
     print(json.dumps({"hookSpecificOutput": {
         "hookEventName": "PreToolUse",
         "permissionDecision": decision,
-        "permissionDecisionReason": f"devmode guardrail — {reason}",
+        "permissionDecisionReason": f"devmode guardrail: {reason}",
     }}))
     return 0
 

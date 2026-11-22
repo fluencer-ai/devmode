@@ -15,11 +15,11 @@ The guiding frame is **POUR**: Perceivable, Operable, Understandable, Robust.
   `label`) before reaching for ARIA. A `<div onClick>` is not a button.
 - **One `h1`** per page; headings nest in order (no skipping levels).
 - **Landmarks** (`header`/`nav`/`main`/`footer`) so screen-reader users can jump.
-- **ARIA only to fill gaps** — "no ARIA is better than bad ARIA." Don't override
+- **ARIA only to fill gaps**: "no ARIA is better than bad ARIA." Don't override
   native semantics.
 
 **Keyboard (Operable)**
-- **Everything works with the keyboard alone** — tab to it, activate with
+- **Everything works with the keyboard alone**: tab to it, activate with
   Enter/Space, no mouse-only interactions.
 - **Visible focus indicator** on every interactive element (never `outline:none`
   without a replacement).
@@ -42,15 +42,15 @@ The guiding frame is **POUR**: Perceivable, Operable, Understandable, Robust.
 **Understandable and Robust**
 - Page has a `lang`; titles are descriptive.
 - Dynamic updates use `aria-live` where appropriate (and nothing more).
-- Don't break browser/AT behavior — test with the actual tools.
+- Don't break browser/AT behavior: test with the actual tools.
 
 ## How to verify (not assume)
 
 - **Keyboard-only pass:** unplug the mouse; can you reach and operate everything,
   with visible focus?
-- **Screen-reader pass:** VoiceOver/NVDA — is each control announced with a name
+- **Screen-reader pass:** VoiceOver/NVDA: is each control announced with a name
   and role?
-- **Automated scan** (axe / Lighthouse) catches the mechanical ~30–40% — run it,
+- **Automated scan** (axe / Lighthouse) catches the mechanical ~30–40%: run it,
   but it is a floor, not proof. ("not observed" ≠ "accessible", see
   `testing-principles.md` in `tdd`.)
 - **Contrast check** the actual token values.

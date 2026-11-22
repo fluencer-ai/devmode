@@ -1,15 +1,15 @@
-# devmode — A development process for the AI age
+# devmode: A development process for the AI age
 
 > "Code is not cheap. Bad code is the most expensive it has ever been."
 
 This directory holds a complete development process built on a single thesis:
 **software fundamentals matter more now than they ever have.** AI is an
-extraordinary *tactical* programmer — a sergeant on the ground who can make
+extraordinary *tactical* programmer: a sergeant on the ground who can make
 changes faster than any human. But it has no strategy. Left alone, it produces
 code that gets worse every iteration (software entropy), because it optimizes
 the change in front of it, not the design of the whole system.
 
-Your job — and the job of this process — is to supply the strategy: a shared
+Your job (and the job of this process) is to supply the strategy: a shared
 design concept, a shared language, deep and testable modules, and feedback
 loops the AI can actually use. Do that, and AI thrives. Skip it, and you get
 "specs-to-code" garbage: run the compiler again, get worse code, repeat.
@@ -18,7 +18,7 @@ loops the AI can actually use. Do that, and AI thrives. Skip it, and you get
 
 1. **A good codebase is one that is easy to change.** Complexity (Ousterhout)
    is anything that makes a system hard to understand and modify. AI amplifies
-   whatever you give it — a clean codebase compounds, a complex one collapses.
+   whatever you give it: a clean codebase compounds, a complex one collapses.
 2. **No one knows exactly what they want.** The first job is requirements
    gathering: reaching a *shared design concept* (Brooks) with the AI before
    any code exists.
@@ -34,12 +34,12 @@ loops the AI can actually use. Do that, and AI thrives. Skip it, and you get
 ## The workflow
 
 Move top to bottom. Each step has a skill that does the work. You don't need
-every step for every change — small changes can skip straight to TDD — but the
+every step for every change (small changes can skip straight to TDD) but the
 order is the spine of the process.
 
 **The spine is a loop, not a one-way march.** Real projects re-enter it: when a
 later phase (Review, or an ops/production signal) *invalidates an earlier
-decision*, go back to the phase that owns it — usually **Specify** — and
+decision*, go back to the phase that owns it (usually **Specify**) and
 **supersede the ADR** (write a new decision that references and overrides the old
 one; keep the history) rather than patching around it in the shell. Re-run only
 the affected phases for the delta. Record the re-entry as its own scored phase
@@ -49,39 +49,40 @@ the affected phases for the delta. Record the re-entry as its own scored phase
 |-------|-------|-------------------|
 | 1. Align | [`grill-me`](skills/grill-me/SKILL.md) | A shared design concept, reached by relentless interview before any asset exists |
 | 2. Language | [`ubiquitous-language`](skills/ubiquitous-language/SKILL.md) | A glossary of domain terms shared by you, the AI, and the code |
-| 3. Specify | [`prior-art`](skills/prior-art/SKILL.md) | Whether it already exists — buy / adopt / build, judged on fit and cost, *before* the PRD |
+| 3. Specify | [`prior-art`](skills/prior-art/SKILL.md) | Whether it already exists: buy / adopt / build, judged on fit and cost, *before* the PRD |
 | 3. Specify | [`write-prd`](skills/write-prd/SKILL.md) | A PRD that is explicit about which modules and interfaces change |
-| 3. Specify | [`design-critique`](skills/design-critique/SKILL.md) · [`divergent-ideation.md`](skills/design-critique/divergent-ideation.md) | A wide candidate set for an open, hard-to-reverse decision — generated *before* choosing |
+| 3. Specify | [`design-critique`](skills/design-critique/SKILL.md) · [`divergent-ideation.md`](skills/design-critique/divergent-ideation.md) | A wide candidate set for an open, hard-to-reverse decision: generated *before* choosing |
 | 3. Specify | [`design-critique`](skills/design-critique/SKILL.md) | Pressure-test the design/PRD through several expert lenses before building |
-| 4. Architect | [`functional-core-imperative-shell`](skills/functional-core-imperative-shell/SKILL.md) | A structure where pure logic is isolated from I/O — the foundation for testability |
-| 4. Architect | [`functional-core-imperative-shell`](skills/functional-core-imperative-shell/SKILL.md) · [`system-boundaries.md`](skills/functional-core-imperative-shell/system-boundaries.md) | System-level boundaries — business rules independent of infrastructure (the FCIS instinct, scaled up) |
+| 4. Architect | [`functional-core-imperative-shell`](skills/functional-core-imperative-shell/SKILL.md) | A structure where pure logic is isolated from I/O: the foundation for testability |
+| 4. Architect | [`functional-core-imperative-shell`](skills/functional-core-imperative-shell/SKILL.md) · [`system-boundaries.md`](skills/functional-core-imperative-shell/system-boundaries.md) | System-level boundaries: business rules independent of infrastructure (the FCIS instinct, scaled up) |
 | 4. Architect | [`design-interface-delegate-implementation`](skills/design-interface-delegate-implementation/SKILL.md) | Interfaces you design carefully; implementations you delegate and test as gray boxes |
-| 4. Architect | [`design-patterns`](skills/design-patterns/SKILL.md) | GoF patterns chosen by smell or goal — used only when they make a module deeper, never as decoration |
-| 5. Implement | [`verification-before-completion`](skills/verification-before-completion/SKILL.md) · [`confidence-check.md`](skills/verification-before-completion/confidence-check.md) | A pre-flight readiness gate — do I know the goal, interface, constraints, and how I'll verify? |
+| 4. Architect | [`design-patterns`](skills/design-patterns/SKILL.md) | GoF patterns chosen by smell or goal: used only when they make a module deeper, never as decoration |
+| 5. Implement | [`verification-before-completion`](skills/verification-before-completion/SKILL.md) · [`confidence-check.md`](skills/verification-before-completion/confidence-check.md) | A pre-flight readiness gate: do I know the goal, interface, constraints, and how I'll verify? |
 | 5. Implement | [`feedback-loops`](skills/feedback-loops/SKILL.md) | Static types, compiler, fast tests, a real browser/runtime (see [`browser-testing.md`](skills/feedback-loops/browser-testing.md)), and a verification gate ladder |
 | 5. Implement | [`tdd`](skills/tdd/SKILL.md) | Small, deliberate, test-first steps that keep the AI inside its headlights |
 | 5. Implement | [`tdd`](skills/tdd/SKILL.md) · [`testing-principles.md`](skills/tdd/testing-principles.md) | Good decisions about unit size, what to mock, and which behaviors to test |
-| 5. Implement | [`subagent-driven-development`](skills/subagent-driven-development/SKILL.md) | Execute a plan via fresh subagents per task with two-stage review — the *how* of gray-box delegation |
+| 5. Implement | [`subagent-driven-development`](skills/subagent-driven-development/SKILL.md) | Execute a plan via fresh subagents per task with two-stage review: the *how* of gray-box delegation |
 | 5. Implement | [`subagent-driven-development`](skills/subagent-driven-development/SKILL.md) · [`external-cli.md`](skills/subagent-driven-development/external-cli.md) | Offload a bounded task to an external model CLI as a verified gray box |
-| 5. Implement | [`systematic-debugging`](skills/systematic-debugging/SKILL.md) | Root-cause-first discipline when anything breaks — no fix without investigation |
-| 5. Implement | [`verification-before-completion`](skills/verification-before-completion/SKILL.md) | The gate before any "done" claim — fresh evidence, never confidence |
-| 5. Implement | [`code-review`](skills/code-review/SKILL.md) | Run the review panel, act on every finding, re-verify — the author is blind to their own gaps |
-| 6. Refactor | [`impact-analysis`](skills/impact-analysis/SKILL.md) | Map the blast radius — who depends on this, what breaks — before you change it |
-| 6. Refactor | [`improve-codebase-architecture`](skills/improve-codebase-architecture/SKILL.md) | Shallow modules consolidated into deep ones — fighting entropy |
+| 5. Implement | [`systematic-debugging`](skills/systematic-debugging/SKILL.md) | Root-cause-first discipline when anything breaks: no fix without investigation |
+| 5. Implement | [`verification-before-completion`](skills/verification-before-completion/SKILL.md) | The gate before any "done" claim: fresh evidence, never confidence |
+| 5. Implement | [`code-review`](skills/code-review/SKILL.md) | Run the review panel, act on every finding, re-verify: the author is blind to their own gaps |
+| 6. Refactor | [`impact-analysis`](skills/impact-analysis/SKILL.md) | Map the blast radius (who depends on this, what breaks) before you change it |
+| 6. Refactor | [`improve-codebase-architecture`](skills/improve-codebase-architecture/SKILL.md) | Shallow modules consolidated into deep ones, fighting entropy |
 
 **Meta & self-evaluation:** [`authoring-skills`](skills/authoring-skills/SKILL.md)
 maintains the pack (write skills test-first; `python3 scripts/audit_skills.py`
-checks frontmatter, names, links, mirror-drift, and description overlap).
+checks frontmatter, names, links, mirror-drift, description overlap, and that
+no text file carries an em dash).
 [`self-scorecard`](skills/self-scorecard/SKILL.md) makes the agent judge its own
-work each phase — a 0–10 score on five criteria (Correctness, Design, Testing,
+work each phase: a 0–10 score on five criteria (Correctness, Design, Testing,
 Safety, Clarity) tracked with deltas (`scripts/scorecard.py`) and a visual
 overview (`scripts/dashboard.py` → a self-contained `devmode-dashboard.html`, no
 server/registration). [`discovery`](skills/discovery/SKILL.md) reverse-engineers
 an existing codebase into the starting artifacts (used by `/devmode adopt`).
 [`goal-brief`](skills/goal-brief/SKILL.md) turns a spec into a ready-to-run Claude
 `/goal` or `/plan` command (≤3800 chars, budget-checked by
-`scripts/goal_brief.py`) — opt-in, only via `/devmode goal`. Most skills are
-adapted from MIT-licensed sources — see [`ATTRIBUTION.md`](ATTRIBUTION.md).
+`scripts/goal_brief.py`): opt-in, only via `/devmode goal`. Most skills are
+adapted from MIT-licensed sources: see [`ATTRIBUTION.md`](ATTRIBUTION.md).
 
 Several skills are paired on purpose, each supporting the other: a functional
 core / imperative shell makes code trivial to test, and testing principles tell
@@ -117,7 +118,7 @@ Skills that were fused in v2 live on as sibling files inside the surviving folde
 
 The process skills above are the *spine* (how to think/build, in any domain). The
 **domain skills** are cross-cutting expertise the agents pull in *during* the
-phases — they don't replace the spine, they fill it with craft for real
+phases: they don't replace the spine, they fill it with craft for real
 development. Reach for them whenever the work touches their area.
 
 - **Front-end & design:** [`frontend-ui-engineering`](skills/frontend-ui-engineering/SKILL.md)
@@ -145,18 +146,18 @@ to fill the design gap those packs leave. See [`ATTRIBUTION.md`](ATTRIBUTION.md)
 `.agents/` holds subagent definitions that embody the roles in this process.
 Delegate to them when a phase is large enough to deserve a focused context:
 
-- **`design-architect`** — the strategist. Owns interfaces, module boundaries,
+- **`design-architect`**: the strategist. Owns interfaces, module boundaries,
   and the functional-core/imperative-shell split.
-- **`requirements-planner`** — runs the grill, maintains the ubiquitous
+- **`requirements-planner`**: runs the grill, maintains the ubiquitous
   language, and writes the PRD.
-- **`tdd-implementer`** — the tactical programmer. Writes failing tests first,
+- **`tdd-implementer`**: the tactical programmer. Writes failing tests first,
   takes small steps, keeps feedback loops tight.
-- **`architecture-refactorer`** — hunts shallow modules and consolidates them
+- **`architecture-refactorer`**: hunts shallow modules and consolidates them
   into deep ones with simple interfaces.
-- **`complexity-reviewer`** — the entropy guard. Reviews diffs for anything
+- **`complexity-reviewer`**: the entropy guard. Reviews diffs for anything
   that makes the system harder to understand or change, and leads the review panel.
-- **`code-quality-analyzer`**, **`security-scanner`**, **`test-coverage-analyzer`**
-  — the review panel: specialized read-only lanes (code quality, security
+- **`code-quality-analyzer`**, **`security-scanner`**, **`test-coverage-analyzer`**:
+  the review panel: specialized read-only lanes (code quality, security
   vulnerabilities, test gaps) dispatched in parallel after implementation.
 
 ## How to use this in practice
@@ -164,7 +165,7 @@ Delegate to them when a phase is large enough to deserve a focused context:
 - Keep the ubiquitous language file open while planning. Reference its terms
   in the PRD, in tests, and in conversation with the AI.
 - Design interfaces by hand or with the `design-architect`. You may leave
-  *implementations* of non-critical deep modules largely to the AI — but only
+  *implementations* of non-critical deep modules largely to the AI, but only
   because the interface and tests pin the behavior from the outside.
 - When something doesn't work, fix the design, not just the symptom. Reach for
   `improve-codebase-architecture` before complexity compounds.
@@ -173,12 +174,12 @@ Delegate to them when a phase is large enough to deserve a focused context:
 
 ## Background and diagnostics
 
-- [`references/foundations.md`](references/foundations.md) — the principles
+- [`references/foundations.md`](references/foundations.md): the principles
   behind the whole process (complexity, entropy, the design concept, ubiquitous
   language, functional core/shell, the strategy/tactics split) and the reading
   list they come from. Read this to understand *why* the skills are shaped this
   way.
-- [`references/failure-modes.md`](references/failure-modes.md) — a diagnostic
+- [`references/failure-modes.md`](references/failure-modes.md): a diagnostic
   table mapping the concrete ways AI-assisted development goes wrong to the skill
   that fixes each one. Start here when something is going wrong and you're not
   sure which skill to reach for.
@@ -187,9 +188,9 @@ Delegate to them when a phase is large enough to deserve a focused context:
 
 The skills above are the **tool-agnostic base**. When a project needs execution
 orchestration and memory that survives across sessions, mount a layer on top of
-that base — the base stays the source of truth:
+that base: the base stays the source of truth:
 
-- [`integrations/conductor-beads/`](integrations/conductor-beads/README.md) —
+- [`integrations/conductor-beads/`](integrations/conductor-beads/README.md):
   **devmode is the base; Conductor is a layer; Beads is optional memory.**
   Conductor (tracks, spec/plan, lifecycle) organizes and persists the devmode
   flow; Beads (a dependency graph + notes that survive conversation compaction)
@@ -199,20 +200,20 @@ that base — the base stays the source of truth:
   `integrations/conductor-beads/install.sh <project>` to establish the base and
   mount the layer in a real project; see
   [`INTEGRATION.md`](integrations/conductor-beads/INTEGRATION.md) for the
-  skill-by-phase map. The layer also installs a **guided front door** — the
-  `devmode-orchestrator` agent invoked via the `/devmode` command — which drives
+  skill-by-phase map. The layer also installs a **guided front door** (the
+  `devmode-orchestrator` agent invoked via the `/devmode` command) which drives
   the whole phase machine for you and pauses only at human decision gates (it
   carries the *process*; you still make the *decisions*, made easy). It shows a
   `self-scorecard` at every gate and refreshes `devmode-dashboard.html`.
-  **Every entry point starts with `/devmode`** — scaffold a new project, adopt an
+  **Every entry point starts with `/devmode`**: scaffold a new project, adopt an
   existing one, refresh a project to the current base, run one bounded task, apply
   the gates to an ad-hoc turn, emit a `/goal` brief, or foreground the
   `minimal-code` discipline. The **command file is the source of truth** for the
   modes and their arguments; it loads when you invoke it, so it isn't restated
   here.
-- [`integrations/llm-wiki/`](integrations/llm-wiki/README.md) — an **opt-in
+- [`integrations/llm-wiki/`](integrations/llm-wiki/README.md): an **opt-in
   knowledge module** (independent of the code process): deploys a **Karpathy LLM
-  Wiki** — a persistent, LLM-maintained **markdown** knowledge base (no app, no DB,
+  Wiki**: a persistent, LLM-maintained **markdown** knowledge base (no app, no DB,
   no server), where the LLM *integrates* each source into an interlinked graph so
   knowledge compounds instead of being re-derived per query. **`/devmode wiki start
   <path>`** scaffolds a fresh wiki; **`/devmode wiki adopt <folder>`** adds it to an
@@ -223,7 +224,7 @@ that base — the base stays the source of truth:
   deterministic hooks into `.claude/settings.json`: a **PreToolUse guardrail**
   (`guardrails.py`, blocks dangerous ops); a **Stop `verify_gate.py`** that
   *blocks ending a turn* after a rebuild / `docker build` / deploy / restart / `.env`
-  change with no fresh end-to-end check after it — making
+  change with no fresh end-to-end check after it, making
   [`verification-before-completion`](skills/verification-before-completion/SKILL.md)
   enforced rather than advisory; and a **Stop `devmode_phase_gate.py`** that
   enforces the *ceremony* (the part most easily skipped under pressure): it
@@ -235,17 +236,17 @@ that base — the base stays the source of truth:
   track, next action) so a fresh session picks up where the loop left off
   (read-only, fail-open). Conscious overrides: `VERIFY-OK: <reason>` /
   `DEVMODE-OK: <reason>` when a check genuinely doesn't apply. (CLAUDE.md text alone
-  loses to pressure — that's *why* these are hooks, not prose.) **Run `/devmode`
+  loses to pressure: that's *why* these are hooks, not prose.) **Run `/devmode`
   from the project dir**: hooks key off `$CLAUDE_PROJECT_DIR`, so a session rooted in
-  the base repo leaves the *project's* guardrail/verify gates inert — the base repo
+  the base repo leaves the *project's* guardrail/verify gates inert: the base repo
   now ships its own `.claude/settings.json` wiring the phase-gate so the ceremony
   still bites from here.
 
-## Workspaces — experiment without touching the base
+## Workspaces: experiment without touching the base
 
 **This folder is the base. We reuse it across other projects, so it must stay
 clean.** Never run experiments, smoke tests, or throwaway features directly in
-the base — that risks polluting the very thing other projects depend on.
+the base: that risks polluting the very thing other projects depend on.
 
 Instead, work in [`workspaces/`](workspaces/README.md):
 
@@ -253,11 +254,11 @@ Instead, work in [`workspaces/`](workspaces/README.md):
    copies the devmode base (CLAUDE.md, skills, agents, references) and mounts the
    Conductor layer into a fresh directory:
    `integrations/conductor-beads/install.sh workspaces/<experiment-name>`.
-   (Or copy the whole folder by hand — just exclude `workspaces/` itself.)
+   (Or copy the whole folder by hand, just exclude `workspaces/` itself.)
 2. **Do all the work inside that workspace.** Build features, run tests, try
    changes. The workspace is disposable scratch space.
 3. **Bring back only the learnings.** When something proves out, port the
-   *learning* — a sharpened skill, a fixed template, a new pattern — back into the
+   *learning* (a sharpened skill, a fixed template, a new pattern), back into the
    base by hand. Never copy a whole experiment back wholesale.
 
 `workspaces/` is **gitignored** (scratch is never committed). Treat anything in

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""verify_gate.py — devmode Stop hook: blocks ending a turn after a risky action
+"""verify_gate.py: devmode Stop hook that blocks ending a turn after a risky action
 (rebuild / docker build / deploy / .env write) until a verification ran after it.
 
 This makes `verification-before-completion` ENFORCED instead of advisory. It is the
@@ -9,7 +9,7 @@ Protocol (Claude Code Stop hook):
 - Receives JSON on stdin: { "transcript_path": "...", "stop_hook_active": bool, ... }
 - To block the stop: print {"decision":"block","reason":"..."} to stdout, exit 0.
 - Otherwise: exit 0 with no output (allow).
-- Never hard-fail: on any error, allow (exit 0) — the gate must not break sessions.
+- Never hard-fail: on any error, allow (exit 0); the gate must not break sessions.
 
 Override: if a verification genuinely doesn't apply, the assistant writes the literal
 marker  VERIFY-OK: <reason>  in its message; the gate then allows the stop.

@@ -32,11 +32,11 @@ the world, so you reach for mocks, and the tests turn brittle and slow.
 The functional-core / imperative-shell pattern (Gary Bernhardt) untangles this.
 It splits a feature into two layers with a clear seam between them:
 
-- **Functional core** — pure functions that hold all the interesting logic and
+- **Functional core**: pure functions that hold all the interesting logic and
   decisions. Given inputs, they return outputs (or descriptions of what should
-  happen). No I/O, no mutation of outside state, no clock, no randomness — same
+  happen). No I/O, no mutation of outside state, no clock, no randomness: same
   inputs always give the same outputs.
-- **Imperative shell** — a thin outer layer that talks to the world: reads
+- **Imperative shell**: a thin outer layer that talks to the world: reads
   inputs (DB, network, files, time), hands them to the core, and carries out the
   decisions the core returns (writes, sends, logs). It has almost no branching
   logic of its own.
@@ -63,7 +63,7 @@ testing principles tell you exactly where to put the seam.
    Purity is what makes the core deterministic and mock-free to test.
 5. **Keep the shell dumb.** The shell should be so thin and so devoid of
    branching that there's little left to test in it beyond a few integration
-   checks. Logic creeping into the shell is the main failure mode — pull it back
+   checks. Logic creeping into the shell is the main failure mode: pull it back
    into the core.
 
 ## Before / after
@@ -102,7 +102,7 @@ function renewSubscription(id) {
 }
 ```
 
-`decideRenewal` is tested with plain values and zero mocks — every edge case
+`decideRenewal` is tested with plain values and zero mocks: every edge case
 (inactive, not yet due, due, multi-seat) is a one-line assertion. The shell gets
 a couple of integration tests to confirm the wiring.
 
@@ -110,7 +110,7 @@ a couple of integration tests to confirm the wiring.
 
 A core/shell feature is a textbook **deep module**: a lot of decision logic
 hidden behind a simple, pure interface (`decideRenewal(sub, time) -> Decision`).
-Callers — and tests — use that interface without caring how the decision is
+Callers (and tests) use that interface without caring how the decision is
 made. That's exactly the interface you want to design carefully and then test
 from the outside (see `design-interface-delegate-implementation`). You can
 confidently delegate the *implementation* of the core to an AI, because its pure
@@ -121,7 +121,7 @@ interface plus exhaustive value-based tests pin the behavior with no ambiguity.
 - The core has no `import` of your DB, HTTP, filesystem, or time library.
 - Core tests have no mocks and run instantly.
 - The shell is short, mostly straight-line, and boring to read.
-- Adding a new edge case means adding a core test and a branch in the core —
+- Adding a new edge case means adding a core test and a branch in the core,
   not touching any I/O.
 
 If those aren't true, logic is leaking into the shell or effects are leaking

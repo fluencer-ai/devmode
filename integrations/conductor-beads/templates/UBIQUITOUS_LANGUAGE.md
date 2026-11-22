@@ -3,7 +3,7 @@
 > A living glossary of the domain terms used identically in conversation, in the
 > AI's reasoning, and in the code. **Keep it open while planning and grilling.**
 > Update it in the same change whenever a concept appears or a definition
-> sharpens — a stale glossary is worse than none.
+> sharpens: a stale glossary is worse than none.
 >
 > The **In code as** column is what makes the language *ubiquitous*: it ties each
 > domain word to the concrete type, function, module, table, or event.
@@ -34,7 +34,7 @@
 ---
 
 ## Module map (architecture, kept apart from the glossary)
-> The module boundaries are part of the language — you and the AI both need to
+> The module boundaries are part of the language: you and the AI both need to
 > know this map well. List each deep module, its responsibility, and its public
 > interface. This is what lets `spec.md` be specific about which modules and
 > interfaces change. Keep it current as modules are consolidated

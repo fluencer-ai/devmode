@@ -2,7 +2,7 @@
 
 > A living glossary of the domain terms used identically in conversation, in
 > reasoning, and in the code. Keep it open while planning. Update it in the same
-> change whenever a concept appears or a definition sharpens — a stale glossary
+> change whenever a concept appears or a definition sharpens: a stale glossary
 > is worse than none.
 >
 > The **In code as** column is what makes the language *ubiquitous*: it ties each
@@ -34,7 +34,7 @@
 - <concept>: used as `<X>` in <place>, `<Y>` in <place> → standardize on `<...>`
 
 ### Relationships
-> Where one term is defined in relation to another — that's the domain model
+> Where one term is defined in relation to another: that's the domain model
 > leaking through, which is what you want.
 
 - <A> belongs to <B>; <B> has many <A>.
@@ -42,7 +42,7 @@
 ---
 
 ## Module map (architecture, kept apart from the glossary)
-> The module names are part of the language — you and the AI both need to
+> The module names are part of the language: you and the AI both need to
 > know this map well. List each deep module, its responsibility, and its public
 > interface. Keep it current as modules are consolidated. This is what lets the
 > PRD be specific about which modules and interfaces change. Interfaces live

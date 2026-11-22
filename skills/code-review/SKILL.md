@@ -10,7 +10,7 @@ disable-model-invocation: true
 
 # Code review
 
-You cannot see your own blind spots — that's what makes them blind spots. In a
+You cannot see your own blind spots: that's what makes them blind spots. In a
 devmode smoke test, the implementer shipped a feature that *looked* complete, and
 an independent review lane immediately found two real gaps (an untested boundary
 module and an unpinned security invariant). That is the rule, not the exception.
@@ -76,19 +76,19 @@ every standard and build the wrong thing, or build the right thing against the
 project's conventions, and one axis must not mask the other.
 
 **Critical modules** (auth, money, security, irreversible effects) are reviewed
-**in full** — never accepted on a gray-box basis.
+**in full**, never accepted on a gray-box basis.
 
 **The gate's independence is immutable.** The reviewer is a *fresh, separate*
-agent — never the implementer grading its own work (the panel lanes are spawned
+agent, never the implementer grading its own work (the panel lanes are spawned
 independently for exactly this reason). And you do **not** collapse that
 independence under pressure: a security or quality gate on a critical path is not
 self-certified to save a round, however small the change *feels*. Maker and
-checker stay different — that's what makes the green meaningful.
+checker stay different: that's what makes the green meaningful.
 
 **Independence is temporal, not just structural.** Form your own read of the
 *actual diff* before you ingest the author's summary or the PRD's abstraction of
 it (and before leaning on any scanner output). A review anchored on the author's
-framing inherits whatever that framing silently dropped — you end up checking the
+framing inherits whatever that framing silently dropped: you end up checking the
 change against the story told about it, never against what it really does. Read
 the code first; read the story second.
 
@@ -97,7 +97,7 @@ the code first; read the story second.
 A reviewer who has to guess scope reviews badly. Give them:
 - **The change** (the diff command) and **the contract** it should meet (spec/PRD,
   interface, acceptance criteria, or the standards list).
-- **What's critical** and what to focus on (e.g. "this touches auth — scrutinize
+- **What's critical** and what to focus on (e.g. "this touches auth: scrutinize
   the signature comparison").
 - **What's out of scope**, so they don't flag deliberate omissions.
 
@@ -105,47 +105,47 @@ A reviewer who has to guess scope reviews badly. Give them:
 
 This is where the value is realized or lost:
 
-- **Read what the loop produced — don't accrue comprehension debt.** Reviewing
+- **Read what the loop produced: don't accrue comprehension debt.** Reviewing
   AI-generated code is not optional ceremony: every diff you accept without
   understanding is debt you (or the next session) pay later, with interest. The
   point of the loop is to *accelerate* your understanding of the system, not to
   *replace* it. If you can't explain why the change is correct, you haven't
-  reviewed it — you've rubber-stamped it.
+  reviewed it: you've rubber-stamped it.
 - **Treat every finding as a gift**, not an attack. The reviewer found something
-  you couldn't see — that's the whole point.
+  you couldn't see: that's the whole point.
 - **Fix the root cause**, not the symptom. If it's a bug, switch to
   `systematic-debugging`.
 - **Adopt the finding; verify the *fix*, not just the diagnosis.** A reviewer's
-  finding can be right while the remedy they suggest is wrong — it can break a
+  finding can be right while the remedy they suggest is wrong: it can break a
   behavior the finding never mentioned (in a smoke test, a security lane correctly
   found a quota-reset bypass but proposed a fix that would have disabled the
   legitimate window reset). Take the problem; design the fix yourself against the
   spec; re-run the suite to prove it closes the finding *without* regressing.
-- **Re-verify after fixing** — apply `verification-before-completion` to the fix;
+- **Re-verify after fixing**: apply `verification-before-completion` to the fix;
   a fix you didn't run isn't a fix. The reviewer re-checks; don't skip the
   re-review.
 - **Don't rationalize a finding away.** "It's probably fine", "edge case won't
   happen", "I'll do it later" is exactly the gap that ships. If you disagree,
-  say why with evidence — don't dismiss silently.
+  say why with evidence: don't dismiss silently.
 - **Don't mark done with open findings.** Spec-axis findings = not done.
 
 ## The loop has to converge
 
-"Act on every finding" means *resolve* every finding — not *fix* every one, and it
+"Act on every finding" means *resolve* every finding, not *fix* every one, and it
 is not a licence for the reviewer to keep widening scope until nothing ships. Each
 finding gets one honest response: **fix it** (the default for anything material),
-**defer it** — only for a genuinely non-material or out-of-scope finding, and only
-as a *recorded* follow-up with a written reason — or **refute it** with evidence.
+**defer it** (only for a genuinely non-material or out-of-scope finding, and only
+as a *recorded* follow-up with a written reason) or **refute it** with evidence.
 
 **Materiality bar.** Reviewers raise findings that affect correctness, safety,
-changeability, or an acceptance criterion — not stylistic wishes dressed as
+changeability, or an acceptance criterion, not stylistic wishes dressed as
 blockers. **New scope** a reviewer uncovers (a pre-existing issue, an adjacent
 improvement) becomes a follow-up item, not a gate on *this* change.
 
 **Stopping rule.** The review is done when no material finding is left
-unresolved on either axis — each one fixed, deferred-with-rationale, or refuted.
+unresolved on either axis: each one fixed, deferred-with-rationale, or refuted.
 The exceptions that can never be deferred: Spec-axis findings, and any finding on
-a **critical module** (auth/money/security/irreversible effects) — those block
+a **critical module** (auth/money/security/irreversible effects); those block
 until fixed. That keeps the gate both meaningful and bounded.
 
 ## Red flags

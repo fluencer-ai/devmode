@@ -12,7 +12,7 @@ disable-model-invocation: true
 
 A good codebase is one that is **easy to change** (Ousterhout: complexity is
 anything that makes a system hard to understand and modify). Codebases drift
-toward the opposite — software entropy — because every change optimizes the
+toward the opposite (software entropy) because every change optimizes the
 change in front of it rather than the design of the whole. AI accelerates this:
 it's very good at producing lots of small, shallow modules, and a codebase made
 of them is hard for *both* humans and AI to navigate, so changes get slower and
@@ -31,7 +31,7 @@ FooBarHandler" and not "the Order service".
 - **Shallow module:** little functionality behind a relatively complex
   interface. Lots of tiny blobs that expose many functions and leak their
   internals. A caller (or an AI) has to walk through many of them and understand
-  all their dependencies to do anything — so it often fails to find the right
+  all their dependencies to do anything, so it often fails to find the right
   one or misreads how they connect.
 - **Deep module:** a lot of functionality hidden behind a *simple* interface.
   The complexity lives inside, where it's encapsulated. Callers use the
@@ -44,12 +44,12 @@ and testable instead of scattered.
 ## The procedure
 
 This is a repeatable, reversible refactor. Take small steps and keep tests green
-throughout — never reshape architecture without a safety net.
+throughout, never reshape architecture without a safety net.
 
 1. **Map what exists.** Scope before you scan (YAGNI): deepening a module only
    pays off where future changes land, so weight the parts of the codebase that
    keep changing. Unless the user named a target, walk a good stretch of
-   `git log` for hot spots — the files that keep coming up — and let those pull
+   `git log` for hot spots (the files that keep coming up), and let those pull
    your attention first; if churn is scattered with no clear hot spot, widen the
    net. Read the glossary and the ADRs for the area first. Then explore (a fresh
    subagent keeps your context clean) and list the current modules, their
@@ -63,7 +63,7 @@ throughout — never reshape architecture without a safety net.
 2. **Find candidate clusters.** Look for code that changes together, shares data,
    or serves one glossary concept but lives in separate shallow pieces. Apply the
    **deletion test** to anything that looks shallow: imagine deleting it. If the
-   complexity simply vanishes, it was a pass-through — delete it, don't deepen it.
+   complexity simply vanishes, it was a pass-through: delete it, don't deepen it.
    If the complexity reappears, scattered across N callers, it was earning its keep
    and belongs behind one deep interface. Classify each candidate's dependencies
    with the four categories in `design-interface-delegate-implementation`; the
@@ -85,7 +85,7 @@ throughout — never reshape architecture without a safety net.
    `documentation`): "Want me to record this so future architecture reviews don't
    re-suggest it?" Skip it for ephemeral reasons ("not now") or self-evident ones.
 5. **Map the blast radius.** Before moving anything, run `impact-analysis` on the
-   cluster you'll touch — who depends on it, what breaks, any cycles or orphans —
+   cluster you'll touch (who depends on it, what breaks, any cycles or orphans),
    so the refactor is bounded rather than a leap.
 6. **Design the simple interface.** Decide the small interface that should
    remain: the contract callers need. Everything else becomes internal. Design
@@ -105,7 +105,7 @@ throughout — never reshape architecture without a safety net.
    heart.
 9. **Re-point callers and delete the cruft.** Update call sites to the new
    interface and remove the now-dead shallow scaffolding and its tests. Don't
-   leave compatibility shims or commented-out husks — that's entropy by another
+   leave compatibility shims or commented-out husks: that's entropy by another
    name.
 10. **Run the loop again.** Tests green, types clean. Repeat on the next cluster.
 
@@ -122,19 +122,19 @@ throughout — never reshape architecture without a safety net.
 ## When to reach for this
 
 - The AI repeatedly explores but lands in the wrong place or misjudges
-  dependencies — a strong signal the structure is too shallow to navigate.
+  dependencies: a strong signal the structure is too shallow to navigate.
 - A small change keeps breaking distant code (high coupling, leaked internals).
 - Tests are brittle because they bind to scattered internals rather than an
   interface.
-- You're about to build on top of an area — improve its architecture *first*, so
+- You're about to build on top of an area: improve its architecture *first*, so
   you build on solid ground rather than compounding the entropy.
 
 Do this *before* complexity compounds. The earlier you consolidate, the cheaper
-it is — and the more of AI's bounty you can actually collect, because AI does
+it is, and the more of AI's bounty you can actually collect, because AI does
 genuinely well in a clean, deep-module codebase.
 
 **Related:** when the rot is system-level (logic welded to the framework/DB,
 changes rippling everywhere), read `system-boundaries.md` in
 `functional-core-imperative-shell`. When a cluster of conditionals-on-type or a
 subclass explosion is the smell, a pattern from `design-patterns` may deepen the
-module — but only if it reduces complexity, never as decoration.
+module, but only if it reduces complexity, never as decoration.

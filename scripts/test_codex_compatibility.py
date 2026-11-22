@@ -634,7 +634,7 @@ class CodexCompatibilityTests(unittest.TestCase):
         self.assertIn(".codex/hooks.json NOT wired", lean.stdout)
 
     def test_help_lists_every_option_the_installer_accepts(self) -> None:
-        """The help window is a line range over the header — new options fall out of it."""
+        """The help window is a line range over the header: new options fall out of it."""
         help_text = subprocess.run(
             [str(INSTALL), "--help"], cwd=ROOT, check=True, capture_output=True, text=True
         ).stdout
@@ -710,7 +710,7 @@ class GateParityTests(unittest.TestCase):
     CLAUDE_GATE = ROOT / ".claude/hooks/devmode_phase_gate.py"
     CODEX_GATE = ROOT / ".codex/hooks/codex_hooks.py"
 
-    # (argument string, inline?) — inline means "no orchestrator required".
+    # (argument string, inline?): inline means "no orchestrator required".
     CASES = (
         ("", False),
         ("build me a todo app", False),
@@ -730,7 +730,7 @@ class GateParityTests(unittest.TestCase):
         ("commit the change", False),
         ("control flow refactor", False),
         ("documentation for the API", False),
-        # `\b` also fires on punctuation — these are ideas, not modes.
+        # `\b` also fires on punctuation: these are ideas, not modes.
         ("wiki-like docs feature", False),
         ("goal: ship the beta", False),
         ("update-notifier integration", False),
@@ -769,7 +769,7 @@ class GateParityTests(unittest.TestCase):
 class UpdateParityTests(unittest.TestCase):
     """`update.sh` must refresh everything `install.sh` established.
 
-    Anything install wires and update forgets goes stale in place — the worst
+    Anything install wires and update forgets goes stale in place: the worst
     shape being a gate whose script is refreshed but never re-wired, so it looks
     installed and never runs.
     """
@@ -822,7 +822,7 @@ class UpdateParityTests(unittest.TestCase):
             wired = " ".join(sorted(self.wired_commands(project)))
             for script in ("guardrails.py", "verify_gate.py", "devmode_phase_gate.py", "session_resume.py"):
                 self.assertTrue((project / ".claude/hooks" / script).is_file(), f"{script} not refreshed")
-                self.assertIn(script, wired, f"{script} refreshed but never wired — the gate is inert")
+                self.assertIn(script, wired, f"{script} refreshed but never wired: the gate is inert")
 
             # Same fixture, second claim: a Codex-only user must be able to
             # self-verify their gate, the way test_guardrails.py lets a Claude

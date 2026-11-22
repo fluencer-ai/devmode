@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# llm-wiki update — refresh the SCHEMA/how-to docs of a deployed Karpathy LLM Wiki
+# llm-wiki update: refresh the SCHEMA/how-to docs of a deployed Karpathy LLM Wiki
 # to the current base, WITHOUT touching the knowledge the LLM has built.
 #
 # Overwrites only files recorded as devmode-owned by the installer. KARPATHY.md
@@ -50,10 +50,10 @@ P="${1:-}"
 [ -n "$P" ] || { err "usage: update.sh <wiki-dir>  (see --help)"; exit 1; }
 [ -d "$P" ] || { err "no such directory: $P"; exit 1; }
 P="$(cd "$P" && pwd)"
-[ -f "$P/KARPATHY.md" ] || { err "$P has no KARPATHY.md — not an LLM Wiki. Run install.sh first."; exit 1; }
+[ -f "$P/KARPATHY.md" ] || { err "$P has no KARPATHY.md, not an LLM Wiki. Run install.sh first."; exit 1; }
 if ! { [ -f "$P/.llm-wiki/managed-files" ] && \
        grep -Fqx 'KARPATHY.md' "$P/.llm-wiki/managed-files"; } && \
-   ! grep -Fqx '# KARPATHY.md — the LLM Wiki schema for this project' "$P/KARPATHY.md"; then
+   ! grep -Eqx '# KARPATHY\.md(:| [^ ]+) the LLM Wiki schema for this project' "$P/KARPATHY.md"; then
   err "refusing to overwrite project-owned KARPATHY.md; it is not a recognized LLM Wiki schema"
   exit 1
 fi
@@ -78,7 +78,7 @@ refresh_if_owned() { # refresh_if_owned <template> <relative-path>
 step "Updating the LLM Wiki schema in $P (knowledge left untouched)"
 # The schema maps each page type to a wiki/<dir>/. Refreshing KARPATHY.md without
 # the folders it names would tell the LLM to write into directories that only
-# fresh installs have — so re-scaffold the canonical tree first (mkdir -p is a
+# fresh installs have, so re-scaffold the canonical tree first (mkdir -p is a
 # no-op on an existing wiki and never touches a page).
 mkdir -p "$P"/wiki/{entities,concepts,synthesis,sources,queries,comparisons} "$P"/raw/{sources,assets}
 cp "$TPL/KARPATHY.md" "$P/KARPATHY.md"; ok "KARPATHY.md (schema) refreshed"
@@ -107,4 +107,4 @@ case "$CODEX_PTR_ACTION" in
   *)        ok "created AGENTS.md pointing Codex at KARPATHY.md" ;;
 esac
 
-step "Done — schema updated; your wiki/ knowledge + raw/sources untouched"
+step "Done: schema updated; your wiki/ knowledge + raw/sources untouched"

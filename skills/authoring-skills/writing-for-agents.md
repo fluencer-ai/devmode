@@ -73,20 +73,20 @@ Splitting spends one of the two loads, so split only when the cut earns it:
 ## Leading words
 
 The cheapest way to steer behavior is to **recruit a concept the model already
-holds**. A *leading word* is a compact term already in the model's pretraining —
-`lesson`, `fog of war`, `tracer bullets`, `tight`, `red` — that the agent thinks
+holds**. A *leading word* is a compact term already in the model's pretraining
+(`lesson`, `fog of war`, `tracer bullets`, `tight`, `red`) that the agent thinks
 *with* while running the skill. Used as a repeated token (never restated as a
 sentence), it accumulates meaning across the skill and anchors a whole region of
 behavior for almost no tokens, because the priors come free.
 
 It pays twice: in the body it anchors *execution* (the agent reaches for the same
-behavior every time the word appears — the consistency a skill exists to buy); in
+behavior every time the word appears; the consistency a skill exists to buy); in
 the description, and wherever the same word lives in your prompts, PRDs, and code,
 it anchors *invocation*. devmode already runs on this (`grill`, `ratchet`,
-`headlights`) — name the concept, don't paraphrase it. Coin your own word only if
+`headlights`): name the concept, don't paraphrase it. Coin your own word only if
 you then *define* it: a made-up term recruits no priors, so you pay in definition
 tokens what a pretrained word gives free. And a word too weak to beat the default
-(`be thorough` when the agent already is) is a **no-op** — the fix is a stronger
+(`be thorough` when the agent already is) is a **no-op**: the fix is a stronger
 word (`relentless`), not more prose.
 
 Hunt for restatements a leading word retires: a triad spelled out at three sites

@@ -10,13 +10,13 @@ disable-model-invocation: true
 
 # Self-scorecard
 
-The agent that builds is the worst judge of its own work — unless it's forced to
+The agent that builds is the worst judge of its own work, unless it's forced to
 score itself against fixed criteria, with evidence, every step. This skill turns
 "looks good" into **numbers you can track**: a short overview of what was done
 plus a 0–10 score on five criteria, with the delta from the last phase, so you
 can watch the agent's own judgment of the work rise (or fall) as it goes.
 
-It is *self-assessment, grounded in evidence* — the score on Correctness must be
+It is *self-assessment, grounded in evidence*: the score on Correctness must be
 backed by an actual test run (see `verification-before-completion`), not a
 feeling. Honesty is the whole point: a dishonest 9 is worse than an honest 5.
 
@@ -36,7 +36,7 @@ problems came to mind." Reserve 8+ for things you've actually verified.
 
 ## How to run it (each phase)
 
-1. **Gather evidence** for the phase — the test output, the diff, the review
+1. **Gather evidence** for the phase: the test output, the diff, the review
    findings, the a11y/lint/audit results. Don't score from memory.
 2. **Score each criterion 0–10** with a one-line, evidence-based note. Be
    harsh on what you haven't verified ("not observed" ≠ "fine").
@@ -54,10 +54,10 @@ problems came to mind." Reserve 8+ for things you've actually verified.
    user tracks the trend across phases.
 4. **Show the user the overview + scores.** This is the per-phase check-in.
 
-## At the end — recommendations
+## At the end: recommendations
 
 When the work is done, run the **final** scorecard and attach
-**recommendations per criterion** — the concrete next move that would raise the
+**recommendations per criterion**: the concrete next move that would raise the
 weakest scores:
 
 ```bash
@@ -104,7 +104,7 @@ apply none without a yes.
 
 - **Every 8+ needs evidence you actually saw this phase.** No optimistic scores.
 - **Score down for unknowns.** Untested path → Testing/Correctness can't be high.
-- **Don't game the trend.** If a phase regressed a criterion, show the ▼ — that's
+- **Don't game the trend.** If a phase regressed a criterion, show the ▼: that's
   the signal that makes the scorecard worth anything.
 - A criterion you can't yet assess (e.g. Correctness before any code) gets a low,
   honest score with the note "no code yet", not a placeholder high one.

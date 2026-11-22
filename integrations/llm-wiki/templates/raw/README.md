@@ -1,7 +1,7 @@
-# raw/ — immutable external sources (Karpathy strict)
+# raw/: immutable external sources (Karpathy strict)
 
 The **ground truth** layer. You drop external material here; the LLM reads it but
-**never edits it**. Nothing in `raw/` is modified after it lands — that's what
+**never edits it**. Nothing in `raw/` is modified after it lands: that's what
 makes it trustworthy as the source of truth the wiki is compiled from.
 
 ```

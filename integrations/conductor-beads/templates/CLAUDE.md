@@ -1,4 +1,4 @@
-# <Project> — built on devmode
+# <Project>: built on devmode
 
 > **If this file is imported (`@CLAUDE.devmode.md`) into an existing project's
 > `CLAUDE.md`:** that project's own instructions are the host and **take
@@ -22,7 +22,7 @@ The hierarchy is deliberate:
 Remove Conductor and you still have a complete devmode project. Remove devmode
 and Conductor is just generic spec-first project management.
 
-## Base — devmode (non-negotiable here)
+## Base: devmode (non-negotiable here)
 
 devmode is the source of truth for *how* we build. Its skills live in
 `.claude/skills/` (or the global devmode install), hidden from the skill listing:
@@ -34,9 +34,9 @@ decision:
   in the design of the system every day.
 - **You are the strategy; the AI is the tactics.** Interfaces and module
   boundaries are designed deliberately; implementations behind them are delegated.
-- **Align before assets** — reach a shared design concept with `grill-me` before
+- **Align before assets**: reach a shared design concept with `grill-me` before
   writing a spec or plan.
-- **Speak one language** — keep `UBIQUITOUS_LANGUAGE.md` current; it includes the
+- **Speak one language**: keep `UBIQUITOUS_LANGUAGE.md` current; it includes the
   **module map** (boundaries are part of the language).
 - **Deep modules; functional core / imperative shell.** Separate pure decisions
   from I/O; hide complexity behind simple interfaces.
@@ -49,7 +49,7 @@ Skills: `grill-me`, `ubiquitous-language`, `write-prd`,
 Agents: `design-architect`, `requirements-planner`, `tdd-implementer`,
 `architecture-refactorer`, `complexity-reviewer`.
 
-## Layer — Conductor (organizes & persists the devmode flow)
+## Layer: Conductor (organizes & persists the devmode flow)
 
 Conductor turns the devmode process into trackable, resumable work. It **serves**
 the base; it does not override it.
@@ -59,7 +59,7 @@ the base; it does not override it.
 - Each track has `spec.md` (written with `write-prd` rigor) and `plan.md`
   (phased: functional core → imperative shell → critical paths).
 - `/conductor-*` commands run the lifecycle. `conductor/workflow.md` is the task
-  lifecycle **adapter** — it embeds and **defers to the devmode skills as the
+  lifecycle **adapter**: it embeds and **defers to the devmode skills as the
   source of truth**.
 - Beads (optional) backs Conductor with a dependency graph and notes that survive
   conversation compaction.

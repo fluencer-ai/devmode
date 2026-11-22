@@ -10,8 +10,8 @@ disable-model-invocation: true
 
 # Visual explainers
 
-A picture earns its place when the *shape* of something — how layers nest, how a
-request flows, how two options differ, how a number moved — is the point. The
+A picture earns its place when the *shape* of something (how layers nest, how a
+request flows, how two options differ, how a number moved) is the point. The
 model's default is prose; prose is the wrong medium for structure. This skill is
 the knowledge an agent lacks by default: **when** to reach for a visual, and the
 **discrete, easy-to-get-wrong mechanics** that decide whether the result is crisp
@@ -21,15 +21,15 @@ or garbage.
 
 Left alone, agents fail visuals in two opposite ways:
 
-1. **Under-reach** — answer a structural question with three paragraphs when one
+1. **Under-reach**: answer a structural question with three paragraphs when one
    diagram would land instantly.
-2. **Over-produce, badly** — emit an SVG with a viewBox too small (content
+2. **Over-produce, badly**: emit an SVG with a viewBox too small (content
    clipped), arrows routed straight through unrelated boxes, labels sitting *on*
    the arrow lines, hardcoded `#333` text that vanishes in dark mode, ten boxes
    crammed across one row, and no accessibility hooks.
 
 Both are knowledge gaps, not skill gaps. The rules below are the plugged
-loopholes — most were learned the hard way, one clipped diagram at a time.
+loopholes: most were learned the hard way, one clipped diagram at a time.
 
 ## When to reach for a visual (and when not)
 
@@ -39,17 +39,17 @@ distribution or trend, a UI you're proposing. One focused visual beside a short
 prose explanation beats either alone.
 
 Do **not** decorate. A visual that just restates a sentence is noise. If you catch
-yourself making a diagram because the answer feels bare, stop — bare prose that's
+yourself making a diagram because the answer feels bare, stop: bare prose that's
 correct beats a diagram that adds nothing. And never produce *several* mediocre
 visuals where one sharp one would do; the cost is the reader's attention.
 
 ## The protocol (show_widget / visualize tool)
 
 1. **Load the design guidance first, silently.** Before your *first* `show_widget`
-   call in a session, call the visualize `read_me` for the module(s) you need —
+   call in a session, call the visualize `read_me` for the module(s) you need:
    `diagram`, `mockup`, `interactive`, `chart`, or `art`. It returns the CSS
    variables, color/text classes, sizing rules, and per-type guidance. **Do not
-   narrate this call** — it's setup; just build the visual and present it.
+   narrate this call**: it's setup; just build the visual and present it.
 2. **Route on the verb, not the noun.** Same subject, different visual:
    - *"what's the architecture / how is this organised"* → **structural diagram**
      (boxes nested/containing, labels, arrows).
@@ -62,13 +62,13 @@ visuals where one sharp one would do; the cost is the reader's attention.
 3. **Build, verify, present.** One visual per call. Put the explanation in your
    text response; put only labels in the visual.
 
-## SVG diagram mechanics — the load-bearing rules
+## SVG diagram mechanics: the load-bearing rules
 
 These are not style preferences; breaking them clips content or kills dark mode.
 
 - **Canvas:** `<svg width="100%" viewBox="0 0 680 H" role="img">` with `<title>`
   and `<desc>` as the **first** children (screen readers announce them). The
-  **680 is load-bearing** — it matches the container so SVG units render 1:1 with
+  **680 is load-bearing**: it matches the container so SVG units render 1:1 with
   CSS pixels; all the "text fits in box" math assumes it. If content is naturally
   narrow, keep 680 and *center* the content (e.g. x=240..440); don't shrink the
   viewBox.
@@ -77,17 +77,17 @@ These are not style preferences; breaking them clips content or kills dark mode.
 - **Safe area:** keep everything between x=40 and x=640.
 - **Color only via the pre-built classes** (`c-blue`, `c-teal`, `c-amber`,
   `c-slate`, …) on shapes. They auto-adapt to light/dark. **Never** write a
-  `<style>` color block and **never** hardcode hex on shapes — that's the #1 cause
+  `<style>` color block and **never** hardcode hex on shapes: that's the #1 cause
   of "invisible in dark mode."
-- **Every `<text>` carries a class** — `t` (14px label), `ts` (12px subtitle/arrow
+- **Every `<text>` carries a class**: `t` (14px label), `ts` (12px subtitle/arrow
   label), `th` (14px heading). Two font sizes only, 14 and 12. An unclassed
-  `<text>` inherits the wrong font and may be invisible — that's the tell you
+  `<text>` inherits the wrong font and may be invisible: that's the tell you
   forgot. Inside a `c-{color}` parent, the text classes auto-adjust to that ramp.
-- **Connectors:** stroke with a CSS variable, not a class —
+- **Connectors:** stroke with a CSS variable, not a class:
   `stroke="var(--color-text-secondary)"`. Define one arrowhead `<marker>` and
   reuse it. Put arrow labels *beside* the line (offset ~10px), never on it.
 - **Route arrows through gaps, not boxes.** Before drawing a vertical connector at
-  x, confirm x falls in the gap *between* the boxes of the tier it crosses — an
+  x, confirm x falls in the gap *between* the boxes of the tier it crosses: an
   arrow spearing a box reads as a bug.
 
 ## The complexity budget (hard limits)
@@ -114,11 +114,11 @@ When the answer is a UI or needs interaction, output HTML (no `<html>/<head>/
 
 - **All colors via CSS variables** (`--color-text-primary`,
   `--color-text-secondary`, `--color-bg-*`, `--border-radius-lg`, …). Never
-  hardcode hex — same dark-mode rule as SVG.
+  hardcode hex: same dark-mode rule as SVG.
 - **Accessibility:** begin with a visually-hidden `<h2 class="sr-only">` that
   summarizes the widget in one sentence.
 - **Host owns the frame:** transparent background, no top-level padding, no outer
-  container with its own background — the card is provided for you.
+  container with its own background: the card is provided for you.
 - **Scripts run after streaming completes.** On Claude artifact surfaces, the
   globals `sendPrompt(text)` and `openLink(url)` can hand work back to chat or
   open the host's link-confirmation dialog. In Codex, use the native inline
@@ -127,9 +127,9 @@ When the answer is a UI or needs interaction, output HTML (no `<html>/<head>/
 
 ## Two small parameters that matter
 
-- **`title`** — a snake_case, *disambiguating* identifier (`oauth_login_flow`, not
+- **`title`**: a snake_case, *disambiguating* identifier (`oauth_login_flow`, not
   `diagram`); it's also the download filename.
-- **`loading_messages`** — 1–4, ~5 words each, in the user's language. **Make them
+- **`loading_messages`**: 1–4, ~5 words each, in the user's language. **Make them
   boring for serious topics** (illness, death, finance-in-distress, anything where
   the reader may be personally affected): describe what the code does, plainly.
   Playful is fine only for light subjects.
@@ -155,7 +155,7 @@ When the answer is a UI or needs interaction, output HTML (no `<html>/<head>/
 
 Re-read the SVG/HTML as if rendered on a near-black background: is every text
 element readable? Does any shape or label cross the viewBox edge? Does every arrow
-land in a gap? Is `H` tight? One `<svg>` per call — if the first attempt is wrong,
+land in a gap? Is `H` tight? One `<svg>` per call, if the first attempt is wrong,
 replace it entirely, never append a "fixed" copy after the broken one.
 
 ---

@@ -1,4 +1,4 @@
-"""Tests for the guardrails functional core — pure values, no mocks.
+"""Tests for the guardrails functional core: pure values, no mocks.
 
 Run:  python3 -m unittest test_guardrails   (from this directory)
 """
