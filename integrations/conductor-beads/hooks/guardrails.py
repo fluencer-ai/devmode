@@ -21,19 +21,8 @@ import re
 import sys
 from typing import Tuple
 
-# A `.env` file (`.env`, `.env.local`, `.envrc`, `config/.env`) but NOT words like
-# "environment" (no leading dot+token boundary).
-_ENV_RE = re.compile(r"\.env(rc)?(\b|$|[./\s'\"])")
-SECRET_SUBSTR = ("id_rsa", "id_ed25519", ".pem", "credential", "secret", ".ssh/")
-
-
-def _is_secretish(text: str) -> bool:
-    t = text.lower()
-    return bool(_ENV_RE.search(t)) or any(s in t for s in SECRET_SUBSTR)
-
-
-# --- R05/R06 v2 (Projects/testes/aprovador/guardas/regras_v2.py): ask only when a command really reads a secret
-# or deletes outside temp. v1 asked on any cat/head/tail + the word secret/.env anywhere (heredocs, greps).
+# --- R05/R06 v2: ask only when a command really reads a secret or deletes outside temp.
+# v1 asked on any cat/head/tail plus the word "secret" or a dotenv name anywhere (heredocs, greps).
 import os as _os
 import shlex as _shlex
 
@@ -144,7 +133,7 @@ def reads_secret(cmd: str) -> bool:
             if any(secret_path(f) for f in files):
                 return True
             continue
-        if exe in ("scp", "rsync", "ssh", "sftp"):  # -i chave / -F config só autenticam, não leem o conteúdo para a tela
+        if exe in ("scp", "rsync", "ssh", "sftp"):  # -i key / -F config only authenticate; they never print the file
             args = [a for i, a in enumerate(args) if not (a in ("-i", "-F", "-o", "-e") or (i and args[i - 1] in ("-i", "-F", "-o", "-e")))]
         if exe in ("python", "python3", "node", "ruby", "perl") and not any(secret_path(a) for a in args):
             continue
@@ -189,7 +178,24 @@ def deletes_outside_temp(cmd: str) -> bool:
             if not (p.startswith(_TEMP) or (tmp and p.startswith(tmp.lower())) or "/.trash/" in p or "/scratchpad/" in p):
                 return True
     return False
-# --- fim R05/R06 v2
+
+
+# Targets that mean "everything": / , ~ , $HOME and bare wildcards. A path INSIDE home is scoped (asks).
+_ROOT_TARGETS = {"/", "/*", "~", "~/", "~/*", "$home", "$home/", "${home}", "${home}/", "*"}
+
+
+def rm_recursive_force_targets(cmd: str):
+    """Targets of every `rm` that is both recursive and forced, whatever the flag spelling
+    (-rf, -fr, -r -f, -R -f, --recursive --force). Text that only mentions rm (echo, a commit message) is not a call."""
+    out = []
+    for w in simple_commands(cmd):
+        if _os.path.basename(w[0]) != "rm":
+            continue
+        short = "".join(x[1:] for x in w[1:] if x.startswith("-") and not x.startswith("--"))
+        if ("r" in short.lower() or "--recursive" in w) and ("f" in short or "--force" in w):
+            out.append([x for x in w[1:] if not x.startswith("-")])
+    return out
+# --- end R05/R06 v2
 
 
 def evaluate(tool_name: str, tool_input: dict) -> Tuple[str, str]:
@@ -206,17 +212,17 @@ def evaluate(tool_name: str, tool_input: dict) -> Tuple[str, str]:
         if re.search(r"git\s+reset\s+--hard", low) or re.search(r"git\s+clean\s+-\w*f", low) \
            or re.search(r"git\s+(checkout|restore)\s+--?\s*\.", low):
             return "ask", "R04: destructive git op; confirm before running"
-        if re.search(r"\brm\s+-\w*r\w*f\w*|\brm\s+-\w*f\w*r\w*", low):
-            if re.search(r"\s(/|~|\$home|\*)(\s|/|$)", low):
-                return "deny", "R05: refuse rm -rf on / ~ or wildcard root"
-            if deletes_outside_temp(cmd):
-                return "ask", "R05: recursive force delete outside temp; confirm the scope"
+        targets = rm_recursive_force_targets(cmd)
+        if any(t.lower() in _ROOT_TARGETS for ts in targets for t in ts):
+            return "deny", "R05: refuse rm -rf on / ~ or wildcard root"
+        if targets and deletes_outside_temp(cmd):
+            return "ask", "R05: recursive force delete outside temp; confirm the scope"
         if reads_secret(cmd):
             return "ask", "R06: reading a possible secret file; confirm"
         return "allow", ""
     if tool_name in ("Write", "Edit", "MultiEdit", "NotebookEdit"):
         path = str(tool_input.get("file_path") or tool_input.get("path") or "").lower()
-        if ".git/" in path or _is_secretish(path):
+        if ".git/" in path or "/.ssh/" in "/" + path or secret_path(path):
             return "deny", f"R07: refuse write to protected/secret path ({path})"
         return "allow", ""
     return "allow", ""

@@ -108,6 +108,18 @@ Measured with `./setup --report` against a scratch HOME (4 chars ≈ 1 token).
   `scripts/audit_skills.py` now fails on any em dash, so it can't creep back.
   Installer checks still recognize project files written by older versions.
 
+### Fixed (2026-11-23 audit)
+
+- **Guardrails R05** reads the `rm` flags instead of one spelling: `rm -r -f`,
+  `rm -R -f` and `rm --recursive --force` used to pass silently. It now denies
+  only root targets (`/`, `~`, `$HOME`, bare wildcards) and asks on a path
+  inside home, as the docs say (before, every `~/...` path was denied).
+  Text that only mentions `rm -rf` (an `echo`, a commit message) is not a call.
+- **Guardrails R07** uses the same secret-file rule as R06, plus `.git/` and
+  `~/.ssh/`: writing an example dotenv file, `docs/secrets-policy.md` or
+  `src/credentials_form.tsx` is no longer blocked.
+- `guardrails.py` comments are in English and carry no local path.
+
 ### Migration from v1
 
 - **Projects:** run `/devmode update <folder>` (or

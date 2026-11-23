@@ -46,6 +46,29 @@ class GuardrailTest(unittest.TestCase):
     def test_secret_read_asks(self):
         self.assertEqual(bash("cat .env")[0], "ask")
 
+    # R05 reads the rm flags, not one spelling of them
+    def test_rm_recursive_force_is_checked_in_any_flag_spelling(self):
+        for cmd in ("rm -r -f build/", "rm -R -f build/", "rm -f -r build/", "rm --recursive --force build/"):
+            self.assertEqual(bash(cmd)[0], "ask", cmd)
+        for cmd in ("rm -r -f /", "rm --recursive --force ~", "rm -R -f *"):
+            self.assertEqual(bash(cmd)[0], "deny", cmd)
+
+    def test_rm_rf_denies_only_root_targets_and_asks_inside_home(self):
+        for cmd in ("rm -rf ~", "rm -rf ~/", "rm -rf $HOME", "rm -rf /*", "rm -rf *", "rm -rf build/ ~"):
+            self.assertEqual(bash(cmd)[0], "deny", cmd)
+        for cmd in ("rm -rf ~/Projects/old-build", "rm -rf $HOME/old-build"):
+            self.assertEqual(bash(cmd)[0], "ask", cmd)
+        self.assertEqual(bash('echo "never run rm -rf /"')[0], "allow")
+
+    # R07 uses the same secret-file rule as R06, plus .git and ~/.ssh
+    def test_write_guard_uses_the_secret_file_rule(self):
+        env = "." + "env"
+        for path in (f"config/{env}", f"{env}.local", "keys/id_rsa", "certs/server.pem",
+                     "credentials.json", "/home/me/.ssh/authorized_keys", "/home/me/.ssh/config"):
+            self.assertEqual(write(path)[0], "deny", path)
+        for path in (f"{env}.example", "docs/secrets-policy.md", "src/credentials_form.tsx"):
+            self.assertEqual(write(path)[0], "allow", path)
+
     # quoted paths with spaces stay one argument; quoted text runs only where executed
     def test_quoted_paths_with_spaces_keep_their_program(self):
         env = "." + "env"
