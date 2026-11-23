@@ -65,6 +65,21 @@ class GuardrailTest(unittest.TestCase):
                     "rm -rf /.", "rm -rf $HOME/*", "rm -rf ${HOME}/", "rm -rf ~/*", 'bash -c "rm -rf /"'):
             self.assertEqual(bash(cmd)[0], "deny", repr(cmd))
 
+    def test_rm_rf_root_spellings_with_dot_components_are_denied(self):
+        for cmd in ("rm -rf ~/./*", "rm -rf $HOME/.//", "rm -rf /./"):
+            self.assertEqual(bash(cmd)[0], "deny", cmd)
+        self.assertEqual(bash("rm -rf .")[0], "ask")  # the current directory is scoped, not root
+
+    def test_rm_rf_quoted_operands_keep_their_scope(self):
+        self.assertEqual(bash('rm -rf "/tmp/cache(old)" ./build')[0], "ask")
+        for cmd in ('rm -rf "/tmp/cache old"', "rm -rf /tmp/cache # cleanup"):
+            self.assertEqual(bash(cmd)[0], "allow", cmd)
+
+    def test_code_heredoc_reading_a_secret_file_asks(self):
+        for name in ("credentials.prod.json", "id_rsa.backup", "id_rsa"):
+            self.assertEqual(bash(f"python3 - <<EOF\nopen('{name}').close()\nEOF")[0], "ask", name)
+        self.assertEqual(bash("python3 - <<EOF\nprint(d['token'])\nEOF")[0], "allow")
+
     def test_rm_rf_with_targets_from_input_or_after_double_dash_asks(self):
         for cmd in ("find . -name build | xargs rm -rf", "rm -rf -- -x", "rm -rf -- -rf build"):
             self.assertEqual(bash(cmd)[0], "ask", cmd)
@@ -76,7 +91,9 @@ class GuardrailTest(unittest.TestCase):
         for path in (f"config/{env}", f"{env}.local", "keys/id_rsa", "certs/server.pem",
                      "credentials.json", "/home/me/.ssh/authorized_keys", "/home/me/.ssh/config",
                      f"config/{env}rc.local", f"config/{env}-prod", "keys/id_rsa.backup", "keys/id_ed25519-old",
-                     "config/secrets-production.yaml", "config/credentials.prod.json", "secrets_staging.toml"):
+                     "config/secrets-production.yaml", "config/credentials.prod.json", "secrets_staging.toml",
+                     "certs/service.pem.bak", f"config/{env}.local~", "config/credentials.staging.json.bak",
+                     "config/client_secret.json"):
             self.assertEqual(write(path)[0], "deny", path)
         for path in (f"{env}.example", "docs/secrets-policy.md", "src/credentials_form.tsx"):
             self.assertEqual(write(path)[0], "allow", path)

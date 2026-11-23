@@ -40,13 +40,14 @@ def secret_path(arg: str) -> bool:
     """A path whose contents are a secret: .env files, private keys, credential stores."""
     a = arg.strip("'\"").lower()
     base = _os.path.basename(a.rstrip("/"))
+    base = re.sub(r"(\.(bak|backup|old|orig|save|swp|tmp)|~)+$", "", base)  # a copy of a secret is a secret
     if re.fullmatch(r"\.env(rc)?([._-][\w.-]+)?", base):
         return not re.search(r"\.(example|sample|template|dist|exemplo|modelo)$", base)
     if base.endswith((".pem", ".key", ".p12", ".pfx", ".keystore", ".jks")) or re.fullmatch(r"[\w.-]+\.env", base):
         return True
     if re.fullmatch(r"id_(rsa|dsa|ecdsa|ed25519)([._-][\w.-]+)?", base) and not base.endswith(".pub"):
         return True  # the key and its copies (id_rsa.backup, id_ed25519-old), never the public half
-    if re.fullmatch(r"(credentials?|secrets?)([_-][a-z0-9]+)*(\.(prod|production|staging|stage|dev|development|local|test))*"
+    if re.fullmatch(r"([a-z0-9]+[_-])*(credentials?|secrets?)([_-][a-z0-9]+)*(\.(prod|production|staging|stage|dev|development|local|test))*"
                     r"(\.(json|ya?ml|toml|env|txt|ini|conf))?", base):
         return True  # secrets-production.yaml, credentials.prod.json; not secrets-policy.md or credentials_form.tsx
     if "/.ssh/" in "/" + a and not base.endswith((".pub", "known_hosts", "config", "authorized_keys")) \
@@ -152,7 +153,8 @@ def reads_secret(cmd: str) -> bool:
 
 
 _CODE_HEREDOC = re.compile(r"\b(python3?|node|ruby|perl|bash|sh|zsh|osascript)\b[^\n<]*<<-?\s*(['\"]?)(\w+)\2[^\n]*\n.*?\n[ \t]*\3[ \t]*(?=\n|$|\))", re.S)
-_QUOTED = re.compile(r"['\"`]([^'\"`\s]*(?:\.env[\w.-]*|id_(?:rsa|dsa|ecdsa|ed25519)[\w-]*|\.pem|\.key|credentials?\.json|\.netrc))['\"`]")
+# Any quoted literal that looks like a path (has a dot or a slash, or names a key); secret_path decides.
+_QUOTED = re.compile(r"['\"`]([^'\"`\s]*(?:[./][^'\"`\s]*|id_[^'\"`\s]*))['\"`]")
 
 
 def _assignments(cmd: str) -> dict:
@@ -169,28 +171,51 @@ def _assignments(cmd: str) -> dict:
 _RM_SEGMENT = re.compile(r"[;|&()\n`]+")
 
 
+def _rm_operands(toks):
+    """Operands of the first recursive+forced `rm` in one token list, or None. Flags count only before `--`;
+    a token that starts with `#` opens a shell comment."""
+    for i, t in enumerate(toks):
+        if _os.path.basename(t) != "rm":
+            continue
+        short, longs, operands, opts = "", set(), [], True
+        for x in toks[i + 1:]:
+            if x.startswith("#"):
+                break
+            if opts and x == "--":
+                opts = False
+            elif opts and x.startswith("--"):
+                longs.add(x)
+            elif opts and x.startswith("-") and len(x) > 1:
+                short += x[1:]
+            else:
+                operands.append(x)
+        if ("r" in short.lower() or "--recursive" in longs) and ("f" in short or "--force" in longs):
+            return operands
+        return None
+    return None
+
+
+def _split_quoted(seg: str):
+    try:
+        return _shlex.split(seg)  # quotes kept as one word; `#` is literal (comments handled above)
+    except ValueError:
+        return [t.strip("'\"") for t in seg.split()]  # a segment cut inside quotes
+
+
 def rm_recursive_force_targets(cmd: str):
     """Operand lists of every `rm` that is both recursive and forced, whatever the flag spelling
-    (-rf, -fr, -r -f, -R -f, --recursive --force). After `--` every token is an operand."""
+    (-rf, -fr, -r -f, -R -f, --recursive --force). Two readings, both kept: the raw text split at shell
+    operators (sees heredoc bodies, `xargs -0`, `timeout 5`), and the parsed simple commands (keeps a quoted
+    operand with `(` or `;` whole). An operand list from either reading is judged."""
     out = []
     for seg in _RM_SEGMENT.split(cmd):
-        toks = [t.strip("'\"") for t in seg.split()]
-        for i, t in enumerate(toks):
-            if _os.path.basename(t) != "rm":
-                continue
-            short, longs, operands, opts = "", set(), [], True
-            for x in toks[i + 1:]:
-                if opts and x == "--":
-                    opts = False
-                elif opts and x.startswith("--"):
-                    longs.add(x)
-                elif opts and x.startswith("-") and len(x) > 1:
-                    short += x[1:]
-                else:
-                    operands.append(x)
-            if ("r" in short.lower() or "--recursive" in longs) and ("f" in short or "--force" in longs):
-                out.append(operands)
-            break  # one rm call per segment
+        ops = _rm_operands(_split_quoted(seg))
+        if ops is not None:
+            out.append(ops)
+    for w in simple_commands(cmd):
+        ops = _rm_operands(w)
+        if ops is not None:
+            out.append(ops)
     return out
 
 
@@ -199,13 +224,12 @@ _ROOT_TARGETS = {"/", "/*", "~", "~/*", "$home", "$home/*", "${home}", "${home}/
 
 
 def is_root_target(arg: str) -> bool:
-    s = re.sub(r"/{2,}", "/", arg.lower())
-    s = re.sub(r"(?<=.)(/\.)+$", "", s)  # `/.` and `~/.` name the same directory
-    if s == "/.":
-        s = "/"
-    if s != "/":
-        s = s.rstrip("/")
-    return s in _ROOT_TARGETS
+    """`/`, `///`, `/./`, `~/./*`, `$HOME/.//` all name the root they look like; `.` alone is the current dir."""
+    s = arg.lower()
+    parts = [p for p in s.split("/") if p not in ("", ".")]
+    if not parts:
+        return s.startswith("/")
+    return ("/" if s.startswith("/") else "") + "/".join(parts) in _ROOT_TARGETS
 
 
 def deletes_outside_temp(cmd: str) -> bool:
