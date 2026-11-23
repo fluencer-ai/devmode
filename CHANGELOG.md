@@ -111,13 +111,18 @@ Measured with `./setup --report` against a scratch HOME (4 chars ≈ 1 token).
 ### Fixed (2026-11-23 audit)
 
 - **Guardrails R05** reads the `rm` flags instead of one spelling: `rm -r -f`,
-  `rm -R -f` and `rm --recursive --force` used to pass silently. It now denies
-  only root targets (`/`, `~`, `$HOME`, bare wildcards) and asks on a path
-  inside home, as the docs say (before, every `~/...` path was denied).
-  Text that only mentions `rm -rf` (an `echo`, a commit message) is not a call.
+  `rm -R -f` and `rm --recursive --force` used to pass silently. It scans the
+  raw text, so a delete inside a heredoc fed to a shell, after `xargs -0`,
+  `timeout 5` or `bash -c`, or next to a word with `#` is still seen. It denies
+  root targets (`/`, `///`, `/.`, `~`, `$HOME`, wildcards over them) and asks on
+  a path inside home, as the docs say (before, every `~/...` path was denied).
+  A call whose targets come from input (`xargs rm -rf`) or follow `--` asks.
 - **Guardrails R07** uses the same secret-file rule as R06, plus `.git/` and
   `~/.ssh/`: writing an example dotenv file, `docs/secrets-policy.md` or
-  `src/credentials_form.tsx` is no longer blocked.
+  `src/credentials_form.tsx` is no longer blocked. The rule now also covers
+  dotenv variants (`.envrc.local`, `.env-prod`), copies of private keys
+  (`id_rsa.backup`) and per-environment secret files
+  (`secrets-production.yaml`, `credentials.prod.json`), for reads and writes.
 - `guardrails.py` comments are in English and carry no local path.
 
 ### Migration from v1

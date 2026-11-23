@@ -58,13 +58,25 @@ class GuardrailTest(unittest.TestCase):
             self.assertEqual(bash(cmd)[0], "deny", cmd)
         for cmd in ("rm -rf ~/Projects/old-build", "rm -rf $HOME/old-build"):
             self.assertEqual(bash(cmd)[0], "ask", cmd)
-        self.assertEqual(bash('echo "never run rm -rf /"')[0], "allow")
+
+    def test_rm_rf_root_is_denied_however_the_call_is_wrapped(self):
+        for cmd in ("bash <<EOF\nrm -rf /\nEOF", "find . | xargs -0 rm -rf /", "find . | xargs -n 1 rm -rf /",
+                    "timeout 5 rm -rf /", "nice -n 10 rm -rf ~", "rm -rf /tmp/a#b /", "rm -rf ///",
+                    "rm -rf /.", "rm -rf $HOME/*", "rm -rf ${HOME}/", "rm -rf ~/*", 'bash -c "rm -rf /"'):
+            self.assertEqual(bash(cmd)[0], "deny", repr(cmd))
+
+    def test_rm_rf_with_targets_from_input_or_after_double_dash_asks(self):
+        for cmd in ("find . -name build | xargs rm -rf", "rm -rf -- -x", "rm -rf -- -rf build"):
+            self.assertEqual(bash(cmd)[0], "ask", cmd)
+        self.assertEqual(bash("rm -rf /tmp/scratch-build")[0], "allow")
 
     # R07 uses the same secret-file rule as R06, plus .git and ~/.ssh
     def test_write_guard_uses_the_secret_file_rule(self):
         env = "." + "env"
         for path in (f"config/{env}", f"{env}.local", "keys/id_rsa", "certs/server.pem",
-                     "credentials.json", "/home/me/.ssh/authorized_keys", "/home/me/.ssh/config"):
+                     "credentials.json", "/home/me/.ssh/authorized_keys", "/home/me/.ssh/config",
+                     f"config/{env}rc.local", f"config/{env}-prod", "keys/id_rsa.backup", "keys/id_ed25519-old",
+                     "config/secrets-production.yaml", "config/credentials.prod.json", "secrets_staging.toml"):
             self.assertEqual(write(path)[0], "deny", path)
         for path in (f"{env}.example", "docs/secrets-policy.md", "src/credentials_form.tsx"):
             self.assertEqual(write(path)[0], "allow", path)

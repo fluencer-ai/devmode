@@ -40,15 +40,19 @@ def secret_path(arg: str) -> bool:
     """A path whose contents are a secret: .env files, private keys, credential stores."""
     a = arg.strip("'\"").lower()
     base = _os.path.basename(a.rstrip("/"))
-    if re.fullmatch(r"\.env(rc|\.[\w.-]+)?", base):
+    if re.fullmatch(r"\.env(rc)?([._-][\w.-]+)?", base):
         return not re.search(r"\.(example|sample|template|dist|exemplo|modelo)$", base)
     if base.endswith((".pem", ".key", ".p12", ".pfx", ".keystore", ".jks")) or re.fullmatch(r"[\w.-]+\.env", base):
         return True
-    if re.fullmatch(r"id_(rsa|dsa|ecdsa|ed25519)(_[\w-]+)?", base) or (
-            "/.ssh/" in "/" + a and not base.endswith((".pub", "known_hosts", "config", "authorized_keys")) and base not in ("", ".ssh")):
+    if re.fullmatch(r"id_(rsa|dsa|ecdsa|ed25519)([._-][\w.-]+)?", base) and not base.endswith(".pub"):
+        return True  # the key and its copies (id_rsa.backup, id_ed25519-old), never the public half
+    if re.fullmatch(r"(credentials?|secrets?)([_-][a-z0-9]+)*(\.(prod|production|staging|stage|dev|development|local|test))*"
+                    r"(\.(json|ya?ml|toml|env|txt|ini|conf))?", base):
+        return True  # secrets-production.yaml, credentials.prod.json; not secrets-policy.md or credentials_form.tsx
+    if "/.ssh/" in "/" + a and not base.endswith((".pub", "known_hosts", "config", "authorized_keys")) \
+            and base not in ("", ".ssh"):
         return True
-    return bool(re.fullmatch(r"(credentials?|secrets?)(\.(json|ya?ml|toml|env|txt|ini|conf))?", base)) or \
-        base in ("auth.json", ".netrc", ".pgpass", ".npmrc", ".pypirc", "token", "tokens.json")
+    return base in ("auth.json", ".netrc", ".pgpass", ".npmrc", ".pypirc", "token", "tokens.json")
 
 
 def _words(cmd: str, fundo: int = 0):
@@ -159,17 +163,60 @@ def _assignments(cmd: str) -> dict:
     return env
 
 
+# R05 scans the RAW text, on purpose: a delete wrapped in a heredoc fed to a shell, `xargs -0`, `timeout 5`,
+# `bash -c "..."`, or a word with `#` inside must still be seen. Erring toward a false positive (an `echo`
+# that mentions rm -rf) is the safe side for a delete guard.
+_RM_SEGMENT = re.compile(r"[;|&()\n`]+")
+
+
+def rm_recursive_force_targets(cmd: str):
+    """Operand lists of every `rm` that is both recursive and forced, whatever the flag spelling
+    (-rf, -fr, -r -f, -R -f, --recursive --force). After `--` every token is an operand."""
+    out = []
+    for seg in _RM_SEGMENT.split(cmd):
+        toks = [t.strip("'\"") for t in seg.split()]
+        for i, t in enumerate(toks):
+            if _os.path.basename(t) != "rm":
+                continue
+            short, longs, operands, opts = "", set(), [], True
+            for x in toks[i + 1:]:
+                if opts and x == "--":
+                    opts = False
+                elif opts and x.startswith("--"):
+                    longs.add(x)
+                elif opts and x.startswith("-") and len(x) > 1:
+                    short += x[1:]
+                else:
+                    operands.append(x)
+            if ("r" in short.lower() or "--recursive" in longs) and ("f" in short or "--force" in longs):
+                out.append(operands)
+            break  # one rm call per segment
+    return out
+
+
+# Targets that mean "everything": / , ~ , $HOME and wildcards over them. A path INSIDE home is scoped (asks).
+_ROOT_TARGETS = {"/", "/*", "~", "~/*", "$home", "$home/*", "${home}", "${home}/*", "*"}
+
+
+def is_root_target(arg: str) -> bool:
+    s = re.sub(r"/{2,}", "/", arg.lower())
+    s = re.sub(r"(?<=.)(/\.)+$", "", s)  # `/.` and `~/.` name the same directory
+    if s == "/.":
+        s = "/"
+    if s != "/":
+        s = s.rstrip("/")
+    return s in _ROOT_TARGETS
+
+
 def deletes_outside_temp(cmd: str) -> bool:
-    """rm -rf whose targets are not all in temp/scratchpad/Trash (variables set in the same command are resolved)."""
+    """rm -rf whose targets are not all in temp/scratchpad/Trash (variables set in the same command are resolved).
+    A call with no static operand (`xargs rm -rf`) takes its targets from input, so it can't be proven temp."""
     env = _assignments(cmd)
     tmp = _os.environ.get("TMPDIR", "")
-    for w in simple_commands(cmd):
-        if _os.path.basename(w[0]) != "rm":
-            continue
-        flags = "".join(x[1:] for x in w[1:] if x.startswith("-") and not x.startswith("--"))
-        if "r" not in flags.lower() and "--recursive" not in w:
-            continue
-        for a in (x for x in w[1:] if not x.startswith("-")):
+    for operands in rm_recursive_force_targets(cmd):
+        if not operands:
+            return True
+        for a in operands:
             p = re.sub(r"\$\{?(\w+)\}?", lambda x: env.get(x.group(1), _os.environ.get(x.group(1), x.group(0))), a)
             p = _os.path.expanduser(p)
             if "$" in p:
@@ -178,23 +225,6 @@ def deletes_outside_temp(cmd: str) -> bool:
             if not (p.startswith(_TEMP) or (tmp and p.startswith(tmp.lower())) or "/.trash/" in p or "/scratchpad/" in p):
                 return True
     return False
-
-
-# Targets that mean "everything": / , ~ , $HOME and bare wildcards. A path INSIDE home is scoped (asks).
-_ROOT_TARGETS = {"/", "/*", "~", "~/", "~/*", "$home", "$home/", "${home}", "${home}/", "*"}
-
-
-def rm_recursive_force_targets(cmd: str):
-    """Targets of every `rm` that is both recursive and forced, whatever the flag spelling
-    (-rf, -fr, -r -f, -R -f, --recursive --force). Text that only mentions rm (echo, a commit message) is not a call."""
-    out = []
-    for w in simple_commands(cmd):
-        if _os.path.basename(w[0]) != "rm":
-            continue
-        short = "".join(x[1:] for x in w[1:] if x.startswith("-") and not x.startswith("--"))
-        if ("r" in short.lower() or "--recursive" in w) and ("f" in short or "--force" in w):
-            out.append([x for x in w[1:] if not x.startswith("-")])
-    return out
 # --- end R05/R06 v2
 
 
@@ -213,7 +243,7 @@ def evaluate(tool_name: str, tool_input: dict) -> Tuple[str, str]:
            or re.search(r"git\s+(checkout|restore)\s+--?\s*\.", low):
             return "ask", "R04: destructive git op; confirm before running"
         targets = rm_recursive_force_targets(cmd)
-        if any(t.lower() in _ROOT_TARGETS for ts in targets for t in ts):
+        if any(is_root_target(t) for ts in targets for t in ts):
             return "deny", "R05: refuse rm -rf on / ~ or wildcard root"
         if targets and deletes_outside_temp(cmd):
             return "ask", "R05: recursive force delete outside temp; confirm the scope"
