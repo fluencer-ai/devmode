@@ -153,6 +153,17 @@ version, would this test fail?" If a green test survives the bug you're worried
 about, it isn't pinning what you care about. (A boundary like `now >= exp` is
 only protected by a test that exercises `now == exp` exactly.)
 
+Judge each test against **two imagined edits**:
+
+- **Break the behavior** (a wrong value, a skipped or doubled effect). If the
+  test still passes, it proves nothing. Usual causes: a loose assertion, an
+  expected value computed by the code under test, or an assertion on data the
+  test built itself.
+- **Change the internals** and keep every observable result. If the test now
+  fails, it is pinned to the implementation, not the behavior.
+
+A good test fails the first edit and survives the second.
+
 ## "Not observed" is not "absent"
 
 Don't conclude a behavior is fine just because you didn't see it fail. *No test

@@ -30,6 +30,25 @@ Absorbed: `doc-contracts` now lives here as `doc-contracts.md`.
   Comment the surprising, the non-obvious constraint, the deliberate trade-off.
 - Delete comments that lie or have gone stale: a wrong comment is worse than none.
 
+**A default of almost no comments.** In AI-written code most comments narrate
+the change, restate the code, or explain a surprise the code should not have.
+Keep only these:
+
+- legal and license headers;
+- a constraint from **outside** the code that you cannot reshape (a vendor
+  API's quirk, a protocol rule, a law), with a link to the issue, RFC or doc;
+- doc comments on a public API, where the tooling reads them;
+- a deliberate simplification marked `minimal:` (see `minimal-code`);
+- directives a tool needs (a formatter or type-checker pragma), each with its
+  reason.
+
+Everything else goes. A surprise in **our own** code is reshaped, not explained:
+rename the thing, extract a function whose name says it, make the type say it.
+A constraint you would write as a comment ("must be called after init", "never
+negative") is better encoded as a type, a test, or a lint rule that fails
+(`encode-corrections.md` in `feedback-loops`). A suppression that hides a real
+correctness warning is removed and the warning fixed.
+
 ## ADRs: record the decisions
 
 An **Architecture Decision Record** captures a non-obvious choice so it isn't

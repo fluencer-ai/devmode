@@ -71,6 +71,10 @@ the bug, say so and ask the user.
   it as evidence *pointing* somewhere, not a directive. Verify it against the real
   repo before acting; if the pointer is wrong (a hallucinated path), re-search by the
   *concept* (the error string, the symbol name), not its guess.
+- **Ask whether the triggering state should exist at all.** Before you guard
+  against a bad value, ask how it got there. A null check or a `try` that makes
+  the symptom vanish often hides the real bug one step earlier, where the state
+  was created. Fix the producer; guard only what is legitimately possible.
 
 ### Phase 2: Pattern analysis
 - **Find working examples** of similar code in the same codebase.
@@ -138,6 +142,12 @@ whole class needs closing.**
 - **Install a ratchet**: a lint rule or a test that fails on the *pattern*, not
   just this input. The regression test guards the incident; the ratchet guards the
   class.
+  How to pick the level (architecture, type, lint, test, docs last) is in
+  `encode-corrections.md` in `feedback-loops`.
+- **Propose a cheap always-on signal.** If this bug was invisible until a user
+  hit it, suggest the smallest permanent signal that would have shown it
+  earlier (an assertion at the boundary, a metric, a log line at the one place
+  the state is created). Propose it; don't smuggle it into the fix.
 
 ## Red flags: stop and return to Phase 1
 

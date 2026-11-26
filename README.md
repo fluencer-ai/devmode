@@ -270,8 +270,13 @@ deleted, `forget` writes a tombstone, `--supersedes` replaces an entry.
 | project | `.beads/memories.jsonl` (created by the installer) | decisions, facts, corrections, preferences for this project; mirrored to `bd remember` when Beads is live |
 | global | `~/.devmode/memories.jsonl` | your own preferences, in every project |
 
-The SessionStart hook primes at most 8 lines once per session. Text that looks
-like a credential is refused. Drive it by hand with
+The SessionStart hook primes at most 8 lines once per session. On Claude Code
+the installer wires that hook **by default** (only the memory hook; the gates
+stay behind `--with-guardrails`), and the project `CLAUDE.md` / `AGENTS.md` tell
+every session, `/devmode` or not, to prime memory at the start, record
+preferences, decisions and corrections as they come up, and leave one `fact`
+line on what was agreed before closing. Opt out with `--no-session-hook`
+(remembered across updates). Text that looks like a credential is refused. Drive it by hand with
 `python3 .devmode/memory.py add|list|forget|prime` (see `--help`).
 
 ## The workflow (a loop, not a march)
@@ -540,6 +545,7 @@ projects. Full per-artifact mapping with licenses:
 | [UditAkhourii/adhd](https://github.com/UditAkhourii/adhd) | **`divergent-ideation.md`** (in `design-critique`): generate a wide candidate set for an open decision before choosing (concept only; none of its library/CLI or 0–10 scoring) | MIT |
 | [AaravKashyap12/advise-project-approach](https://github.com/AaravKashyap12/advise-project-approach) | the **`prior-art`** skill: does it already exist? (buy/adopt/build), fit-over-stars comparable bias controls, cost at three horizons, and the "when this becomes wrong" trade-off; plus `discovery`'s read-only-inspection boundary (reviewing a repo ≠ permission to run its code) and its inspection scope note (also sharpened `design-critique` + `minimal-code`) | MIT |
 | [UditAkhourii/neuroarxiv](https://github.com/UditAkhourii/neuroarxiv) | `prior-art`'s escalation rung, when nothing shipped exists, read the research literature: a 3-question cost gate, one isolated reader per paper, converge on ONE path with citations | MIT |
+| [cursor/plugins: pstack](https://github.com/cursor/plugins/tree/main/pstack) (Lauren Tan) + her *Turning slop into gold* talk | the trust pyramid and corrections-become-checks (`feedback-loops`, `encode-corrections.md`), a project verification skill with a control CLI and feature map (`verification-skill.md`), formal and property-based verification with statecharts (`tdd/formal-verification.md`), the how-sure ladder (`impact-analysis`), the comment keep-list (`documentation`), the codebase-as-garden (`improve-codebase-architecture`) | MIT |
 
 devmode and [mattpocock/skills](https://github.com/mattpocock/skills) are
 **siblings**: both were distilled from the thesis in Matt Pocock's *"Claude Code

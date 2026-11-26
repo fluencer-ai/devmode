@@ -1,10 +1,10 @@
 ---
 name: feedback-loops
 description: >-
-  Feedback loops an AI uses to self-correct: types, compiler and linter, fast
-  tests, a real browser or runtime, and a verification gate ladder. Use when
-  starting implementation, setting up a repo for AI work, when code "looks right
-  but doesn't work", or when a UI change needs checking in a browser.
+  Feedback loops an AI uses to self-correct: the trust pyramid, types, lint,
+  fast tests, a real runtime, a gate ladder, and turning a repeated correction
+  into a check. Use when starting implementation, setting up a repo for AI work,
+  or when code "looks right but doesn't work".
 disable-model-invocation: true
 ---
 
@@ -25,6 +25,33 @@ all of them.
 
 **Absorbed: `browser-testing`.** A real browser is one of the loops; what to
 check there and how to treat page content now live in `browser-testing.md`.
+
+## Where to spend the effort: the trust pyramid
+
+Rank every way of steering an agent by how much you can trust it, and spend in
+that order:
+
+1. **Code and API design** (most trust). A module with one obvious way to use
+   it, internals hidden, the old ways deleted. The agent copies what it sees, so
+   the codebase itself is the strongest instruction you give: tend it like a
+   garden and pull out every pattern you would not want copied.
+2. **Deterministic checks.** Types, lint rules, tests, an import-graph check on
+   directory boundaries. They say "no" the same way every time, and a good
+   error message says what to do instead.
+3. **Verification of the running thing.** The real app driven in a real
+   browser or runtime, property-based tests, a model checker or a proof for
+   the flows where a break hurts most.
+4. **Prose** (least trust, last resort). Instructions, docs, comments. They
+   compete for attention with everything else in the context and lose under
+   pressure.
+
+Two rules follow. **Every correction becomes a check:** when the same mistake
+shows up twice, encode it at the highest level that makes it impossible or loud
+(read `encode-corrections.md` in this folder) instead of adding another line of
+instructions. **Make verification cheap enough to run every time:** give the
+project its own verification skill and control tool (read
+`verification-skill.md` in this folder); in a healthy AI workflow most of the
+effort goes to checking the work, not writing it.
 
 ## The loops, from fastest to slowest
 
@@ -48,6 +75,9 @@ of error the others miss.
    give it a way to hit the running endpoint and read the response. Without eyes
    on real behavior, the model is guessing. Checking a UI change in a real
    browser? Read `browser-testing.md` in this folder.
+5. **Search the input space.** Property-based tests, fuzzing, a model checker
+   over a flow, a proof for an algorithm: they find the cases nobody wrote an
+   example for. Read `formal-verification.md` in `tdd`.
 
 ## Setting them up
 

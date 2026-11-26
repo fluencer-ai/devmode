@@ -27,6 +27,11 @@ unit size, what to mock, and which behaviors to assert. Deciding mock
 boundaries, unit size, edge coverage, or whether a test is worth keeping? Read
 `testing-principles.md` in this folder.
 
+When examples are not enough (an ordering of events, a concurrent flow, an
+algorithm whose inputs you cannot enumerate), reach past example tests to
+property-based tests, a model checker, or a proof: read `formal-verification.md`
+in this folder.
+
 ## Agree the seams first
 
 A **seam** is the public boundary a test observes behavior through, without

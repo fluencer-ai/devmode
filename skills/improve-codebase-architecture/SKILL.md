@@ -109,6 +109,20 @@ throughout, never reshape architecture without a safety net.
    name.
 10. **Run the loop again.** Tests green, types clean. Repeat on the next cluster.
 
+## The codebase is a garden
+
+Agents learn the codebase by copying it: the nearest example wins, whether it is
+the new way or the one you meant to retire. So every old pattern left in the tree
+is an instruction to repeat it. When a better way lands, migrate the callers and
+**delete** the old way in the same effort (expand, migrate, contract: see
+`migration`); keep exactly one supported way to do each thing.
+
+Make the structure itself say where code belongs: one directory per module or
+layer, with the allowed dependencies between directories written down and
+**enforced** by an import-graph lint (dependency-cruiser, import-linter, an
+ESLint boundaries rule, or a short script in CI), not by a README. A boundary
+nobody checks erodes one convenient import at a time.
+
 ## What "better" looks like
 
 - Fewer modules, each doing more, each with a smaller interface.

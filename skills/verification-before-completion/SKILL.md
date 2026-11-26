@@ -159,6 +159,20 @@ SHAs, and which acceptance criteria each proves. This is what lets a reviewer (o
 a future you) trust the result without re-deriving it from memory, and it pairs
 with the evidence-gated handoff the `tdd-implementer` returns.
 
+**Proof artifacts beat explanations.** For anything a user sees, the strongest
+evidence is the artifact itself: the screenshot of the fixed state, a short
+recording of the flow, the property test's counterexample, the model checker's
+report. Ask for those instead of a paragraph saying it works. A project that
+does this often deserves its own verification skill (`verification-skill.md`
+in `feedback-loops`).
+
+**When the check disagrees with the code, suspect the check first.** A probe
+that reads the wrong port, a stale build, a cached page, or a filter that hid
+the error line will happily report a bug that isn't there (or hide one that
+is). Confirm the observation method sees the thing you changed, then judge the
+system. And once a manual check works, script it so the next run costs one
+command.
+
 ## The bottom line
 
 Run the command. Read the output. *Then* make the claim. Pair this with

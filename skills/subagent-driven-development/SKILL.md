@@ -122,6 +122,11 @@ Use the least powerful model that can do the role:
 - **Keep the review axes separate.** A clean Standards pass must not mask a
   Spec gap (over- or under-building), and the reverse.
 
+- **Build the lever before the fleet.** When the same check or chore would be
+  fanned out to many agents, first ask whether a small deterministic tool (a
+  script, a codemod, a lint rule) does it once, reliably, for every later run.
+  Agents are for judgment; repeatable work belongs in a tool.
+
 ## Red flags
 
 - Skipping either review axis, or proceeding with unfixed issues.
