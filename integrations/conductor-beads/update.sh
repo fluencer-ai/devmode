@@ -286,11 +286,13 @@ fi
 # Validate opted-in hook state before creating the ownership manifest or changing
 # any asset. Invalid host JSON must fail atomically, not after a partial update.
 CLAUDE_DEVMODE_HOOKS=0
-for hook_name in guardrails verify_gate devmode_phase_gate session_resume; do
+# The gates opt the project in; session_resume.py alone is the default memory
+# hook (step 6a), which must not pull the gates in with it.
+for hook_name in guardrails verify_gate devmode_phase_gate; do
   [ -f "$P/.claude/hooks/$hook_name.py" ] && CLAUDE_DEVMODE_HOOKS=1
 done
 if [ -f "$P/.claude/settings.json" ] && \
-   grep -Eq 'guardrails\.py|verify_gate\.py|devmode_phase_gate\.py|session_resume\.py' "$P/.claude/settings.json"; then
+   grep -Eq 'guardrails\.py|verify_gate\.py|devmode_phase_gate\.py' "$P/.claude/settings.json"; then
   CLAUDE_DEVMODE_HOOKS=1
 fi
 
@@ -584,6 +586,32 @@ if not wired("SessionStart", session_cmd):
     start.append({"hooks": [{"type": "command", "command": session_cmd}]})
 json.dump(data, open(path, "w"), indent=2)
 PY
+  fi
+fi
+
+# 6a. The session memory hook is on by default: a project without the gates still
+# gets SessionStart -> session_resume.py, so each session starts with its memory
+# primed. Off when .devmode/session-hook says so (install --no-session-hook).
+if [ "$CLAUDE_DEVMODE_HOOKS" -eq 0 ] && [ -d "$P/conductor" ] && command -v python3 >/dev/null 2>&1 && \
+   ! grep -qx off "$P/.devmode/session-hook" 2>/dev/null; then
+  if ! validate_json_file "$P/.claude/settings.json"; then
+    warn "memory hook NOT wired: .claude/settings.json is invalid JSON (left as it is)"
+  else
+    mkdir -p "$P/.claude/hooks"
+    if ! refresh_file "$SCRIPT_DIR/hooks/session_resume.py" "$P/.claude/hooks/session_resume.py"; then
+      warn "memory hook NOT wired: .claude/hooks/session_resume.py is project-owned"
+    else
+    python3 - "$P/.claude/settings.json" <<'PY' && ok "SessionStart memory hook wired in settings.json" || err "FAILED to wire the memory hook in settings.json; fix it by hand"
+import json, os, sys
+path = sys.argv[1]
+cmd = 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/session_resume.py"'
+data = json.load(open(path, encoding="utf-8")) if os.path.isfile(path) else {}
+start = data.setdefault("hooks", {}).setdefault("SessionStart", [])
+if not any(h.get("command") == cmd for g in start for h in g.get("hooks", [])):
+    start.append({"hooks": [{"type": "command", "command": cmd}]})
+json.dump(data, open(path, "w", encoding="utf-8"), indent=2)
+PY
+    fi
   fi
 fi
 

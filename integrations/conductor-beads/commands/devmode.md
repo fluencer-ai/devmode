@@ -61,8 +61,10 @@ Raw input: **$ARGUMENTS**
   (user preferences across projects + this project's decisions); apply it. When the
   user states a preference, makes a decision, or corrects you, record it in one
   line: `python3 .devmode/memory.py add "<text>" --kind preference|decision|fact|correction`
-  (add `--scope global` when it is about the person, not the project). Never a
-  secret. Outside a devmode project, use `scripts/memory.py` in the devmode base.
+  (add `--scope global` when it is about the person, not the project). Before
+  ending a turn that settled something or left work open, record one `fact` line:
+  what was agreed and what comes next. Never a secret. Outside a devmode project,
+  use `scripts/memory.py` in the devmode base.
 
 ## Decide the mode from $ARGUMENTS
 

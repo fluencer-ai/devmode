@@ -94,6 +94,13 @@ For Codex, `install.sh` also writes `AGENTS.md` / `AGENTS.devmode.md`,
 which reads each skill by path from the single physical copy in `.claude/skills/`
 (`--codex-full` adds relative links to every skill). The installer also creates
 `.beads/memories.jsonl`, the orchestrator's append-only project memory.
+Even without `--with-guardrails`, the installer copies
+[`session_resume.py`](hooks/session_resume.py) and wires it on **SessionStart**
+in `.claude/settings.json`, so every Claude session starts with that memory
+primed; `update.sh` backfills it without adding the gates. `--no-session-hook`
+opts out (kept in `.devmode/session-hook`). Codex sessions get it through
+`codex_hooks.py` with `--with-guardrails`, and through the `AGENTS.md` memory
+section otherwise.
 Project-local Codex hooks run only after the project and hook definitions are
 trusted in Codex.
 

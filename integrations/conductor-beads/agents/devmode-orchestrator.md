@@ -56,7 +56,10 @@ structured A/B/C choices with a recommendation and rationale, never an open void
   away: `python3 .devmode/memory.py add "<text>" --kind preference|decision|fact|correction`.
   Use `--scope global` for facts about the person (language, style, how they like
   to work) and the default project scope for this codebase. A changed mind uses
-  `--supersedes <id>`. Never record a secret (the script refuses one). The project
+  `--supersedes <id>`. Before ending a run that settled something or left work
+  open, record one `fact` line on what was agreed and what comes next, so the
+  next session starts from the conversation, not from scratch. Never record a
+  secret (the script refuses one). The project
   file is `.beads/memories.jsonl`, mirrored into `bd remember` when Beads is live;
   the global file is `~/.devmode/memories.jsonl`. Outside a devmode project
   (no `.devmode/memory.py`), run `scripts/memory.py` from the devmode base

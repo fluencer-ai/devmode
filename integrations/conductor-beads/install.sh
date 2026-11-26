@@ -30,6 +30,9 @@
 #                        + conductor/beads skills (skip if installed globally).
 #   --with-guardrails    Install the deterministic PreToolUse guardrail hook and
 #                        wire it into .claude/settings.json (gates-as-code).
+#   --no-session-hook    Don't wire the SessionStart memory hook. By default it is
+#                        wired (Claude), so each session starts with the memory
+#                        primed. Remembered across updates in .devmode/session-hook.
 #   --beads              Run `bd init` (commits .beads/ to the repo).
 #   --beads-stealth      Run `bd init --stealth` (.beads/ stays local/gitignored).
 #   --force              Overwrite existing files written by this installer.
@@ -56,14 +59,15 @@ usage() { awk 'NR>1 && /^set -euo pipefail$/{exit} NR>1{sub(/^# ?/, ""); print}'
 
 # --- parse args --------------------------------------------------------------
 PROJECT_DIR=""
-WITH_SKILLS=1; CODEX_FULL=0; WITH_CONDUCTOR=0; BEADS=0; BEADS_STEALTH=0; FORCE=0; GUARDRAILS=0
+WITH_SKILLS=1; CODEX_FULL=0; WITH_CONDUCTOR=0; BEADS=0; BEADS_STEALTH=0; FORCE=0; GUARDRAILS=0; NO_SESSION_HOOK=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --no-skills)      WITH_SKILLS=0 ;;
     --with-conductor) WITH_CONDUCTOR=1 ;;
     --codex-full)     CODEX_FULL=1 ;;
     --with-guardrails) GUARDRAILS=1 ;;
-    --beads)          BEADS=1 ;;
+    --no-session-hook) NO_SESSION_HOOK=1 ;;
+    --beads)        BEADS=1 ;;
     --beads-stealth)  BEADS_STEALTH=1 ;;
     --force)          FORCE=1 ;;
     -h|--help)        usage 0 ;;
@@ -530,6 +534,50 @@ else
   info "skipping guardrails (use --with-guardrails to enable deterministic enforcement)"
 fi
 
+# 2d. Session memory hook: on by default, so every Claude session starts with the
+# memory primed, /devmode or not. Read-only and fail-open; the gates stay opt-in.
+# --no-session-hook is remembered in .devmode/session-hook, so updates keep it off.
+SESSION_HOOK_STATUS=""
+if [ "$NO_SESSION_HOOK" -eq 1 ]; then
+  printf 'off\n' > "$PROJECT_DIR/.devmode/session-hook"
+fi
+if [ "$GUARDRAILS" -eq 0 ]; then
+  step "Wiring the session memory hook"
+  if grep -qx off "$PROJECT_DIR/.devmode/session-hook" 2>/dev/null; then
+    info "session memory hook off (--no-session-hook); run: python3 .devmode/memory.py prime"
+    SESSION_HOOK_STATUS=" · memory hook: off"
+  elif [ "$HAVE_PY3" -eq 0 ]; then
+    warn "memory hook NOT wired: python3 is missing"
+    SESSION_HOOK_STATUS=" · memory hook: NOT wired"
+  elif ! validate_json_file "$PROJECT_DIR/.claude/settings.json"; then
+    warn "memory hook NOT wired: fix the invalid JSON above (the file was left as it is)"
+    SESSION_HOOK_STATUS=" · memory hook: NOT wired"
+  else
+    mkdir -p "$PROJECT_DIR/.claude/hooks"
+    copy_template "$SCRIPT_DIR/hooks/session_resume.py" "$PROJECT_DIR/.claude/hooks/session_resume.py"
+    if ! grep -q '^"""devmode session-resume:' "$PROJECT_DIR/.claude/hooks/session_resume.py"; then
+      warn "memory hook NOT wired: .claude/hooks/session_resume.py is not devmode's (left as it is)"
+      SESSION_HOOK_STATUS=" · memory hook: NOT wired"
+    elif python3 - "$PROJECT_DIR/.claude/settings.json" <<'PY'
+import json, os, sys
+path = sys.argv[1]
+cmd = 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/session_resume.py"'
+data = json.load(open(path, encoding="utf-8")) if os.path.isfile(path) else {}
+start = data.setdefault("hooks", {}).setdefault("SessionStart", [])
+if not any(h.get("command") == cmd for g in start for h in g.get("hooks", [])):
+    start.append({"hooks": [{"type": "command", "command": cmd}]})
+json.dump(data, open(path, "w", encoding="utf-8"), indent=2)
+PY
+    then
+      ok "wired SessionStart memory hook in .claude/settings.json (primes .beads/memories.jsonl each session)"
+      SESSION_HOOK_STATUS=" · memory hook: on"
+    else
+      err "memory hook NOT wired: settings.json merge failed; fix it by hand"
+      SESSION_HOOK_STATUS=" · memory hook: NOT wired"
+    fi
+  fi
+fi
+
 # =============================================================================
 # 3. MEMORY: Beads (optional)
 # =============================================================================
@@ -639,7 +687,7 @@ fi
 
 step "Done: next steps"
 cat <<EOF
-BASE established (devmode) · LAYER mounted (Conductor)${BEADS_STATUS} ${GATES_STATUS}
+BASE established (devmode) · LAYER mounted (Conductor)${BEADS_STATUS}${SESSION_HOOK_STATUS} ${GATES_STATUS}
 
 Codex compatibility (what THIS run installed):
 ${CODEX_SUMMARY}

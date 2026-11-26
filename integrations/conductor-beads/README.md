@@ -69,7 +69,8 @@ Flags:
 
 | Flag | Effect |
 |------|--------|
-| *(default)* | Copies the devmode base once into `.claude/skills`, installs only the `devmode` launcher in `.agents/skills` for Codex (lean), creates `.beads/memories.jsonl`, and installs `CLAUDE.md`, `AGENTS.md`, and the agent adapters. |
+| *(default)* | Copies the devmode base once into `.claude/skills`, installs only the `devmode` launcher in `.agents/skills` for Codex (lean), creates `.beads/memories.jsonl`, wires the **SessionStart memory hook** (`session_resume.py`, which primes that memory every Claude session), and installs `CLAUDE.md`, `AGENTS.md`, and the agent adapters. |
+| `--no-session-hook` | Skips the default memory hook. Recorded in `.devmode/session-hook`, so updates keep it off. |
 | `--codex-full` | Also links every skill into `.agents/skills` for Codex. Recorded in `.devmode/codex-skills`, so updates keep it. |
 | `--no-skills` | Does **not** copy skills/agents/references (uses a globally installed devmode). The base CLAUDE.md is still written, and future updates preserve this profile. |
 | `--with-conductor` | Clones Conductor-Beads and copies its slash commands + the `conductor`/`beads` skills. Skip it if they are already global. |

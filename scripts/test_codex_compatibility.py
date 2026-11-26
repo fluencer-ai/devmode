@@ -409,7 +409,8 @@ class CodexCompatibilityTests(unittest.TestCase):
             project = Path(temporary_dir)
             subprocess.run([str(INSTALL), str(project)], cwd=ROOT, check=True, capture_output=True, text=True)
             custom_hook = project / ".claude/hooks/custom.py"
-            custom_hook.parent.mkdir(parents=True)
+            # The default install already creates .claude/hooks for the memory hook.
+            custom_hook.parent.mkdir(parents=True, exist_ok=True)
             custom_hook.write_text("# host hook\n", encoding="utf-8")
 
             subprocess.run([str(UPDATE), str(project)], cwd=ROOT, check=True, capture_output=True, text=True)
@@ -417,6 +418,95 @@ class CodexCompatibilityTests(unittest.TestCase):
             self.assertEqual("# host hook\n", custom_hook.read_text(encoding="utf-8"))
             self.assertFalse((project / ".claude/hooks/guardrails.py").exists())
             self.assertFalse((project / ".codex/hooks.json").exists())
+
+    @staticmethod
+    def claude_hook_commands(project: Path) -> dict[str, list[str]]:
+        settings = project / ".claude/settings.json"
+        if not settings.exists():
+            return {}
+        data = json.loads(settings.read_text(encoding="utf-8"))
+        return {
+            event: [h.get("command", "") for g in groups for h in g.get("hooks", [])]
+            for event, groups in data.get("hooks", {}).items()
+        }
+
+    def test_default_install_wires_only_the_session_memory_hook(self) -> None:
+        """Memory is read at every session start by default; the gates stay opt-in."""
+        with tempfile.TemporaryDirectory(prefix="devmode-memory-hook-") as temporary_dir:
+            project = Path(temporary_dir)
+            subprocess.run([str(INSTALL), str(project)], cwd=ROOT, check=True, capture_output=True, text=True)
+
+            self.assertTrue((project / ".beads/memories.jsonl").is_file())
+            self.assertTrue((project / ".claude/hooks/session_resume.py").is_file())
+            commands = self.claude_hook_commands(project)
+            self.assertTrue(any("session_resume.py" in c for c in commands.get("SessionStart", [])))
+            for event in ("PreToolUse", "Stop"):
+                self.assertFalse(commands.get(event), event)
+            self.assertFalse((project / ".claude/hooks/guardrails.py").exists())
+            self.assertFalse((project / ".codex/hooks.json").exists())
+
+            subprocess.run([str(UPDATE), str(project)], cwd=ROOT, check=True, capture_output=True, text=True)
+            subprocess.run([str(INSTALL), str(project)], cwd=ROOT, check=True, capture_output=True, text=True)
+            commands = self.claude_hook_commands(project)
+            self.assertEqual(1, sum("session_resume.py" in c for c in commands.get("SessionStart", [])))
+            self.assertFalse(commands.get("PreToolUse"))
+            self.assertFalse((project / ".claude/hooks/guardrails.py").exists())
+
+    def test_update_backfills_the_memory_hook_without_the_gates(self) -> None:
+        """A project installed before the default must gain the memory hook, not the gates."""
+        with tempfile.TemporaryDirectory(prefix="devmode-memory-backfill-") as temporary_dir:
+            project = Path(temporary_dir)
+            subprocess.run([str(INSTALL), str(project)], cwd=ROOT, check=True, capture_output=True, text=True)
+            (project / ".claude/settings.json").write_text(
+                '{"hooks":{"SessionEnd":[{"hooks":[{"type":"command","command":"custom-end"}]}]}}',
+                encoding="utf-8",
+            )
+            (project / ".claude/hooks/session_resume.py").unlink()
+
+            subprocess.run([str(UPDATE), str(project)], cwd=ROOT, check=True, capture_output=True, text=True)
+
+            commands = self.claude_hook_commands(project)
+            self.assertTrue((project / ".claude/hooks/session_resume.py").is_file())
+            self.assertTrue(any("session_resume.py" in c for c in commands.get("SessionStart", [])))
+            self.assertEqual(["custom-end"], commands.get("SessionEnd"))
+            self.assertFalse(commands.get("PreToolUse"))
+            self.assertFalse((project / ".claude/hooks/guardrails.py").exists())
+            self.assertFalse((project / ".codex/hooks.json").exists())
+
+    def test_no_session_hook_is_remembered_across_updates(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="devmode-memory-optout-") as temporary_dir:
+            project = Path(temporary_dir)
+            subprocess.run(
+                [str(INSTALL), str(project), "--no-session-hook"], cwd=ROOT, check=True, capture_output=True, text=True
+            )
+            self.assertTrue((project / ".beads/memories.jsonl").is_file())  # the file stays; only the hook is off
+            self.assertFalse(self.claude_hook_commands(project).get("SessionStart"))
+
+            subprocess.run([str(UPDATE), str(project)], cwd=ROOT, check=True, capture_output=True, text=True)
+            self.assertFalse(self.claude_hook_commands(project).get("SessionStart"))
+            self.assertFalse((project / ".claude/hooks/session_resume.py").exists())
+
+    def test_invalid_claude_settings_skip_the_memory_hook_and_stay_untouched(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="devmode-memory-invalid-") as temporary_dir:
+            project = Path(temporary_dir)
+            target = project / ".claude/settings.json"
+            target.parent.mkdir(parents=True)
+            invalid = "{ definitely not valid json\n"
+            target.write_text(invalid, encoding="utf-8")
+
+            proc = subprocess.run([str(INSTALL), str(project)], cwd=ROOT, capture_output=True, text=True)
+
+            self.assertEqual(0, proc.returncode, proc.stderr)
+            self.assertEqual(invalid, target.read_text(encoding="utf-8"))
+            self.assertIn("memory hook NOT wired", proc.stdout + proc.stderr)
+
+    def test_project_instructions_tell_every_session_to_use_memory(self) -> None:
+        """CLAUDE.md / AGENTS.md load in every session, /devmode or not."""
+        for name in ("CLAUDE.md", "AGENTS.md"):
+            text = (ROOT / "integrations/conductor-beads/templates" / name).read_text(encoding="utf-8")
+            self.assertIn(".devmode/memory.py prime", text, name)
+            self.assertIn(".devmode/memory.py add", text, name)
+            self.assertIn(".beads/memories.jsonl", text, name)
 
     def test_invalid_hook_json_is_preserved(self) -> None:
         for relative_path in (Path(".claude/settings.json"), Path(".codex/hooks.json")):
@@ -642,6 +732,7 @@ class CodexCompatibilityTests(unittest.TestCase):
             "--no-skills",
             "--with-conductor",
             "--with-guardrails",
+            "--no-session-hook",
             "--beads",
             "--beads-stealth",
             "--force",
