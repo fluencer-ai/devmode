@@ -21,19 +21,8 @@ import re
 import sys
 from typing import Tuple
 
-# A `.env` file (`.env`, `.env.local`, `.envrc`, `config/.env`) but NOT words like
-# "environment" (no leading dot+token boundary).
-_ENV_RE = re.compile(r"\.env(rc)?(\b|$|[./\s'\"])")
-SECRET_SUBSTR = ("id_rsa", "id_ed25519", ".pem", "credential", "secret", ".ssh/")
-
-
-def _is_secretish(text: str) -> bool:
-    t = text.lower()
-    return bool(_ENV_RE.search(t)) or any(s in t for s in SECRET_SUBSTR)
-
-
-# --- R05/R06 v2 (Projects/testes/aprovador/guardas/regras_v2.py): ask only when a command really reads a secret
-# or deletes outside temp. v1 asked on any cat/head/tail + the word secret/.env anywhere (heredocs, greps).
+# --- R05/R06 v2: ask only when a command really reads a secret or deletes outside temp.
+# v1 asked on any cat/head/tail plus the word "secret" or a dotenv name anywhere (heredocs, greps).
 import os as _os
 import shlex as _shlex
 
@@ -51,15 +40,20 @@ def secret_path(arg: str) -> bool:
     """A path whose contents are a secret: .env files, private keys, credential stores."""
     a = arg.strip("'\"").lower()
     base = _os.path.basename(a.rstrip("/"))
-    if re.fullmatch(r"\.env(rc|\.[\w.-]+)?", base):
+    base = re.sub(r"(\.(bak|backup|old|orig|save|swp|tmp)|~)+$", "", base)  # a copy of a secret is a secret
+    if re.fullmatch(r"\.env(rc)?([._-][\w.-]+)?", base):
         return not re.search(r"\.(example|sample|template|dist|exemplo|modelo)$", base)
     if base.endswith((".pem", ".key", ".p12", ".pfx", ".keystore", ".jks")) or re.fullmatch(r"[\w.-]+\.env", base):
         return True
-    if re.fullmatch(r"id_(rsa|dsa|ecdsa|ed25519)(_[\w-]+)?", base) or (
-            "/.ssh/" in "/" + a and not base.endswith((".pub", "known_hosts", "config", "authorized_keys")) and base not in ("", ".ssh")):
+    if re.fullmatch(r"id_(rsa|dsa|ecdsa|ed25519)([._-][\w.-]+)?", base) and not base.endswith(".pub"):
+        return True  # the key and its copies (id_rsa.backup, id_ed25519-old), never the public half
+    if re.fullmatch(r"([a-z0-9]+[_-])*(credentials?|secrets?)([_-][a-z0-9]+)*(\.(prod|production|staging|stage|dev|development|local|test))*"
+                    r"(\.(json|ya?ml|toml|env|txt|ini|conf))?", base):
+        return True  # secrets-production.yaml, credentials.prod.json; not secrets-policy.md or credentials_form.tsx
+    if "/.ssh/" in "/" + a and not base.endswith((".pub", "known_hosts", "config", "authorized_keys")) \
+            and base not in ("", ".ssh"):
         return True
-    return bool(re.fullmatch(r"(credentials?|secrets?)(\.(json|ya?ml|toml|env|txt|ini|conf))?", base)) or \
-        base in ("auth.json", ".netrc", ".pgpass", ".npmrc", ".pypirc", "token", "tokens.json")
+    return base in ("auth.json", ".netrc", ".pgpass", ".npmrc", ".pypirc", "token", "tokens.json")
 
 
 def _words(cmd: str, fundo: int = 0):
@@ -144,7 +138,7 @@ def reads_secret(cmd: str) -> bool:
             if any(secret_path(f) for f in files):
                 return True
             continue
-        if exe in ("scp", "rsync", "ssh", "sftp"):  # -i chave / -F config só autenticam, não leem o conteúdo para a tela
+        if exe in ("scp", "rsync", "ssh", "sftp"):  # -i key / -F config only authenticate; they never print the file
             args = [a for i, a in enumerate(args) if not (a in ("-i", "-F", "-o", "-e") or (i and args[i - 1] in ("-i", "-F", "-o", "-e")))]
         if exe in ("python", "python3", "node", "ruby", "perl") and not any(secret_path(a) for a in args):
             continue
@@ -159,7 +153,8 @@ def reads_secret(cmd: str) -> bool:
 
 
 _CODE_HEREDOC = re.compile(r"\b(python3?|node|ruby|perl|bash|sh|zsh|osascript)\b[^\n<]*<<-?\s*(['\"]?)(\w+)\2[^\n]*\n.*?\n[ \t]*\3[ \t]*(?=\n|$|\))", re.S)
-_QUOTED = re.compile(r"['\"`]([^'\"`\s]*(?:\.env[\w.-]*|id_(?:rsa|dsa|ecdsa|ed25519)[\w-]*|\.pem|\.key|credentials?\.json|\.netrc))['\"`]")
+# Any quoted literal that looks like a path (has a dot or a slash, or names a key); secret_path decides.
+_QUOTED = re.compile(r"['\"`]([^'\"`\s]*(?:[./][^'\"`\s]*|id_[^'\"`\s]*))['\"`]")
 
 
 def _assignments(cmd: str) -> dict:
@@ -170,17 +165,82 @@ def _assignments(cmd: str) -> dict:
     return env
 
 
+# R05 scans the RAW text, on purpose: a delete wrapped in a heredoc fed to a shell, `xargs -0`, `timeout 5`,
+# `bash -c "..."`, or a word with `#` inside must still be seen. Erring toward a false positive (an `echo`
+# that mentions rm -rf) is the safe side for a delete guard.
+_RM_SEGMENT = re.compile(r"[;|&()\n`]+")
+
+
+def _rm_operands(toks):
+    """Operands of the first recursive+forced `rm` in one token list, or None. Flags count only before `--`;
+    a token that starts with `#` opens a shell comment."""
+    for i, t in enumerate(toks):
+        if _os.path.basename(t) != "rm":
+            continue
+        short, longs, operands, opts = "", set(), [], True
+        for x in toks[i + 1:]:
+            if x.startswith("#"):
+                break
+            if opts and x == "--":
+                opts = False
+            elif opts and x.startswith("--"):
+                longs.add(x)
+            elif opts and x.startswith("-") and len(x) > 1:
+                short += x[1:]
+            else:
+                operands.append(x)
+        if ("r" in short.lower() or "--recursive" in longs) and ("f" in short or "--force" in longs):
+            return operands
+        return None
+    return None
+
+
+def _split_quoted(seg: str):
+    try:
+        return _shlex.split(seg)  # quotes kept as one word; `#` is literal (comments handled above)
+    except ValueError:
+        return [t.strip("'\"") for t in seg.split()]  # a segment cut inside quotes
+
+
+def rm_recursive_force_targets(cmd: str):
+    """Operand lists of every `rm` that is both recursive and forced, whatever the flag spelling
+    (-rf, -fr, -r -f, -R -f, --recursive --force). Two readings, both kept: the raw text split at shell
+    operators (sees heredoc bodies, `xargs -0`, `timeout 5`), and the parsed simple commands (keeps a quoted
+    operand with `(` or `;` whole). An operand list from either reading is judged."""
+    out = []
+    for seg in _RM_SEGMENT.split(cmd):
+        ops = _rm_operands(_split_quoted(seg))
+        if ops is not None:
+            out.append(ops)
+    for w in simple_commands(cmd):
+        ops = _rm_operands(w)
+        if ops is not None:
+            out.append(ops)
+    return out
+
+
+# Targets that mean "everything": / , ~ , $HOME and wildcards over them. A path INSIDE home is scoped (asks).
+_ROOT_TARGETS = {"/", "/*", "~", "~/*", "$home", "$home/*", "${home}", "${home}/*", "*"}
+
+
+def is_root_target(arg: str) -> bool:
+    """`/`, `///`, `/./`, `~/./*`, `$HOME/.//` all name the root they look like; `.` alone is the current dir."""
+    s = arg.lower()
+    parts = [p for p in s.split("/") if p not in ("", ".")]
+    if not parts:
+        return s.startswith("/")
+    return ("/" if s.startswith("/") else "") + "/".join(parts) in _ROOT_TARGETS
+
+
 def deletes_outside_temp(cmd: str) -> bool:
-    """rm -rf whose targets are not all in temp/scratchpad/Trash (variables set in the same command are resolved)."""
+    """rm -rf whose targets are not all in temp/scratchpad/Trash (variables set in the same command are resolved).
+    A call with no static operand (`xargs rm -rf`) takes its targets from input, so it can't be proven temp."""
     env = _assignments(cmd)
     tmp = _os.environ.get("TMPDIR", "")
-    for w in simple_commands(cmd):
-        if _os.path.basename(w[0]) != "rm":
-            continue
-        flags = "".join(x[1:] for x in w[1:] if x.startswith("-") and not x.startswith("--"))
-        if "r" not in flags.lower() and "--recursive" not in w:
-            continue
-        for a in (x for x in w[1:] if not x.startswith("-")):
+    for operands in rm_recursive_force_targets(cmd):
+        if not operands:
+            return True
+        for a in operands:
             p = re.sub(r"\$\{?(\w+)\}?", lambda x: env.get(x.group(1), _os.environ.get(x.group(1), x.group(0))), a)
             p = _os.path.expanduser(p)
             if "$" in p:
@@ -189,7 +249,7 @@ def deletes_outside_temp(cmd: str) -> bool:
             if not (p.startswith(_TEMP) or (tmp and p.startswith(tmp.lower())) or "/.trash/" in p or "/scratchpad/" in p):
                 return True
     return False
-# --- fim R05/R06 v2
+# --- end R05/R06 v2
 
 
 def evaluate(tool_name: str, tool_input: dict) -> Tuple[str, str]:
@@ -206,17 +266,17 @@ def evaluate(tool_name: str, tool_input: dict) -> Tuple[str, str]:
         if re.search(r"git\s+reset\s+--hard", low) or re.search(r"git\s+clean\s+-\w*f", low) \
            or re.search(r"git\s+(checkout|restore)\s+--?\s*\.", low):
             return "ask", "R04: destructive git op; confirm before running"
-        if re.search(r"\brm\s+-\w*r\w*f\w*|\brm\s+-\w*f\w*r\w*", low):
-            if re.search(r"\s(/|~|\$home|\*)(\s|/|$)", low):
-                return "deny", "R05: refuse rm -rf on / ~ or wildcard root"
-            if deletes_outside_temp(cmd):
-                return "ask", "R05: recursive force delete outside temp; confirm the scope"
+        targets = rm_recursive_force_targets(cmd)
+        if any(is_root_target(t) for ts in targets for t in ts):
+            return "deny", "R05: refuse rm -rf on / ~ or wildcard root"
+        if targets and deletes_outside_temp(cmd):
+            return "ask", "R05: recursive force delete outside temp; confirm the scope"
         if reads_secret(cmd):
             return "ask", "R06: reading a possible secret file; confirm"
         return "allow", ""
     if tool_name in ("Write", "Edit", "MultiEdit", "NotebookEdit"):
         path = str(tool_input.get("file_path") or tool_input.get("path") or "").lower()
-        if ".git/" in path or _is_secretish(path):
+        if ".git/" in path or "/.ssh/" in "/" + path or secret_path(path):
             return "deny", f"R07: refuse write to protected/secret path ({path})"
         return "allow", ""
     return "allow", ""

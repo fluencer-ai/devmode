@@ -50,6 +50,36 @@ devmode is tool-agnostic: use the cheapest reliable source of reverse edges:
   instant and survives across sessions. Worth it when the codebase is too big to
   re-scan each time; overkill for small ones.
 
+## Find the one fact it's safe because of
+
+Most changes that look risky are safe because of **one** fact ("this call only
+drops cache entries that are already dead", "nothing reads this column since
+the last migration"). Find that fact first: if it holds, most of the scary cases
+clear at once, and your time goes into proving one thing instead of listing many
+maybes. Then look where search stops: the library's own source at its pinned
+version, when things run (async callbacks, teardown), and the readers a symbol
+search misses (a JSON payload, a DB column, a wire format, another language
+reading the same bytes, a feature flag).
+
+## How sure are you
+
+For each fact the change's safety rests on, push it as far down this ladder as
+is cheap, and say where it stopped:
+
+1. **You said so.** Worth nothing on its own.
+2. **You pointed at the line.** A real `file:line`, or the dependency's source.
+3. **You showed the bad case can't happen.** You walked the failure path step by
+   step and it doesn't get there.
+4. **You ran it.** A small script or test that calls the real code (the same
+   library version the app ships) and fails loudly if you're wrong.
+5. **You reproduced it in the running app.**
+
+Level 4 is usually one short script, and it is the level that turns a review
+argument into evidence. Report each risk with how it breaks, where, how likely,
+how bad, and how to check; list what you checked and cleared separately; a
+search that finds nothing is still an answer, and an unproven fact is written
+as unproven.
+
 ## Use the result to decide
 
 - **Small radius, no cycles** → refactor freely (test-first).

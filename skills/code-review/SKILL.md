@@ -100,6 +100,9 @@ A reviewer who has to guess scope reviews badly. Give them:
 - **What's critical** and what to focus on (e.g. "this touches auth: scrutinize
   the signature comparison").
 - **What's out of scope**, so they don't flag deliberate omissions.
+- **The evidence**: the commands run with their output, and the proof artifacts
+  (`verification-before-completion`), so the reviewer spends attention on the
+  design instead of re-deriving whether it runs.
 
 ## Receiving a review (the part that's hard)
 

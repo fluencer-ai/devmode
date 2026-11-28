@@ -46,6 +46,58 @@ class GuardrailTest(unittest.TestCase):
     def test_secret_read_asks(self):
         self.assertEqual(bash("cat .env")[0], "ask")
 
+    # R05 reads the rm flags, not one spelling of them
+    def test_rm_recursive_force_is_checked_in_any_flag_spelling(self):
+        for cmd in ("rm -r -f build/", "rm -R -f build/", "rm -f -r build/", "rm --recursive --force build/"):
+            self.assertEqual(bash(cmd)[0], "ask", cmd)
+        for cmd in ("rm -r -f /", "rm --recursive --force ~", "rm -R -f *"):
+            self.assertEqual(bash(cmd)[0], "deny", cmd)
+
+    def test_rm_rf_denies_only_root_targets_and_asks_inside_home(self):
+        for cmd in ("rm -rf ~", "rm -rf ~/", "rm -rf $HOME", "rm -rf /*", "rm -rf *", "rm -rf build/ ~"):
+            self.assertEqual(bash(cmd)[0], "deny", cmd)
+        for cmd in ("rm -rf ~/Projects/old-build", "rm -rf $HOME/old-build"):
+            self.assertEqual(bash(cmd)[0], "ask", cmd)
+
+    def test_rm_rf_root_is_denied_however_the_call_is_wrapped(self):
+        for cmd in ("bash <<EOF\nrm -rf /\nEOF", "find . | xargs -0 rm -rf /", "find . | xargs -n 1 rm -rf /",
+                    "timeout 5 rm -rf /", "nice -n 10 rm -rf ~", "rm -rf /tmp/a#b /", "rm -rf ///",
+                    "rm -rf /.", "rm -rf $HOME/*", "rm -rf ${HOME}/", "rm -rf ~/*", 'bash -c "rm -rf /"'):
+            self.assertEqual(bash(cmd)[0], "deny", repr(cmd))
+
+    def test_rm_rf_root_spellings_with_dot_components_are_denied(self):
+        for cmd in ("rm -rf ~/./*", "rm -rf $HOME/.//", "rm -rf /./"):
+            self.assertEqual(bash(cmd)[0], "deny", cmd)
+        self.assertEqual(bash("rm -rf .")[0], "ask")  # the current directory is scoped, not root
+
+    def test_rm_rf_quoted_operands_keep_their_scope(self):
+        self.assertEqual(bash('rm -rf "/tmp/cache(old)" ./build')[0], "ask")
+        for cmd in ('rm -rf "/tmp/cache old"', "rm -rf /tmp/cache # cleanup"):
+            self.assertEqual(bash(cmd)[0], "allow", cmd)
+
+    def test_code_heredoc_reading_a_secret_file_asks(self):
+        for name in ("credentials.prod.json", "id_rsa.backup", "id_rsa"):
+            self.assertEqual(bash(f"python3 - <<EOF\nopen('{name}').close()\nEOF")[0], "ask", name)
+        self.assertEqual(bash("python3 - <<EOF\nprint(d['token'])\nEOF")[0], "allow")
+
+    def test_rm_rf_with_targets_from_input_or_after_double_dash_asks(self):
+        for cmd in ("find . -name build | xargs rm -rf", "rm -rf -- -x", "rm -rf -- -rf build"):
+            self.assertEqual(bash(cmd)[0], "ask", cmd)
+        self.assertEqual(bash("rm -rf /tmp/scratch-build")[0], "allow")
+
+    # R07 uses the same secret-file rule as R06, plus .git and ~/.ssh
+    def test_write_guard_uses_the_secret_file_rule(self):
+        env = "." + "env"
+        for path in (f"config/{env}", f"{env}.local", "keys/id_rsa", "certs/server.pem",
+                     "credentials.json", "/home/me/.ssh/authorized_keys", "/home/me/.ssh/config",
+                     f"config/{env}rc.local", f"config/{env}-prod", "keys/id_rsa.backup", "keys/id_ed25519-old",
+                     "config/secrets-production.yaml", "config/credentials.prod.json", "secrets_staging.toml",
+                     "certs/service.pem.bak", f"config/{env}.local~", "config/credentials.staging.json.bak",
+                     "config/client_secret.json"):
+            self.assertEqual(write(path)[0], "deny", path)
+        for path in (f"{env}.example", "docs/secrets-policy.md", "src/credentials_form.tsx"):
+            self.assertEqual(write(path)[0], "allow", path)
+
     # quoted paths with spaces stay one argument; quoted text runs only where executed
     def test_quoted_paths_with_spaces_keep_their_program(self):
         env = "." + "env"

@@ -1,5 +1,51 @@
 # Changelog
 
+## Unreleased (2026-11-26)
+
+### Memory on by default
+
+- The installer wires the **SessionStart memory hook** (`session_resume.py`)
+  into `.claude/settings.json` on every install, not only with
+  `--with-guardrails`, so each Claude session starts with
+  `.beads/memories.jsonl` primed. Only that hook: the guardrail, verify and
+  phase gates stay opt-in. `update.sh` backfills it in projects installed
+  earlier, keeps any other hook the project has, and never touches an invalid
+  or project-owned file (it warns instead).
+- New flag **`--no-session-hook`** to opt out, remembered in
+  `.devmode/session-hook` across updates.
+- The project `CLAUDE.md` and `AGENTS.md` templates gain a **Memory** section:
+  prime at the start, record preferences, decisions and corrections as they
+  come up, and before closing a conversation that settled something, record one
+  `fact` line on what was agreed and what comes next. The orchestrator and the
+  `/devmode` command carry the same end-of-run rule.
+
+### Absorbed: pstack (Lauren Tan)
+
+Ideas from the pstack plugin and the *Turning slop into gold* talk, rewritten
+in devmode's words (MIT; credit in `ATTRIBUTION.md`):
+
+- `feedback-loops`: the **trust pyramid** (code and API design, then
+  deterministic checks, then verification, prose last) and a fifth loop that
+  searches the input space. New siblings: `encode-corrections.md` (a mistake
+  seen twice becomes a check at the highest level that works, proven against a
+  real past instance, with a rule table and expiring exceptions) and
+  `verification-skill.md` (give the project its own verify skill, a small
+  control CLI and a feature map; proof artifacts are the review).
+- `tdd`: new `formal-verification.md` (pick the target, let the question pick
+  the tool: model checker, proof, property tests, fuzzing; make sure the check
+  can fail; statecharts in the reader's words, with bug paths replayed against
+  the real code). `testing-principles.md` gains the two imagined edits.
+- `impact-analysis`: find the one fact the change is safe because of, and the
+  five-step "how sure are you" ladder.
+- `systematic-debugging`: ask whether the triggering state should exist; propose
+  a cheap always-on signal.
+- `documentation`: a default of almost no comments, with an explicit keep-list.
+- `improve-codebase-architecture`: the codebase is a garden (delete the old
+  way; one supported way), directory boundaries enforced by an import lint.
+- `minimal-code` (subtract before you add), `subagent-driven-development`
+  (build the lever before the fleet), `verification-before-completion` and
+  `code-review` (proof artifacts; suspect the observation before the system).
+
 ## 2.0.0 (2026-11-20): lean by default
 
 devmode v2 goes global without taxing every message. The process is unchanged;
@@ -107,6 +153,28 @@ Measured with `./setup --report` against a scratch HOME (4 chars ≈ 1 token).
   messages use a colon, comma, semicolon or parentheses instead.
   `scripts/audit_skills.py` now fails on any em dash, so it can't creep back.
   Installer checks still recognize project files written by older versions.
+
+### Fixed (2026-11-23 audit)
+
+- **Guardrails R05** reads the `rm` flags instead of one spelling: `rm -r -f`,
+  `rm -R -f` and `rm --recursive --force` used to pass silently. It scans the
+  raw text, so a delete inside a heredoc fed to a shell, after `xargs -0`,
+  `timeout 5` or `bash -c`, or next to a word with `#` is still seen. It denies
+  root targets (`/`, `///`, `/./`, `~`, `~/./*`, `$HOME`, wildcards over them) and
+  asks on a path inside home, as the docs say (before, every `~/...` path was
+  denied). It also reads the parsed command, so a quoted operand with `(` or a
+  space stays whole. `--` only ends the flags: the operands after it follow the
+  same root, temp and ask rules. A call whose targets come from input
+  (`xargs rm -rf`) asks.
+- **Guardrails R07** uses the same secret-file rule as R06, plus `.git/` and
+  `~/.ssh/`: writing an example dotenv file, `docs/secrets-policy.md` or
+  `src/credentials_form.tsx` is no longer blocked. The rule now also covers
+  dotenv variants (`.envrc.local`, `.env-prod`), copies of private keys
+  (`id_rsa.backup`), backup copies of any secret (`.bak`, `.old`, `~`),
+  prefixed names (`client_secret.json`) and per-environment secret files
+  (`secrets-production.yaml`, `credentials.prod.json`), for reads (including a
+  path quoted inside a code heredoc) and writes.
+- `guardrails.py` comments are in English and carry no local path.
 
 ### Migration from v1
 

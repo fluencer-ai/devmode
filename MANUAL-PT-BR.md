@@ -404,7 +404,8 @@ em `.agents/skills/devmode/` lê o mesmo arquivo
 cada skill por caminho; um projeto instalado com `--codex-full` recebe links
 relativos para todas. A configuração Claude continua intacta.
 
-> **Retomada morna (SessionStart).** Com `--with-guardrails`, um hook
+> **Retomada morna (SessionStart).** Ligado por padrão no Claude Code (desligue com
+> `--no-session-hook`; no Codex vem com `--with-guardrails`), um hook
 > `session_resume.py` injeta no início de cada sessão um resumo curto (última
 > fase, score, track ativo, próxima ação) lido do `.devmode/scorecard.json`:
 > read-only, fail-open. Assim uma sessão nova **continua de onde o loop parou**

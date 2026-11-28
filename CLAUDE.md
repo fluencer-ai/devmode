@@ -231,8 +231,9 @@ that base: the base stays the source of truth:
   **auto-refreshes `devmode-dashboard.html`** from `.devmode/scorecard.json` (so the
   dashboard can't go stale) and **blocks ending a full `/devmode` turn that did not
   delegate to the `devmode-orchestrator` agent** (embodying the phase machine inline
-  is the failure mode this catches). It also wires a **SessionStart
-  `session_resume.py`** that injects a warm-resume hint (last phase, score, active
+  is the failure mode this catches). The **SessionStart
+  `session_resume.py`** is wired by default on Claude Code, gates or not (opt out
+  with `--no-session-hook`; Codex gets it with the gates); it injects a warm-resume hint (last phase, score, active
   track, next action) so a fresh session picks up where the loop left off
   (read-only, fail-open). Conscious overrides: `VERIFY-OK: <reason>` /
   `DEVMODE-OK: <reason>` when a check genuinely doesn't apply. (CLAUDE.md text alone

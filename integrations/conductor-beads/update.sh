@@ -286,11 +286,13 @@ fi
 # Validate opted-in hook state before creating the ownership manifest or changing
 # any asset. Invalid host JSON must fail atomically, not after a partial update.
 CLAUDE_DEVMODE_HOOKS=0
-for hook_name in guardrails verify_gate devmode_phase_gate session_resume; do
+# The gates opt the project in; session_resume.py alone is the default memory
+# hook (step 6a), which must not pull the gates in with it.
+for hook_name in guardrails verify_gate devmode_phase_gate; do
   [ -f "$P/.claude/hooks/$hook_name.py" ] && CLAUDE_DEVMODE_HOOKS=1
 done
 if [ -f "$P/.claude/settings.json" ] && \
-   grep -Eq 'guardrails\.py|verify_gate\.py|devmode_phase_gate\.py|session_resume\.py' "$P/.claude/settings.json"; then
+   grep -Eq 'guardrails\.py|verify_gate\.py|devmode_phase_gate\.py' "$P/.claude/settings.json"; then
   CLAUDE_DEVMODE_HOOKS=1
 fi
 
@@ -544,19 +546,26 @@ fi
 
 # 6. Hooks are opt-in. The preflight above detected and validated ownership
 # before any write; a generic host hooks directory/config is not evidence.
+# install --no-session-hook leaves .devmode/session-hook = off: it holds with the
+# gates too, so neither the Claude nor the Codex SessionStart is (re)wired.
+SESSION_OFF=0
+if grep -qx off "$P/.devmode/session-hook" 2>/dev/null; then SESSION_OFF=1; fi
 if [ "$CLAUDE_DEVMODE_HOOKS" -eq 1 ]; then
-  for h in guardrails test_guardrails verify_gate devmode_phase_gate session_resume; do
+  CLAUDE_HOOK_FILES="guardrails test_guardrails verify_gate devmode_phase_gate"
+  if [ "$SESSION_OFF" -eq 0 ]; then CLAUDE_HOOK_FILES="$CLAUDE_HOOK_FILES session_resume"; fi
+  for h in $CLAUDE_HOOK_FILES; do
     refresh_file "$SCRIPT_DIR/hooks/$h.py" "$P/.claude/hooks/$h.py" || true
   done
-  ok "hooks refreshed (incl. session_resume)"
+  if [ "$SESSION_OFF" -eq 1 ]; then ok "hooks refreshed (session_resume off: --no-session-hook)"
+  else ok "hooks refreshed (incl. session_resume)"; fi
   # Wire EVERY refreshed gate, not just the newest one. Refreshing a script
   # without wiring it is the worst possible state: the file is present and
   # current, so the gate looks installed, and never runs. A project set up
   # before devmode_phase_gate.py existed used to get the file and no wiring,
   # while the Codex side (below) wired all five of its events.
   if [ -f "$P/.claude/settings.json" ]; then
-    python3 - "$P/.claude/settings.json" <<'PY' && ok "Claude gates wired in settings.json (PreToolUse guardrail, Stop verify+phase, SessionStart resume)" || err "FAILED to wire Claude gates in settings.json: they will NOT run; fix it by hand"
-import json, sys
+    DEVMODE_SESSION_OFF="$SESSION_OFF" python3 - "$P/.claude/settings.json" <<'PY' && ok "Claude gates wired in settings.json (PreToolUse guardrail, Stop verify+phase, SessionStart resume unless off)" || err "FAILED to wire Claude gates in settings.json: they will NOT run; fix it by hand"
+import json, os, sys
 path = sys.argv[1]
 base = 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/%s"'
 pre_cmd = base % "guardrails.py"
@@ -579,11 +588,36 @@ stop = hooks.setdefault("Stop", [])
 for cmd in stop_cmds:
     if not wired("Stop", cmd):
         stop.append({"hooks": [{"type": "command", "command": cmd}]})
-start = hooks.setdefault("SessionStart", [])
-if not wired("SessionStart", session_cmd):
-    start.append({"hooks": [{"type": "command", "command": session_cmd}]})
+if os.environ.get("DEVMODE_SESSION_OFF") != "1" and not wired("SessionStart", session_cmd):
+    hooks.setdefault("SessionStart", []).append({"hooks": [{"type": "command", "command": session_cmd}]})
 json.dump(data, open(path, "w"), indent=2)
 PY
+  fi
+fi
+
+# 6a. The session memory hook is on by default: a project without the gates still
+# gets SessionStart -> session_resume.py, so each session starts with its memory
+# primed. Off when .devmode/session-hook says so (install --no-session-hook).
+if [ "$CLAUDE_DEVMODE_HOOKS" -eq 0 ] && [ -d "$P/conductor" ] && command -v python3 >/dev/null 2>&1 && \
+   ! grep -qx off "$P/.devmode/session-hook" 2>/dev/null; then
+  if ! validate_json_file "$P/.claude/settings.json"; then
+    warn "memory hook NOT wired: .claude/settings.json is invalid JSON (left as it is)"
+  else
+    mkdir -p "$P/.claude/hooks"
+    if ! refresh_file "$SCRIPT_DIR/hooks/session_resume.py" "$P/.claude/hooks/session_resume.py"; then
+      warn "memory hook NOT wired: .claude/hooks/session_resume.py is project-owned"
+    else
+    python3 - "$P/.claude/settings.json" <<'PY' && ok "SessionStart memory hook wired in settings.json" || err "FAILED to wire the memory hook in settings.json; fix it by hand"
+import json, os, sys
+path = sys.argv[1]
+cmd = 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/session_resume.py"'
+data = json.load(open(path, encoding="utf-8")) if os.path.isfile(path) else {}
+start = data.setdefault("hooks", {}).setdefault("SessionStart", [])
+if not any(h.get("command") == cmd for g in start for h in g.get("hooks", [])):
+    start.append({"hooks": [{"type": "command", "command": cmd}]})
+json.dump(data, open(path, "w", encoding="utf-8"), indent=2)
+PY
+    fi
   fi
 fi
 
@@ -594,7 +628,7 @@ if [ "$CLAUDE_DEVMODE_HOOKS" -eq 1 ] || [ "$CODEX_DEVMODE_HOOKS" -eq 1 ]; then
   for h in codex_hooks test_codex_hooks; do
     refresh_file "$SCRIPT_DIR/hooks/$h.py" "$P/.codex/hooks/$h.py" || true
   done
-  python3 - "$P/.codex/hooks.json" <<'PY' && ok "Codex hooks wired in .codex/hooks.json" || err "FAILED to wire Codex hooks"
+  DEVMODE_SESSION_OFF="$SESSION_OFF" python3 - "$P/.codex/hooks.json" <<'PY' && ok "Codex hooks wired in .codex/hooks.json" || err "FAILED to wire Codex hooks"
 import json, os, sys
 path = sys.argv[1]
 cmd = 'python3 "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/codex_hooks.py"'
@@ -619,7 +653,8 @@ def ensure(event, matcher=None, **handler):
     if matcher is not None:
         group["matcher"] = matcher
     groups.append(group)
-ensure("SessionStart", "startup|resume|clear|compact", statusMessage="Loading devmode resume context", additionalContextLimit=5000)
+if os.environ.get("DEVMODE_SESSION_OFF") != "1":
+    ensure("SessionStart", "startup|resume|clear|compact", statusMessage="Loading devmode resume context", additionalContextLimit=5000)
 ensure("UserPromptSubmit")
 ensure("PreToolUse", "Bash|apply_patch|Edit|Write|MultiEdit|NotebookEdit", statusMessage="Checking devmode guardrails")
 ensure("PostToolUse", "Bash|apply_patch|Edit|Write|MultiEdit|NotebookEdit|Agent|spawn_agent")

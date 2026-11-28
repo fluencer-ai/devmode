@@ -53,6 +53,21 @@ Desktop or select `devmode` through `/skills` in CLI/IDE, then read
 - No completion claim without fresh verification evidence that covers the
   changed behavior.
 
+## Memory (every session, /devmode or not)
+
+What the agent learns with the person lives in `.beads/memories.jsonl` (this
+project) and `~/.devmode/memories.jsonl` (the person, every project):
+append-only, never a secret (the script refuses one).
+
+- **Start:** the SessionStart hook primes it. If nothing was primed, run
+  `python3 .devmode/memory.py prime` and apply what it prints.
+- **During:** when the person states a preference, makes a decision or corrects
+  you, record one line at once:
+  `python3 .devmode/memory.py add "<text>" --kind preference|decision|fact|correction`
+  (add `--scope global` when it is about the person, not the project).
+- **End:** before closing a conversation that settled something or left work
+  open, record one `fact` line: what was agreed and what comes next.
+
 ## Gates And Overrides
 
 When the devmode hooks are installed, Codex enforces the same gates as Claude
