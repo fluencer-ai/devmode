@@ -27,7 +27,8 @@ Absorbed: `doc-contracts` now lives here as `doc-contracts.md`.
   captures a reason the code can't.
 - Prefer making code self-explaining (good names in the
   ubiquitous language, `ubiquitous-language`) over commenting it.
-  Comment the surprising, the non-obvious constraint, the deliberate trade-off.
+  When a comment is needed, it carries what the code cannot: the outside
+  constraint, the deliberate trade-off (the keep-list below).
 - Delete comments that lie or have gone stale: a wrong comment is worse than none.
 
 **A default of almost no comments.** In AI-written code most comments narrate
@@ -39,6 +40,8 @@ Keep only these:
   API's quirk, a protocol rule, a law), with a link to the issue, RFC or doc;
 - doc comments on a public API, where the tooling reads them;
 - a deliberate simplification marked `minimal:` (see `minimal-code`);
+- a test's tag naming the acceptance criterion it proves (see
+  `tdd/testing-principles.md`), when the test name cannot carry it;
 - directives a tool needs (a formatter or type-checker pragma), each with its
   reason.
 

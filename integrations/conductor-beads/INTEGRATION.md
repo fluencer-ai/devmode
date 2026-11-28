@@ -163,12 +163,14 @@ soft for hard safety rules. The optional **guardrails** add deterministic
 adapter that block a small set of dangerous operations regardless of what the
 agent intends.
 
-- **Install:** `install.sh … --with-guardrails` copies **four** Claude hooks into
+- **Install:** `install.sh … --with-guardrails` copies the three gates (plus the
+  default memory hook, unless `--no-session-hook`) into
   `.claude/hooks/` and wires each into `.claude/settings.json` (idempotent):
   [`guardrails.py`](hooks/guardrails.py) on **PreToolUse**,
   [`verify_gate.py`](hooks/verify_gate.py) and
   [`devmode_phase_gate.py`](hooks/devmode_phase_gate.py) on **Stop**, and
-  [`session_resume.py`](hooks/session_resume.py) on **SessionStart**. It also
+  [`session_resume.py`](hooks/session_resume.py) on **SessionStart** (skipped on
+  both hosts when `.devmode/session-hook` is `off`). It also
   copies [`hooks/codex_hooks.py`](hooks/codex_hooks.py) (the single adapter
   covering all four behaviors) into `.codex/hooks/` and wires `.codex/hooks.json`
   for Codex. `update.sh` re-wires every one of them, so a project installed

@@ -74,7 +74,7 @@ Flags:
 | `--codex-full` | Also links every skill into `.agents/skills` for Codex. Recorded in `.devmode/codex-skills`, so updates keep it. |
 | `--no-skills` | Does **not** copy skills/agents/references (uses a globally installed devmode). The base CLAUDE.md is still written, and future updates preserve this profile. |
 | `--with-conductor` | Clones Conductor-Beads and copies its slash commands + the `conductor`/`beads` skills. Skip it if they are already global. |
-| `--with-guardrails` | Installs the **four** deterministic hooks (gates-as-code) and wires them into `.claude/settings.json` and `.codex/hooks.json`: **PreToolUse** guardrails (blocks dangerous ops) + **Stop** verify-gate (requires an end-to-end verification after a rebuild/deploy/restart/`.env`) + **Stop** phase-gate (refreshes the dashboard and requires delegation to the orchestrator on a phase-driving `/devmode` turn) + **SessionStart** warm-resume (injects the last phase, score, and active track). |
+| `--with-guardrails` | Installs the deterministic gates (gates-as-code) alongside the default memory hook and wires them into `.claude/settings.json` and `.codex/hooks.json`: **PreToolUse** guardrails (blocks dangerous ops) + **Stop** verify-gate (requires an end-to-end verification after a rebuild/deploy/restart/`.env`) + **Stop** phase-gate (refreshes the dashboard and requires delegation to the orchestrator on a phase-driving `/devmode` turn) + **SessionStart** warm-resume (injects the last phase, score, and active track; on Claude it is the default anyway, and `--no-session-hook` keeps it off on both hosts). |
 | `--beads` / `--beads-stealth` | Runs `bd init` (normal / local-only). |
 | `--force` | Overwrites files written by this installer. |
 

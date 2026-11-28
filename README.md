@@ -178,7 +178,8 @@ integrations/conductor-beads/install.sh /path/to/your/project --with-guardrails 
 
 Flags: `--no-skills` (rely on a global install; updates preserve this profile) · `--codex-full` (link every skill for Codex, kept across updates) · `--with-conductor` (vendor the
 upstream Conductor commands) · `--beads` / `--beads-stealth` (persistent task
-memory, committed or local) · `--with-guardrails` · `--force`. Idempotent:
+memory, committed or local) · `--with-guardrails` · `--no-session-hook` (skip the
+default SessionStart memory hook, kept off across updates) · `--force`. Idempotent:
 existing files are left alone unless you pass `--force`.
 
 ### C. Guided mode: `/devmode` / `devmode` skill (the front door)
@@ -415,7 +416,9 @@ python3 scripts/dashboard.py /path/to/project    # writes devmode-dashboard.html
 ## Enforcement: gates that bite
 
 Prose guidance loses to pressure. devmode's non-negotiables are **deterministic
-hooks** (Python stdlib, fail-open, with tests), wired by `--with-guardrails`:
+hooks** (Python stdlib, fail-open, with tests). The three gates are wired by
+`--with-guardrails`; `session_resume.py` is wired by default on Claude Code (opt
+out with `--no-session-hook`) and joins Codex with the gates:
 
 | Hook | Event | What it does |
 |---|---|---|

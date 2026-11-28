@@ -486,6 +486,30 @@ class CodexCompatibilityTests(unittest.TestCase):
             self.assertFalse(self.claude_hook_commands(project).get("SessionStart"))
             self.assertFalse((project / ".claude/hooks/session_resume.py").exists())
 
+    def test_no_session_hook_holds_with_the_gates_too(self) -> None:
+        """--no-session-hook must win on the --with-guardrails path, at install and on update."""
+        with tempfile.TemporaryDirectory(prefix="devmode-memory-optout-gates-") as temporary_dir:
+            project = Path(temporary_dir)
+            proc = subprocess.run(
+                [str(INSTALL), str(project), "--with-guardrails", "--no-session-hook"],
+                cwd=ROOT, check=True, capture_output=True, text=True,
+            )
+            self.assertIn("memory hook: off", proc.stdout)
+            self.assertIn("gates: wired + verified", proc.stdout)
+
+            def assert_off() -> None:
+                commands = self.claude_hook_commands(project)
+                self.assertFalse(any("session_resume.py" in c for c in commands.get("SessionStart", [])))
+                self.assertTrue(commands.get("PreToolUse"))
+                self.assertEqual(2, len(commands.get("Stop", [])))
+                codex = json.loads((project / ".codex/hooks.json").read_text(encoding="utf-8"))["hooks"]
+                self.assertNotIn("SessionStart", codex)
+                self.assertIn("PreToolUse", codex)
+
+            assert_off()
+            subprocess.run([str(UPDATE), str(project)], cwd=ROOT, check=True, capture_output=True, text=True)
+            assert_off()
+
     def test_invalid_claude_settings_skip_the_memory_hook_and_stay_untouched(self) -> None:
         with tempfile.TemporaryDirectory(prefix="devmode-memory-invalid-") as temporary_dir:
             project = Path(temporary_dir)

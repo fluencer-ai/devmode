@@ -546,19 +546,26 @@ fi
 
 # 6. Hooks are opt-in. The preflight above detected and validated ownership
 # before any write; a generic host hooks directory/config is not evidence.
+# install --no-session-hook leaves .devmode/session-hook = off: it holds with the
+# gates too, so neither the Claude nor the Codex SessionStart is (re)wired.
+SESSION_OFF=0
+if grep -qx off "$P/.devmode/session-hook" 2>/dev/null; then SESSION_OFF=1; fi
 if [ "$CLAUDE_DEVMODE_HOOKS" -eq 1 ]; then
-  for h in guardrails test_guardrails verify_gate devmode_phase_gate session_resume; do
+  CLAUDE_HOOK_FILES="guardrails test_guardrails verify_gate devmode_phase_gate"
+  if [ "$SESSION_OFF" -eq 0 ]; then CLAUDE_HOOK_FILES="$CLAUDE_HOOK_FILES session_resume"; fi
+  for h in $CLAUDE_HOOK_FILES; do
     refresh_file "$SCRIPT_DIR/hooks/$h.py" "$P/.claude/hooks/$h.py" || true
   done
-  ok "hooks refreshed (incl. session_resume)"
+  if [ "$SESSION_OFF" -eq 1 ]; then ok "hooks refreshed (session_resume off: --no-session-hook)"
+  else ok "hooks refreshed (incl. session_resume)"; fi
   # Wire EVERY refreshed gate, not just the newest one. Refreshing a script
   # without wiring it is the worst possible state: the file is present and
   # current, so the gate looks installed, and never runs. A project set up
   # before devmode_phase_gate.py existed used to get the file and no wiring,
   # while the Codex side (below) wired all five of its events.
   if [ -f "$P/.claude/settings.json" ]; then
-    python3 - "$P/.claude/settings.json" <<'PY' && ok "Claude gates wired in settings.json (PreToolUse guardrail, Stop verify+phase, SessionStart resume)" || err "FAILED to wire Claude gates in settings.json: they will NOT run; fix it by hand"
-import json, sys
+    DEVMODE_SESSION_OFF="$SESSION_OFF" python3 - "$P/.claude/settings.json" <<'PY' && ok "Claude gates wired in settings.json (PreToolUse guardrail, Stop verify+phase, SessionStart resume unless off)" || err "FAILED to wire Claude gates in settings.json: they will NOT run; fix it by hand"
+import json, os, sys
 path = sys.argv[1]
 base = 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/%s"'
 pre_cmd = base % "guardrails.py"
@@ -581,9 +588,8 @@ stop = hooks.setdefault("Stop", [])
 for cmd in stop_cmds:
     if not wired("Stop", cmd):
         stop.append({"hooks": [{"type": "command", "command": cmd}]})
-start = hooks.setdefault("SessionStart", [])
-if not wired("SessionStart", session_cmd):
-    start.append({"hooks": [{"type": "command", "command": session_cmd}]})
+if os.environ.get("DEVMODE_SESSION_OFF") != "1" and not wired("SessionStart", session_cmd):
+    hooks.setdefault("SessionStart", []).append({"hooks": [{"type": "command", "command": session_cmd}]})
 json.dump(data, open(path, "w"), indent=2)
 PY
   fi
@@ -622,7 +628,7 @@ if [ "$CLAUDE_DEVMODE_HOOKS" -eq 1 ] || [ "$CODEX_DEVMODE_HOOKS" -eq 1 ]; then
   for h in codex_hooks test_codex_hooks; do
     refresh_file "$SCRIPT_DIR/hooks/$h.py" "$P/.codex/hooks/$h.py" || true
   done
-  python3 - "$P/.codex/hooks.json" <<'PY' && ok "Codex hooks wired in .codex/hooks.json" || err "FAILED to wire Codex hooks"
+  DEVMODE_SESSION_OFF="$SESSION_OFF" python3 - "$P/.codex/hooks.json" <<'PY' && ok "Codex hooks wired in .codex/hooks.json" || err "FAILED to wire Codex hooks"
 import json, os, sys
 path = sys.argv[1]
 cmd = 'python3 "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/codex_hooks.py"'
@@ -647,7 +653,8 @@ def ensure(event, matcher=None, **handler):
     if matcher is not None:
         group["matcher"] = matcher
     groups.append(group)
-ensure("SessionStart", "startup|resume|clear|compact", statusMessage="Loading devmode resume context", additionalContextLimit=5000)
+if os.environ.get("DEVMODE_SESSION_OFF") != "1":
+    ensure("SessionStart", "startup|resume|clear|compact", statusMessage="Loading devmode resume context", additionalContextLimit=5000)
 ensure("UserPromptSubmit")
 ensure("PreToolUse", "Bash|apply_patch|Edit|Write|MultiEdit|NotebookEdit", statusMessage="Checking devmode guardrails")
 ensure("PostToolUse", "Bash|apply_patch|Edit|Write|MultiEdit|NotebookEdit|Agent|spawn_agent")

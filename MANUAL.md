@@ -404,7 +404,8 @@ a single physical copy in `.claude/skills/`. Codex lists only the launcher (lean
 and reads each skill by path; a project installed with `--codex-full` gets
 relative links to every skill instead. The Claude configuration stays intact.
 
-> **Warm resume (SessionStart).** With `--with-guardrails`, a
+> **Warm resume (SessionStart).** By default on Claude Code (opt out with
+> `--no-session-hook`; Codex gets it through `--with-guardrails`), a
 > `session_resume.py` hook injects a short summary at the start of every session
 > (last phase, score, active track, next action) read from
 > `.devmode/scorecard.json`: read-only, fail-open. That way a new session

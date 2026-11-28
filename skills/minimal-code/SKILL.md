@@ -53,9 +53,11 @@ security/money/auth control is the *last* place to cut (see
 
 ## Rules
 
-- **Subtract before you add.** Before writing anything, ask what could be
-  removed instead: a dead path, a duplicate helper, an old way the new code would
-  sit next to. The best change often makes the tree smaller.
+- **Subtract before you add, inside the change.** Before writing anything, ask
+  what *in the code this change touches* could go instead: the old way the new
+  code would sit next to, a helper the change makes redundant. The best change
+  often makes the tree smaller. Dead code outside that scope is mentioned, not
+  cut (see "Orphans you created" below).
 - **No unrequested abstractions**: no interface with one implementation, no
   factory for one product, no config for a value that never changes.
 - **No scaffolding "for later"**: later can scaffold for itself. Fewest files;

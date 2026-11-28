@@ -416,6 +416,16 @@ else
   info "skipping Conductor-Beads copy (use --with-conductor, or rely on global install)"
 fi
 
+# The session memory hook is on by default (step 2d). --no-session-hook is
+# remembered in .devmode/session-hook so updates keep it off, and it holds on the
+# --with-guardrails path too: the gates are opt-in, the opt-out is the person's.
+SESSION_HOOK_STATUS=""
+if [ "$NO_SESSION_HOOK" -eq 1 ]; then
+  printf 'off\n' > "$PROJECT_DIR/.devmode/session-hook"
+fi
+SESSION_OFF=0
+if grep -qx off "$PROJECT_DIR/.devmode/session-hook" 2>/dev/null; then SESSION_OFF=1; fi
+
 # 2c. Guardrails: deterministic PreToolUse enforcement hook (optional)
 if [ "$GUARDRAILS" -eq 1 ] && [ "$HAVE_PY3" -eq 0 ]; then
   step "Installing guardrails (gates-as-code)"
@@ -434,14 +444,17 @@ elif [ "$GUARDRAILS" -eq 1 ]; then
   copy_template "$SCRIPT_DIR/hooks/test_guardrails.py" "$PROJECT_DIR/.claude/hooks/test_guardrails.py"
   copy_template "$SCRIPT_DIR/hooks/verify_gate.py"     "$PROJECT_DIR/.claude/hooks/verify_gate.py"
   copy_template "$SCRIPT_DIR/hooks/devmode_phase_gate.py" "$PROJECT_DIR/.claude/hooks/devmode_phase_gate.py"
-  copy_template "$SCRIPT_DIR/hooks/session_resume.py"  "$PROJECT_DIR/.claude/hooks/session_resume.py"
+  if [ "$SESSION_OFF" -eq 0 ]; then
+    copy_template "$SCRIPT_DIR/hooks/session_resume.py"  "$PROJECT_DIR/.claude/hooks/session_resume.py"
+  fi
   copy_template "$SCRIPT_DIR/hooks/codex_hooks.py"     "$PROJECT_DIR/.codex/hooks/codex_hooks.py"
   # Ship the Codex gate's test too: a Claude user can self-verify their gate via
   # test_guardrails.py, and a Codex-only user must be able to do the same.
   copy_template "$SCRIPT_DIR/hooks/test_codex_hooks.py" "$PROJECT_DIR/.codex/hooks/test_codex_hooks.py"
-  # Idempotently merge the PreToolUse guardrail + Stop verify/phase gates + the SessionStart warm-resume into settings.json
+  # Idempotently merge the PreToolUse guardrail + Stop verify/phase gates + the SessionStart warm-resume
+  # (unless the memory hook is off) into settings.json
   WIRED=0
-  python3 - "$PROJECT_DIR/.claude/settings.json" <<'PY' && WIRED=1 || WIRED=0
+  DEVMODE_SESSION_OFF="$SESSION_OFF" python3 - "$PROJECT_DIR/.claude/settings.json" <<'PY' && WIRED=1 || WIRED=0
 import json, os, sys
 path = sys.argv[1]
 pre_cmd = 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/guardrails.py"'
@@ -463,36 +476,48 @@ stop = hooks.setdefault("Stop", [])
 for cmd in (stop_cmd, phase_cmd):
     if not any(h.get("command") == cmd for g in stop for h in g.get("hooks", [])):
         stop.append({"hooks": [{"type": "command", "command": cmd}]})
-start = hooks.setdefault("SessionStart", [])
-if not any(h.get("command") == session_cmd for g in start for h in g.get("hooks", [])):
-    start.append({"hooks": [{"type": "command", "command": session_cmd}]})
+if os.environ.get("DEVMODE_SESSION_OFF") != "1":
+    start = hooks.setdefault("SessionStart", [])
+    if not any(h.get("command") == session_cmd for g in start for h in g.get("hooks", [])):
+        start.append({"hooks": [{"type": "command", "command": session_cmd}]})
 json.dump(data, open(path, "w"), indent=2)
 PY
   # Prove the wiring landed instead of announcing gates that may not exist.
-  if [ "$WIRED" -eq 1 ] && python3 - "$PROJECT_DIR/.claude/settings.json" <<'VERIFY'
-import json, sys
+  if [ "$WIRED" -eq 1 ] && DEVMODE_SESSION_OFF="$SESSION_OFF" python3 - "$PROJECT_DIR/.claude/settings.json" <<'VERIFY'
+import json, os, sys
 try:
     d = json.load(open(sys.argv[1], encoding="utf-8"))
 except Exception:
     sys.exit(1)
 h = d.get("hooks", {})
 found = {c.get("command", "") for ev in h.values() for g in ev for c in g.get("hooks", [])}
-need = ("guardrails.py", "verify_gate.py", "devmode_phase_gate.py", "session_resume.py")
+need = ["guardrails.py", "verify_gate.py", "devmode_phase_gate.py"]
+if os.environ.get("DEVMODE_SESSION_OFF") != "1":
+    need.append("session_resume.py")
 sys.exit(0 if all(any(n in f for f in found) for n in need) else 1)
 VERIFY
   then
-    ok "wired + verified in .claude/settings.json: PreToolUse guardrail, Stop verify/phase gates, SessionStart resume"
+    if [ "$SESSION_OFF" -eq 1 ]; then
+      ok "wired + verified in .claude/settings.json: PreToolUse guardrail, Stop verify/phase gates (SessionStart memory hook off: --no-session-hook)"
+      SESSION_HOOK_STATUS=" · memory hook: off"
+    else
+      ok "wired + verified in .claude/settings.json: PreToolUse guardrail, Stop verify/phase gates, SessionStart resume"
+      SESSION_HOOK_STATUS=" · memory hook: on"
+    fi
     warn "guardrails block: sudo, force-push, --no-verify, rm -rf /, writes to .env/.git/secrets; ask: reset --hard, scoped rm -rf, reading secrets."
     warn "verify-gate (Stop): blocks ending a turn after rebuild/docker build/deploy/.env without a fresh end-to-end check (override: write 'VERIFY-OK: <reason>')."
     warn "phase-gate (Stop): auto-refreshes devmode-dashboard.html from .devmode/scorecard.json, and blocks ending a full /devmode turn that did NOT delegate to the devmode-orchestrator agent (override: write 'DEVMODE-OK: <reason>')."
-    warn "session-resume (SessionStart): injects a warm-resume hint (last phase, score, active track, next action) from .devmode/scorecard.json; read-only, fail-open."
+    if [ "$SESSION_OFF" -eq 0 ]; then
+      warn "session-resume (SessionStart): injects a warm-resume hint (last phase, score, active track, next action) from .devmode/scorecard.json; read-only, fail-open."
+    fi
   else
+    SESSION_HOOK_STATUS=" · memory hook: NOT wired"
     err "settings.json wiring FAILED or is incomplete: the gates are NOT active."
     err "  Fix it by hand (.claude/settings.json) or re-run; do not assume the gates bite."
   fi
 
   CODEX_WIRED=0
-  python3 - "$PROJECT_DIR/.codex/hooks.json" <<'PY' && CODEX_WIRED=1 || CODEX_WIRED=0
+  DEVMODE_SESSION_OFF="$SESSION_OFF" python3 - "$PROJECT_DIR/.codex/hooks.json" <<'PY' && CODEX_WIRED=1 || CODEX_WIRED=0
 import json, os, sys
 path = sys.argv[1]
 cmd = 'python3 "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/codex_hooks.py"'
@@ -517,7 +542,8 @@ def ensure(event, matcher=None, **handler):
     if matcher is not None:
         group["matcher"] = matcher
     groups.append(group)
-ensure("SessionStart", "startup|resume|clear|compact", statusMessage="Loading devmode resume context", additionalContextLimit=5000)
+if os.environ.get("DEVMODE_SESSION_OFF") != "1":
+    ensure("SessionStart", "startup|resume|clear|compact", statusMessage="Loading devmode resume context", additionalContextLimit=5000)
 ensure("UserPromptSubmit")
 ensure("PreToolUse", "Bash|apply_patch|Edit|Write|MultiEdit|NotebookEdit", statusMessage="Checking devmode guardrails")
 ensure("PostToolUse", "Bash|apply_patch|Edit|Write|MultiEdit|NotebookEdit|Agent|spawn_agent")
@@ -525,7 +551,11 @@ ensure("Stop", None, timeout=30)
 json.dump(data, open(path, "w", encoding="utf-8"), indent=2)
 PY
   if [ "$CODEX_WIRED" -eq 1 ]; then
-    ok "wired Codex hooks in .codex/hooks.json: guardrails, verify/phase gates, SessionStart resume"
+    if [ "$SESSION_OFF" -eq 1 ]; then
+      ok "wired Codex hooks in .codex/hooks.json: guardrails, verify/phase gates (SessionStart resume off)"
+    else
+      ok "wired Codex hooks in .codex/hooks.json: guardrails, verify/phase gates, SessionStart resume"
+    fi
     warn "Codex users must trust this project and review/trust hooks with /hooks before project hooks run."
   else
     err "Codex hooks wiring FAILED: .codex/hooks.json is not active."
@@ -536,11 +566,7 @@ fi
 
 # 2d. Session memory hook: on by default, so every Claude session starts with the
 # memory primed, /devmode or not. Read-only and fail-open; the gates stay opt-in.
-# --no-session-hook is remembered in .devmode/session-hook, so updates keep it off.
-SESSION_HOOK_STATUS=""
-if [ "$NO_SESSION_HOOK" -eq 1 ]; then
-  printf 'off\n' > "$PROJECT_DIR/.devmode/session-hook"
-fi
+# (The --no-session-hook marker was written before step 2c.)
 if [ "$GUARDRAILS" -eq 0 ]; then
   step "Wiring the session memory hook"
   if grep -qx off "$PROJECT_DIR/.devmode/session-hook" 2>/dev/null; then

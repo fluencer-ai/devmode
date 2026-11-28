@@ -84,10 +84,9 @@ driven) at the bottom of the skill.
 
 ## Evidence is the review
 
-Ask for proof artifacts, not explanations: the screenshot of the fixed state,
-the short recording of the flow, the property test's counterexample, the model
-checker's report. A reviewer who can see the change working spends their
-attention on the design (`code-review`), not on re-deriving whether it runs.
+The skill's Evidence section is what makes the proof artifacts of
+`verification-before-completion` cheap: every run leaves them on disk, ready to
+hand to `code-review`.
 
 ## Keep it alive
 
